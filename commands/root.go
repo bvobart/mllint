@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -16,23 +15,19 @@ import (
 )
 
 var (
-	ErrNotAFolder = errors.New("not a folder")
+	ErrNotAFolder  = errors.New("not a folder")
+	ErrIssuesFound = errors.New("issues found")
 )
-
-func Execute() error {
-	startTime := time.Now()
-	err := NewRootCommand().Execute()
-	fmt.Println("took:", time.Since(startTime))
-	return err
-}
 
 func NewRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mllint [dir]",
-		Short: "Machine Learning project linter",
-		Long:  "mllint is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository.",
-		RunE:  lint,
-		Args:  cobra.MaximumNArgs(1),
+		Use:           "mllint [dir]",
+		Short:         "Machine Learning project linter",
+		Long:          "mllint is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository.",
+		RunE:          lint,
+		Args:          cobra.MaximumNArgs(1),
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 	return cmd
 }
@@ -43,7 +38,7 @@ func lint(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid argument: %w", err)
 	}
 
-	color.Green("--> Linting project: %s", color.HiWhiteString(projectdir))
+	color.Green("Linting project at  %s", color.HiWhiteString(projectdir))
 
 	allIssues := []api.Issue{}
 	linters := projectlinters.GetAllLinters()
@@ -56,10 +51,12 @@ func lint(cmd *cobra.Command, args []string) error {
 		allIssues = append(allIssues, issues...)
 	}
 
+	prettyPrintIssues(allIssues)
 	if len(allIssues) > 0 {
-		return fmt.Errorf("found %d issues", len(allIssues))
+		return fmt.Errorf("%w: %s", ErrIssuesFound, color.HiWhiteString("%d", len(allIssues)))
 	}
-	color.Green("--> Passed!")
+	color.Green("Passed!")
+	fmt.Println()
 	return nil
 }
 
@@ -79,4 +76,15 @@ func parseArgs(args []string) (string, error) {
 	}
 
 	return projectdir, nil
+}
+
+func prettyPrintIssues(issues []api.Issue) {
+	fmt.Println()
+	for i, issue := range issues {
+		fmt.Printf("%d:  %s  %s\n", i+1, issue.Severity.String(), issue.Message)
+	}
+
+	if len(issues) > 0 {
+		fmt.Println()
+	}
 }
