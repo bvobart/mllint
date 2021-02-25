@@ -3,16 +3,17 @@ package api
 import "github.com/fatih/color"
 
 type Issue struct {
-	Message  string
-	Severity Severity
+	LinterName string
+	Message    string
+	Severity   Severity
 }
 
 type Severity string
 
 const (
-	SeverityError   Severity = "Error"
+	SeverityError   Severity = "Error  "
 	SeverityWarning Severity = "Warning"
-	SeverityInfo    Severity = "Info"
+	SeverityInfo    Severity = "Info   "
 )
 
 func (s Severity) String() string {
@@ -28,6 +29,6 @@ func (s Severity) String() string {
 	}
 }
 
-func NewIssue(severity Severity, msg string) Issue {
-	return Issue{Severity: severity, Message: msg}
+func NewIssue(linterName string, severity Severity, msg string) Issue {
+	return Issue{LinterName: linterName, Severity: severity, Message: msg}
 }

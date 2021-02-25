@@ -81,7 +81,7 @@ func parseArgs(args []string) (string, error) {
 func prettyPrintIssues(issues []api.Issue) {
 	fmt.Println()
 	for i, issue := range issues {
-		fmt.Printf("%d:  %s  %s\n", i+1, issue.Severity.String(), issue.Message)
+		fmt.Printf("%d:  %s  %s  %s\n", i+1, issue.Severity.String(), issue.LinterName, issue.Message)
 	}
 
 	if len(issues) > 0 {
