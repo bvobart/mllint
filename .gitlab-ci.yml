@@ -23,7 +23,7 @@ build+test:
     - $GOPATH/bin/gocover-cobertura < coverage.txt > coverage.xml
   artifacts:
     reports:
-      cobertura: analyser/coverage.xml
+      cobertura: coverage.xml
   except:
     changes:
       - .gitignore
