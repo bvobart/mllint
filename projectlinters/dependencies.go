@@ -50,9 +50,9 @@ func (l UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error
 
 	// don't use multiple package managers, add Pip warning if necessary
 	types := types(depmanagers)
-	issues := []api.Issue{api.NewIssue(l.Name(), api.SeverityError, fmt.Sprintf(MsgUseSingleDependencyManager, types))}
+	issues := []api.Issue{api.NewIssue(l.Name()+"/single", api.SeverityError, fmt.Sprintf(MsgUseSingleDependencyManager, types))}
 	if contains(types, depsmgmt.TypePip) {
-		issues = append(issues, api.NewIssue(l.Name()+"/single", api.SeverityWarning, MsgDontUsePip))
+		issues = append(issues, api.NewIssue(l.Name()+"/no-pip", api.SeverityWarning, MsgDontUsePip))
 	}
 	return issues, nil
 }
