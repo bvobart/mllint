@@ -9,5 +9,6 @@ func GetAllLinters() []api.Linter {
 	return []api.Linter{
 		UseGit{},
 		GitNoBigFiles{Threshold: largeFileThreshold},
+		UseDependencyManager{},
 	}
 }
