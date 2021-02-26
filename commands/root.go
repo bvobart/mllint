@@ -17,8 +17,10 @@ import (
 
 var (
 	ErrNotAFolder  = errors.New("not a folder")
-	ErrIssuesFound = errors.New("issues found")
+	ErrIssuesFound = errors.New(color.RedString("issues found:"))
 )
+
+var redX = color.RedString("❌")
 
 func NewRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -54,9 +56,9 @@ func lint(cmd *cobra.Command, args []string) error {
 
 	prettyPrintIssues(allIssues)
 	if len(allIssues) > 0 {
-		return fmt.Errorf("%w: %s", ErrIssuesFound, color.HiWhiteString("%d", len(allIssues)))
+		return fmt.Errorf("%s %w %s", redX, ErrIssuesFound, color.HiWhiteString("%d", len(allIssues)))
 	}
-	color.Green("Passed!")
+	color.Green("✔️ Passed!")
 	fmt.Println()
 	return nil
 }
@@ -84,7 +86,7 @@ func prettyPrintIssues(issues []api.Issue) {
 	for i, issue := range issues {
 		rule := color.Set(color.Faint).Sprint(issue.Rule)
 		msg := prettyPrintMessage(issue.Message)
-		fmt.Printf("%d:  %s  %s  %s\n", i+1, issue.Severity.String(), rule, msg)
+		fmt.Printf("%d:  %s  %s  %s\n\n", i+1, issue.Severity.String(), rule, msg)
 	}
 
 	if len(issues) > 0 {
