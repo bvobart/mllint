@@ -1,15 +1,17 @@
 package depsmgmt
 
 const (
-	TypePoetry DependencyManagerType = "poetry"
-	TypePipenv DependencyManagerType = "pipenv"
-	TypePip    DependencyManagerType = "pip"
+	TypePoetry          DependencyManagerType = "Poetry"
+	TypePipenv          DependencyManagerType = "Pipenv"
+	TypeRequirementsTxt DependencyManagerType = "requirements.txt"
+	TypeSetupPy         DependencyManagerType = "setup.py"
 )
 
 var (
-	poetry DependencyManager = Poetry{}
-	pipenv DependencyManager = Pipenv{}
-	pip    DependencyManager = Pip{}
+	poetry          DependencyManager = Poetry{}
+	pipenv          DependencyManager = Pipenv{}
+	requirementstxt DependencyManager = RequirementsTxt{}
+	setuppy         DependencyManager = SetupPy{}
 )
 
 type DependencyManagerType string
@@ -30,8 +32,12 @@ func Detect(projectdir string) []DependencyManager {
 		managers = append(managers, pipenv)
 	}
 
-	if pip.Detect(projectdir) {
-		managers = append(managers, pip)
+	if requirementstxt.Detect(projectdir) {
+		managers = append(managers, requirementstxt)
+	}
+
+	if setuppy.Detect(projectdir) {
+		managers = append(managers, setuppy)
 	}
 
 	return managers

@@ -6,12 +6,22 @@ import (
 	"gitlab.com/bvobart/mllint/utils"
 )
 
-type Pip struct{}
+type RequirementsTxt struct{}
 
-func (p Pip) Detect(projectdir string) bool {
+func (p RequirementsTxt) Detect(projectdir string) bool {
 	return utils.FileExists(path.Join(projectdir, "requirements.txt"))
 }
 
-func (p Pip) Type() DependencyManagerType {
-	return TypePip
+func (p RequirementsTxt) Type() DependencyManagerType {
+	return TypeRequirementsTxt
+}
+
+type SetupPy struct{}
+
+func (p SetupPy) Detect(projectdir string) bool {
+	return utils.FileExists(path.Join(projectdir, "setup.py"))
+}
+
+func (p SetupPy) Type() DependencyManagerType {
+	return TypeSetupPy
 }

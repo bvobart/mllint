@@ -22,19 +22,33 @@ func TestUseDependencyManager(t *testing.T) {
 	tests := []test{
 		{Name: "Correct/Pipenv", Dir: "test-resources/dependencies/correct-pipenv", Expected: nil},
 		{Name: "Correct/Poetry", Dir: "test-resources/dependencies/correct-poetry", Expected: nil},
-		{Name: "Correct/Poetry", Dir: "test-resources/dependencies/correct-poetry", Expected: nil},
 		{Name: "Invalid/None", Dir: "test-resources/dependencies/none", Expected: []api.Issue{
 			api.NewIssue(linter.Name(), api.SeverityError, projectlinters.MsgUseDependencyManager),
 		}},
 		{Name: "Invalid/RequirementsTxt", Dir: "test-resources/dependencies/requirementstxt", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/no-pip", api.SeverityWarning, projectlinters.MsgDontUsePip),
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleNoRequirementsTxt, api.SeverityWarning, projectlinters.MsgNoRequirementsTxt),
 		}},
-		{Name: "Invalid/Multiple", Dir: "test-resources/dependencies/multiple", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/single", api.SeverityError, fmt.Sprintf(projectlinters.MsgUseSingleDependencyManager, []depsmgmt.DependencyManagerType{depsmgmt.TypePoetry, depsmgmt.TypePipenv})),
+		{Name: "Invalid/SetupPy", Dir: "test-resources/dependencies/setuppy", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleNoSetupPy, api.SeverityWarning, projectlinters.MsgNoSetupPy),
 		}},
-		{Name: "Invalid/MultipleWithPip", Dir: "test-resources/dependencies/multiple-pip", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/single", api.SeverityError, fmt.Sprintf(projectlinters.MsgUseSingleDependencyManager, []depsmgmt.DependencyManagerType{depsmgmt.TypePipenv, depsmgmt.TypePip})),
-			api.NewIssue(linter.Name()+"/no-pip", api.SeverityWarning, projectlinters.MsgDontUsePip),
+
+		{Name: "Invalid/Multiple/Pipenv+SetupPy", Dir: "test-resources/dependencies/multiple/pipenv+setuppy", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombinePipenvSetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePipenvSetupPy),
+		}},
+		{Name: "Invalid/Multiple/RequirementsTxt+SetupPy", Dir: "test-resources/dependencies/multiple/requirementstxt+setuppy", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtSetupPy, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtSetupPy),
+		}},
+		{Name: "Invalid/Multiple/Pipenv+RequirementsTxt", Dir: "test-resources/dependencies/multiple/poetry+requirementstxt", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
+		}},
+		{Name: "Invalid/Multiple/Poetry+RequirementsTxt", Dir: "test-resources/dependencies/multiple/poetry+requirementstxt", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
+		}},
+		{Name: "Invalid/Multiple/Poetry+SetupPy", Dir: "test-resources/dependencies/multiple/poetry+setuppy", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombinePoetrySetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePoetrySetupPy),
+		}},
+		{Name: "Invalid/Multiple/Poetry+Pipenv", Dir: "test-resources/dependencies/multiple/poetry+pipenv", Expected: []api.Issue{
+			api.NewIssue(linter.Name()+"/"+projectlinters.RuleSingle, api.SeverityWarning, fmt.Sprintf(projectlinters.MsgUseSingleDependencyManager, []depsmgmt.DependencyManagerType{depsmgmt.TypePoetry, depsmgmt.TypePipenv})),
 		}},
 	}
 
