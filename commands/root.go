@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -81,10 +82,16 @@ func parseArgs(args []string) (string, error) {
 func prettyPrintIssues(issues []api.Issue) {
 	fmt.Println()
 	for i, issue := range issues {
-		fmt.Printf("%d:  %s  %s  %s\n", i+1, issue.Severity.String(), issue.LinterName, issue.Message)
+		rule := color.Set(color.Faint).Sprint(issue.Rule)
+		msg := prettyPrintMessage(issue.Message)
+		fmt.Printf("%d:  %s  %s  %s\n", i+1, issue.Severity.String(), rule, msg)
 	}
 
 	if len(issues) > 0 {
 		fmt.Println()
 	}
+}
+
+func prettyPrintMessage(msg string) string {
+	return strings.ReplaceAll(msg, ">", color.HiYellowString(">"))
 }

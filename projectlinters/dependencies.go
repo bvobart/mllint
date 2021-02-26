@@ -11,46 +11,46 @@ import (
 
 const (
 	MsgUseDependencyManager = `Your project does not seem to be keeping track of its dependencies correctly,
-	as no Pipfile, pyproject.toml or requirements.txt was found.
-	The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
-	> The recommendation is to use Pipenv if your project is an application
-	> and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
+		as no Pipfile, pyproject.toml or requirements.txt was found.
+		The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
+		>  The recommendation is to use Pipenv if your project is an application
+		>  and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
 
-	MsgNoRequirementsTxt = `Your project uses a  requirements.txt  file to manage dependencies.
-	Using Pip in such a raw fashion can be hard to maintain, especially if you used 'pip freeze' to generate it.
-	The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
-	> The recommendation is to use Pipenv if your project is an application
-	> and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
 	// TODO: detect when `pip freeze` was used for generating requirements.txt
+	MsgNoRequirementsTxt = `Your project uses a  requirements.txt  file to manage dependencies.
+		Using Pip in such a raw fashion can be hard to maintain, especially if you used 'pip freeze' to generate it.
+		The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
+		>  The recommendation is to use Pipenv if your project is an application
+		>  and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
 
 	MsgNoSetupPy = `Your project uses a  setup.py  file to manage dependencies.
-  While using a setup.py is more maintainable than a requirements.txt, it may still be difficult to maintain.
-	> The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
-	> Since you are already using a setup.py, you'll likely want to use Poetry as it is able to build and publish Python packages.`
+  	While using a setup.py is more maintainable than a requirements.txt, it may still be difficult to maintain.
+		>  The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
+		>  Since you are already using a setup.py, you'll likely want to use Poetry as it is able to build and publish Python packages.`
 
 	MsgUseSingleDependencyManager = `Your project appears to be using multiple dependency managers:  %s
-	Using multiple dependency managers creates confusion regarding which to install and in what order,
-	as well as which to place a new dependency in, or update an existing dependency in.
-	> It is recommended to use only one package manager, either Pipenv or Poetry.`
+		Using multiple dependency managers creates confusion regarding which to install and in what order,
+		as well as which to place a new dependency in, or update an existing dependency in.
+		>  It is recommended to use only one package manager, either Pipenv or Poetry.`
 
 	MsgDontCombinePipenvSetupPy = `Your project appears to be using Pipenv to manage dependencies, but also has a  setup.py  file.
-	Pipenv does support building and installing packages from a  setup.py  with 'pipenv install -e .',
-	but it might be worth switching to Poetry. Poetry is very similar to Pipenv, but also
-	supports building and publishing Python packages, which I presume is what you are using  setup.py  for now.`
+		Pipenv does support building and installing packages from a  setup.py  with 'pipenv install -e .',
+		but it might be worth switching to Poetry. Poetry is very similar to Pipenv, but also
+		supports building and publishing Python packages, which I presume is what you are using  setup.py  for now.`
 
 	MsgDontCombineRequirementsTxtSetupPy = `Your project appears to be using both a  requirements.txt  and a  setup.py  file to manage dependencies.
-	The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
-	> The recommendation is to use Pipenv if your project is an application
-	> and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
+		The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
+		>  The recommendation is to use Pipenv if your project is an application
+		>  and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
 
 	MsgDontCombineRequirementsTxtPoetryPipenv = `Your project appears to be using both a  requirements.txt  as well as Poetry or Pipenv to manage dependencies.
-	This is redundant and creates confusion regarding which to install and in what order if both need to be installed.
-	It will also be confusing in which of the two a new dependency should be tracked, or an existing one updated.
-	> Migrate the rest of your dependencies to Pipenv / Poetry and remove the requirements.txt file.`
+		This is redundant and creates confusion regarding which to install and in what order if both need to be installed.
+		It will also be confusing in which of the two a new dependency should be tracked, or an existing one updated.
+		>  Migrate the rest of your dependencies to Pipenv / Poetry and remove the requirements.txt file.`
 
 	MsgDontCombinePoetrySetupPy = `Your project appears to be using both Poetry and a  setup.py  file to manage dependencies and build into a Python package.
-	This is redundant and creates confusion regarding how to build your package, edit its details, or where to place the code for building the package.
-	> Migrate any remaining logic from the setup.py file into Poetry and remove the setup.py`
+		This is redundant and creates confusion regarding how to build your package, edit its details, or where to place the code for building the package.
+		>  Migrate any remaining logic from the setup.py file into Poetry and remove the setup.py`
 )
 
 const (

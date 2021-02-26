@@ -2,10 +2,14 @@ package api
 
 import "github.com/fatih/color"
 
+// Issue represents an issue with the project that a linter has reported.
 type Issue struct {
-	LinterName string
-	Message    string
-	Severity   Severity
+	// The full name of the linter rule that recognised this issue
+	Rule string
+	// The message to the user about the issue and what they can do to fix it.
+	Message string
+	// The severity of the message: [Error, Warning, Info]
+	Severity Severity
 }
 
 type Severity string
@@ -29,6 +33,6 @@ func (s Severity) String() string {
 	}
 }
 
-func NewIssue(linterName string, severity Severity, msg string) Issue {
-	return Issue{LinterName: linterName, Severity: severity, Message: msg}
+func NewIssue(rule string, severity Severity, msg string) Issue {
+	return Issue{Rule: rule, Severity: severity, Message: msg}
 }
