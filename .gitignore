@@ -1,5 +1,9 @@
 # Build folder
-/build/mllint/mllint-*
+/build/bin
+/build/build
+/build/dist
+
+/build/mllint/mllint-exe
 
 # Python runtime caches / packaging cache
 __pycache__

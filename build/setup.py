@@ -1,11 +1,65 @@
+import os
 import platform
 import setuptools
+import shutil
 
-# TODO: based on platform, include the right platform-specific mllint binary as package_data
-# TODO: ensure that building this creates platform-specific wheels
+def get_mllint_exe() -> str:
+  """
+  Get the platform-specific filename of the compiled mllint executable,
+  or raise an exception if the platform is unsupported.
+  """
+  system, _, _, _, machine, _ = platform.uname()
 
+  # Windows
+  if system == 'Windows' and machine == 'i386':
+    return os.path.join('bin', 'mllint-windows-386')
+
+  elif system == 'Windows' and machine == 'x86_64':
+    return os.path.join('bin', 'mllint-windows-amd64')
+
+  # MacOS
+  elif system == 'Darwin' and machine == 'x86_64':
+    return os.path.join('bin', 'mllint-darwin-amd64')
+
+  # Linux
+  elif system == 'Linux' and machine == 'i386':
+    return os.path.join('bin', 'mllint-linux-386')
+
+  elif system == 'Linux' and machine == 'x86_64':
+    return os.path.join('bin', 'mllint-linux-amd64')
+
+  # Other OSes are not supported right now, might be able to support more if the Go compiler supports it and people want it.
+  else:
+    print()
+    print('Sorry, your OS is not supported. mllint currently supports:')
+    print('- Linux (32 or 64-bit x86)')
+    print('- Windows (32 or 64-bit x86)')
+    print('- MacOS (only 64-bit x86)')
+    print()
+    print(f'Your OS: {system} ({machine})')
+    print()
+    raise Exception(f'unsupported OS: {system} ({machine})')
+
+class PlatformSpecificDistribution(setuptools.Distribution):
+  """Distribution which always forces a platform-specific package"""
+  def has_ext_modules(self):
+      return True
+
+# Include ReadMe as long description
 with open("../ReadMe.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
+
+# Copy mllint-exe into the package.
+exe_path = get_mllint_exe()
+if not os.path.exists(exe_path):
+  print()
+  print(f'Expected to find a compiled mllint binary at {exe_path} but it did not exist!')
+  print("> If you're compiling mllint from source, run 'make build-all' before building this package, or just run 'make package'")
+  print("> If you're installing mllint using 'pip install', then it seems pip downloaded the source package, instead of a platform-specific wheel.")
+  print()
+  raise Exception(f'Expected to find a compiled mllint binary at {exe_path} but it did not exist!')
+
+shutil.copy2(exe_path, os.path.join('mllint', 'mllint-exe'))
 
 setuptools.setup(
   name="mllint",
@@ -44,4 +98,5 @@ setuptools.setup(
   package_data={'mllint': ['mllint-exe']},
   python_requires=">=3.6",
   scripts=['mllint/mllint'],
+  distclass=PlatformSpecificDistribution,
 )
