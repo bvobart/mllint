@@ -18,8 +18,8 @@ build+test:
   extends: .go-cache
   script:
     - go get github.com/t-yuki/gocover-cobertura
-    - go build -o mllint .
-    - go test -v -cover -coverprofile=coverage.txt ./...
+    - make build
+    - make test-coverage
     - $GOPATH/bin/gocover-cobertura < coverage.txt > coverage.xml
   artifacts:
     reports:
