@@ -66,9 +66,7 @@ jobs:
           path: ./build/bin
 
       - name: Prepare packaging
-        run: |
-          make pre-package
-          ls -al ./build/bin
+        run: make pre-package
 
       - name: Build Pip wheels
         uses: joerick/cibuildwheel@v1.10.0
@@ -96,9 +94,7 @@ jobs:
           path: ./build/bin
 
       - name: Prepare packaging
-        run: |
-          make pre-package
-          ls -al ./build/bin
+        run: make pre-package
 
       - name: Build Pip package source distribution
         working-directory: ./build
