@@ -14,7 +14,7 @@ def get_mllint_exe() -> str:
   if system == 'Windows' and machine == 'i386':
     return os.path.join('bin', 'mllint-windows-386')
 
-  elif system == 'Windows' and machine == 'x86_64':
+  elif system == 'Windows' and machine == 'AMD64':
     return os.path.join('bin', 'mllint-windows-amd64')
 
   # MacOS

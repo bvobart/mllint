@@ -50,10 +50,9 @@ jobs:
     needs: build_golang
     runs-on: ${{ matrix.os }}
     strategy:
-      # fail-fast: false # TODO: enable this when pipeline is stable.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # python: [36, 37, 38, 39]
 
     steps:
       - uses: actions/setup-python@v2
