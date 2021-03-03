@@ -40,6 +40,26 @@ def get_mllint_exe() -> str:
     print()
     raise Exception(f'unsupported OS: {system} ({machine})')
 
+def patch_distutils():
+  """
+  distutils.util.change_root() has a bug on Windows where it fails with a string index out of range error
+  when the pathname is empty. To work around this, we need to monkey-patch change_root,
+  which is what this function does.
+  """
+  import distutils.util
+  original_change_root = distutils.util.change_root
+
+  def change_root(new_root, pathname):
+    if os.name == 'nt':
+      (_, path) = os.path.splitdrive(pathname)
+      if path and path[0] == '\\':
+        path = path[1:]
+      return os.path.join(new_root, path)
+    
+    return original_change_root(new_root, path)
+  
+  distutils.util.change_root = change_root
+
 class PlatformSpecificDistribution(setuptools.Distribution):
   """Distribution which always forces a platform-specific package"""
   def has_ext_modules(self):
@@ -60,6 +80,8 @@ if not os.path.exists(exe_path):
   raise Exception(f'Expected to find a compiled mllint binary at {exe_path} but it did not exist!')
 
 shutil.copy2(exe_path, os.path.join('mllint', 'mllint-exe'))
+
+patch_distutils()
 
 setuptools.setup(
   name="mllint",
