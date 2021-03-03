@@ -63,9 +63,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: mllint-binaries
+          path: ./build/bin
 
       - name: Prepare packaging
-        run: make pre-package
+        run: |
+          make pre-package
+          ls -al ./build/bin
 
       - name: Build Pip wheels
         uses: joerick/cibuildwheel@v1.10.0
@@ -90,9 +93,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: mllint-binaries
+          path: ./build/bin
 
       - name: Prepare packaging
-        run: make pre-package
+        run: |
+          make pre-package
+          ls -al ./build/bin
 
       - name: Build Pip package source distribution
         working-directory: ./build
