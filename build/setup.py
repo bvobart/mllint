@@ -11,7 +11,7 @@ def get_mllint_exe() -> str:
   system, _, _, _, machine, _ = platform.uname()
 
   # Windows
-  if system == 'Windows' and machine == 'i386':
+  if system == 'Windows' and (machine == 'i386' or machine == 'i686'):
     return os.path.join('bin', 'mllint-windows-386')
 
   elif system == 'Windows' and machine == 'AMD64':
@@ -22,7 +22,7 @@ def get_mllint_exe() -> str:
     return os.path.join('bin', 'mllint-darwin-amd64')
 
   # Linux
-  elif system == 'Linux' and machine == 'i386':
+  elif system == 'Linux' and (machine == 'i386' or machine == 'i686'):
     return os.path.join('bin', 'mllint-linux-386')
 
   elif system == 'Linux' and machine == 'x86_64':
