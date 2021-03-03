@@ -50,13 +50,14 @@ def patch_distutils():
   original_change_root = distutils.util.change_root
 
   def change_root(new_root, pathname):
-    if os.name == 'nt':
-      (_, path) = os.path.splitdrive(pathname)
-      if path and path[0] == '\\':
-        path = path[1:]
-      return os.path.join(new_root, path)
+    if os.name != 'nt': # if not Windows, just use the original change_root
+      return original_change_root(new_root, pathname)
     
-    return original_change_root(new_root, path)
+    # else, if we're on Windows:
+    (_, path) = os.path.splitdrive(pathname)
+    if path and path[0] == '\\':
+      path = path[1:]
+    return os.path.join(new_root, path)
   
   distutils.util.change_root = change_root
 
