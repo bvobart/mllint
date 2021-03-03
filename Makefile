@@ -16,7 +16,7 @@ build-all:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/bin/mllint-linux-amd64 main.go
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o build/bin/mllint-windows-amd64 main.go
 	@echo
-	@echo "> Done!"
+	@echo "> Done compiling!"
 	@echo
 
 run:
@@ -28,21 +28,30 @@ test:
 test-coverage:
 	CGO_ENABLED=0 go test -v -cover -coverprofile=coverage.txt ./...
 
-# TODO: make a command to create an mllint Python package.
-# - Build executable
-# - Create platform-specific Python wheels that include the binary.
-# - Publish to PyPI
-package: build-all package-pip publish
+# Builds the Golang executables and creates a Pip package out of it.
+# This is mainly meant for locally testing whether the generated package is any good.
+# The real packages for distribution on PyPI are made on the CI by cibuildwheel, see '.github/workflows/build-publish.yml'
+package: build-all pre-package package-pip
+
+# Cleans the build folder and copies ReadMe into build dir. Used on CI.
+pre-package:
+	@echo "> Cleaning build folder"
+	rm -r build/build build/dist build/mllint.egg-info || true
+	@echo
+	@echo "> Copying ReadMe.md"
+	cp ReadMe.md build/
+	@echo
 
 package-pip:
 	@echo "> Creating 'mllint' Python package..."
-	cd build
-	rm -r build dist mllint.egg-info/
-	python -m build
+	pip install build
+	cd build && python -m build
+	@echo
+	@echo "> Done! Find your package and wheels in  ./build/dist "
 	@echo
 
 publish:
-	@echo "> Publishing Python package wheels..."
+	@echo "> Publishing Python package..."
 	@echo "Not yet implemented"
 	@echo
 

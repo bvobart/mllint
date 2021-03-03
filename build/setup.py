@@ -46,7 +46,7 @@ class PlatformSpecificDistribution(setuptools.Distribution):
       return True
 
 # Include ReadMe as long description
-with open("../ReadMe.md", "r", encoding="utf-8") as fh:
+with open("ReadMe.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
 
 # Copy mllint-exe into the package.
