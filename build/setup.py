@@ -86,7 +86,7 @@ patch_distutils()
 
 setuptools.setup(
   name="mllint",
-  version="0.1.0",
+  version="0.1.1",
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
