@@ -3,6 +3,8 @@ import platform
 import setuptools
 import shutil
 
+#-------------------------------------------------------------------------------
+
 def get_mllint_exe() -> str:
   """
   Get the platform-specific filename of the compiled mllint executable,
@@ -40,14 +42,22 @@ def get_mllint_exe() -> str:
     print()
     raise Exception(f'unsupported OS: {system} ({machine})')
 
+#-------------------------------------------------------------------------------
+
 def patch_distutils():
   """
   distutils.util.change_root() has a bug on Windows where it fails with a string index out of range error
   when the pathname is empty. To work around this, we need to monkey-patch change_root,
   which is what this function does.
+
+  Also, distutils.command.install checks for truthy ext_modules instead of calling has_ext_modules()
+  on the distribution that we're passing into setup() to force platform specific builds.
+  That causes the mllint-exe to be put in `purelib` data, which audit_wheel later complains about.
+  So we monkey-patch that too to force installing to `platlib` data.
   """
   import distutils.util
   original_change_root = distutils.util.change_root
+  from distutils.command.install import install
 
   def change_root(new_root, pathname):
     if os.name != 'nt': # if not Windows, just use the original change_root
@@ -59,16 +69,25 @@ def patch_distutils():
       path = path[1:]
     return os.path.join(new_root, path)
   
+  # From: https://github.com/bigartm/bigartm/issues/840#issuecomment-342825690
+  class InstallPlatlib(install):
+    def finalize_options(self):
+      install.finalize_options(self)
+      if self.distribution.has_ext_modules():
+        self.install_lib = self.install_platlib
+  
   distutils.util.change_root = change_root
+  distutils.command.install.install = InstallPlatlib
+
 
 class PlatformSpecificDistribution(setuptools.Distribution):
   """Distribution which always forces a platform-specific package"""
   def has_ext_modules(self):
       return True
 
-# Include ReadMe as long description
-with open("ReadMe.md", "r", encoding="utf-8") as fh:
-  long_description = fh.read()
+patch_distutils()
+
+#-------------------------------------------------------------------------------
 
 # Copy mllint-exe into the package.
 exe_path = get_mllint_exe()
@@ -82,11 +101,13 @@ if not os.path.exists(exe_path):
 
 shutil.copy2(exe_path, os.path.join('mllint', 'mllint-exe'))
 
-patch_distutils()
+# Include ReadMe as long description
+with open("ReadMe.md", "r", encoding="utf-8") as fh:
+  long_description = fh.read()
 
 setuptools.setup(
   name="mllint",
-  version="0.1.1",
+  version="0.1.2",
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
@@ -120,6 +141,10 @@ setuptools.setup(
   packages=['mllint'],
   package_data={'mllint': ['mllint-exe']},
   python_requires=">=3.6",
-  scripts=['mllint/mllint'],
+  entry_points={
+    'console_scripts': [
+      'mllint=mllint.cli:main'
+    ],
+  },
   distclass=PlatformSpecificDistribution,
 )
