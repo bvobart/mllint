@@ -24,7 +24,7 @@ const (
 		>  and to use Poetry if it is a library or otherwise needs to be built into a Python package.`
 
 	MsgNoSetupPy = `Your project uses a  setup.py  file to manage dependencies.
-  	While using a setup.py is more maintainable than a requirements.txt, it may still be difficult to maintain.
+		While using a setup.py is more maintainable than a requirements.txt, it may still be difficult to maintain.
 		>  The Python Packaging User Guide recommends using either Pipenv or Poetry as dependency managers.
 		>  Since you are already using a setup.py, you'll likely want to use Poetry as it is able to build and publish Python packages.`
 
