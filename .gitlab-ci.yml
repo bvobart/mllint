@@ -11,7 +11,7 @@ stages:
     paths:
       - .go/pkg/mod/
 
-# Build and test mllint
+# Build and test mllint. Runs only on non-protected branches (i.e. everything that's not 'main')
 build+test:
   stage: build
   image: golang:1.15-buster
@@ -25,6 +25,5 @@ build+test:
     reports:
       cobertura: coverage.xml
   except:
-    changes:
-      - .gitignore
-      - ReadMe.md
+    refs:
+      - main # protected branch, CI will run on GitHub Actions.
