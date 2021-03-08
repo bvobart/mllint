@@ -1,18 +1,39 @@
 package api
 
-import "github.com/fatih/color"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/fatih/color"
+)
+
+func NewIssue(linter string, rule string, severity Severity, msg string) Issue {
+	return Issue{Linter: linter, Rule: rule, Severity: severity, Message: msg}
+}
 
 // Issue represents an issue with the project that a linter has reported.
 type Issue struct {
 	// The name of the linter that recognised this issue
 	Linter string
+
 	// The name of the linter rule that recognised this issue (not including the linter name).
 	// Leave this field empty if the linter only enforces one rule, or if this is the main rule of this linter.
 	Rule string
-	// The message to the user about the issue and what they can do to fix it.
+
+	// The (often multi-line) message to the user about the issue and what they can do to fix it.
+	// Any '>' characters that this message contains, will be converted into a HiYellow coloured '>' character,
+	// so use that for providing actionable recommendations.
 	Message string
+
 	// The severity of the message: [Error, Warning, Info]
 	Severity Severity
+}
+
+func (issue Issue) String() string {
+	rule := color.Set(color.Faint).Sprint(issue.Rule)
+	color.Unset()
+	msg := strings.ReplaceAll(issue.Message, ">", color.HiYellowString(">"))
+	return fmt.Sprintf("%s  %s  %s", issue.Severity.String(), rule, msg)
 }
 
 type Severity string
@@ -34,8 +55,4 @@ func (s Severity) String() string {
 	default:
 		return string(s)
 	}
-}
-
-func NewIssue(linter string, rule string, severity Severity, msg string) Issue {
-	return Issue{Linter: linter, Rule: rule, Severity: severity, Message: msg}
 }
