@@ -24,9 +24,13 @@ func (l UseGit) Name() string {
 	return "use-git"
 }
 
+func (l UseGit) Rules() []string {
+	return []string{""}
+}
+
 func (l UseGit) LintProject(projectdir string) ([]api.Issue, error) {
 	if !git.Detect(projectdir) {
-		return []api.Issue{api.NewIssue(l.Name(), api.SeverityError, MsgUseGit)}, nil
+		return []api.Issue{api.NewIssue(l.Name(), "", api.SeverityError, MsgUseGit)}, nil
 	}
 	return nil, nil
 }
@@ -38,6 +42,10 @@ type GitNoBigFiles struct {
 
 func (l GitNoBigFiles) Name() string {
 	return "git-no-big-files"
+}
+
+func (l GitNoBigFiles) Rules() []string {
+	return []string{""}
 }
 
 func (l GitNoBigFiles) LintProject(projectdir string) ([]api.Issue, error) {
@@ -58,7 +66,7 @@ func (l GitNoBigFiles) LintProject(projectdir string) ([]api.Issue, error) {
 	issues := []api.Issue{}
 	for _, file := range largeFiles {
 		msg := fmt.Sprintf(MsgNoBigFiles, file.Path, humanize.Bytes(file.Size), humanize.Bytes(largeFileThreshold))
-		issues = append(issues, api.NewIssue(l.Name(), api.SeverityWarning, msg))
+		issues = append(issues, api.NewIssue(l.Name(), "", api.SeverityWarning, msg))
 	}
 
 	return issues, nil

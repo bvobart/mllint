@@ -4,7 +4,10 @@ import "github.com/fatih/color"
 
 // Issue represents an issue with the project that a linter has reported.
 type Issue struct {
-	// The full name of the linter rule that recognised this issue
+	// The name of the linter that recognised this issue
+	Linter string
+	// The name of the linter rule that recognised this issue (not including the linter name).
+	// Leave this field empty if the linter only enforces one rule, or if this is the main rule of this linter.
 	Rule string
 	// The message to the user about the issue and what they can do to fix it.
 	Message string
@@ -33,6 +36,6 @@ func (s Severity) String() string {
 	}
 }
 
-func NewIssue(rule string, severity Severity, msg string) Issue {
-	return Issue{Rule: rule, Severity: severity, Message: msg}
+func NewIssue(linter string, rule string, severity Severity, msg string) Issue {
+	return Issue{Linter: linter, Rule: rule, Severity: severity, Message: msg}
 }
