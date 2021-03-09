@@ -42,6 +42,9 @@ func lint(cmd *cobra.Command, args []string) error {
 
 	allIssues := []api.Issue{}
 	linters := projectlinters.GetAllLinters()
+
+	// TODO: filter all linters that are not enabled
+
 	for _, linter := range linters {
 		issues, err := linter.LintProject(projectdir)
 		if err != nil {
@@ -50,6 +53,8 @@ func lint(cmd *cobra.Command, args []string) error {
 
 		allIssues = append(allIssues, issues...)
 	}
+
+	// TODO: filter all issues of rules that were not enabled.
 
 	prettyPrintIssues(allIssues)
 	if len(allIssues) > 0 {
