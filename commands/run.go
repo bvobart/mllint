@@ -33,7 +33,7 @@ func NewRunCommand() *cobra.Command {
 }
 
 func lint(cmd *cobra.Command, args []string) error {
-	projectdir, err := parseArgs(args)
+	projectdir, err := parseProjectDir(args)
 	if err != nil {
 		return fmt.Errorf("invalid argument: %w", err)
 	}
@@ -65,7 +65,7 @@ func lint(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func parseArgs(args []string) (string, error) {
+func parseProjectDir(args []string) (string, error) {
 	currentdir, err := os.Getwd()
 	if err != nil {
 		return "", err

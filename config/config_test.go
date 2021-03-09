@@ -21,7 +21,12 @@ func TestParse(t *testing.T) {
 	}{
 		{Name: "EmptyFilename", Filename: "", Expected: nil, ErrIs: os.ErrNotExist},
 		{Name: "FileDoesNotExist", Filename: "does-not-exist.yml", Expected: nil, ErrIs: os.ErrNotExist},
-		{Name: "EmptyFile", Filename: "test-resources/empty.config.yml", Expected: &config.Config{}, Err: nil},
+		{
+			Name:     "EmptyFile",
+			Filename: "test-resources/empty.config.yml",
+			Expected: &config.Config{},
+			Err:      nil,
+		},
 		{
 			Name:     "RulesDisabled",
 			Filename: "test-resources/rules.config.yml",

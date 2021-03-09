@@ -20,6 +20,10 @@ type RuleConfig struct {
 	Disabled []string `yaml:"disabled"`
 }
 
+func Default() *Config {
+	return &Config{Rules: RuleConfig{Disabled: []string{}}}
+}
+
 // ParseFromDir parses the `.mllint.yml` file in the given project directory.
 func ParseFromDir(projectdir string) (*Config, error) {
 	return Parse(path.Join(projectdir, ".mllint.yml"))
