@@ -1,4 +1,4 @@
-build:
+build-local:
 	CGO_ENABLED=0 go build -o build/bin/mllint main.go
 
 build-all:

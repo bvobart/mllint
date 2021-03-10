@@ -1,14 +1,11 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/projectlinters"
 )
 
@@ -54,14 +51,11 @@ func listEnabled(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("invalid argument: %w", err)
 	}
+	shush(func() { color.Green("Using project at  %s", color.HiWhiteString(projectdir)) })
 
-	conf, err := config.ParseFromDir(projectdir)
+	conf, err := getConfig(projectdir)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			color.Red("Error: %s", err.Error())
-		}
-		color.Yellow("Using default configuration")
-		conf = config.Default()
+		return err
 	}
 
 	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
