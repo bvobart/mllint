@@ -8,6 +8,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"gitlab.com/bvobart/mllint/config"
+	"gitlab.com/bvobart/mllint/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -24,6 +25,17 @@ Specifying --quiet or -q will cause this command to purely print the current or 
 }
 
 func runConfig(_ *cobra.Command, args []string) error {
+	// catch `mllint config default`
+	if len(args) == 1 && args[0] == "default" && !utils.FolderExists("default") {
+		shush(func() { color.Green("Using default configuration\n\n") })
+		output, err := yaml.Marshal(config.Default())
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(output))
+		return nil
+	}
+
 	projectdir, err := parseProjectDir(args)
 	if err != nil {
 		return err
