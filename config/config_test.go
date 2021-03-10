@@ -24,14 +24,18 @@ func TestParse(t *testing.T) {
 		{
 			Name:     "EmptyFile",
 			Filename: "test-resources/empty.config.yml",
-			Expected: &config.Config{},
+			Expected: config.Default(),
 			Err:      nil,
 		},
 		{
 			Name:     "RulesDisabled",
 			Filename: "test-resources/rules.config.yml",
-			Expected: &config.Config{Rules: config.RuleConfig{Disabled: []string{"use-git", "another-rule"}}},
-			Err:      nil,
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.Rules.Disabled = []string{"use-git", "another-rule"}
+				return c
+			}(),
+			Err: nil,
 		},
 		{
 			Name:     "YamlError",
