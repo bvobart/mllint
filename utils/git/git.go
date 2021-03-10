@@ -38,7 +38,7 @@ func FindLargeFiles(dir string, threshold uint64) ([]FileSize, error) {
 	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 5 {
-			return nil, fmt.Errorf("unexpected output from git ls-tree: %s", line)
+			return nil, fmt.Errorf("unexpected output from git ls-tree: %s", string(output))
 		}
 
 		sizeStr := fields[3]

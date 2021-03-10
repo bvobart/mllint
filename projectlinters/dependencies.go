@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gitlab.com/bvobart/mllint/api"
+	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/utils/depsmgmt"
 )
 
@@ -79,15 +80,19 @@ const (
 // - Project is not using any dependency management.
 type UseDependencyManager struct{}
 
-func (l UseDependencyManager) Name() string {
+func (l *UseDependencyManager) Name() string {
 	return "use-dependency-manager"
 }
 
-func (l UseDependencyManager) Rules() []string {
+func (l *UseDependencyManager) Rules() []string {
 	return []string{RuleSingle, RuleNoRequirementsTxt, RuleNoSetupPy, RuleDontCombinePipenvSetupPy, RuleDontCombinePoetrySetupPy, RuleDontCombineRequirementsTxtPoetryPipenv, RuleDontCombineRequirementsTxtSetupPy}
 }
 
-func (l UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error) {
+func (l *UseDependencyManager) Configure(_ *config.Config) error {
+	return nil
+}
+
+func (l *UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error) {
 	// detect dependency managers
 	depmanagers := depsmgmt.Detect(projectdir)
 	if len(depmanagers) == 0 {

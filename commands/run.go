@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"gitlab.com/bvobart/mllint/api"
+	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/projectlinters"
 	"gitlab.com/bvobart/mllint/utils"
 )
@@ -39,11 +40,16 @@ func lint(cmd *cobra.Command, args []string) error {
 	}
 
 	color.Green("Linting project at  %s", color.HiWhiteString(projectdir))
+	conf, err := config.ParseFromDir(projectdir)
+	if err != nil {
+		return err
+	}
 
 	allIssues := []api.Issue{}
-	linters := projectlinters.GetAllLinters()
-
-	// TODO: filter all linters that are not enabled
+	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
+	if err != nil {
+		return err
+	}
 
 	for _, linter := range linters {
 		issues, err := linter.LintProject(projectdir)

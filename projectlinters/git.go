@@ -5,6 +5,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"gitlab.com/bvobart/mllint/api"
+	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/utils/git"
 )
 
@@ -20,15 +21,19 @@ const (
 // UseGit is a linting rule that checks whether the project is using Git.
 type UseGit struct{}
 
-func (l UseGit) Name() string {
+func (l *UseGit) Name() string {
 	return "use-git"
 }
 
-func (l UseGit) Rules() []string {
+func (l *UseGit) Rules() []string {
 	return []string{""}
 }
 
-func (l UseGit) LintProject(projectdir string) ([]api.Issue, error) {
+func (l *UseGit) Configure(_ *config.Config) error {
+	return nil
+}
+
+func (l *UseGit) LintProject(projectdir string) ([]api.Issue, error) {
 	if !git.Detect(projectdir) {
 		return []api.Issue{api.NewIssue(l.Name(), "", api.SeverityError, MsgUseGit)}, nil
 	}
@@ -40,15 +45,20 @@ type GitNoBigFiles struct {
 	Threshold uint64
 }
 
-func (l GitNoBigFiles) Name() string {
+func (l *GitNoBigFiles) Name() string {
 	return "git-no-big-files"
 }
 
-func (l GitNoBigFiles) Rules() []string {
+func (l *GitNoBigFiles) Rules() []string {
 	return []string{""}
 }
 
-func (l GitNoBigFiles) LintProject(projectdir string) ([]api.Issue, error) {
+func (l *GitNoBigFiles) Configure(conf *config.Config) error {
+	l.Threshold = conf.Git.MaxFileSize
+	return nil
+}
+
+func (l *GitNoBigFiles) LintProject(projectdir string) ([]api.Issue, error) {
 	// if this project does not use Git, this linting rule will just crash, so we skip it
 	if !git.Detect(projectdir) {
 		return nil, nil
@@ -65,7 +75,7 @@ func (l GitNoBigFiles) LintProject(projectdir string) ([]api.Issue, error) {
 
 	issues := []api.Issue{}
 	for _, file := range largeFiles {
-		msg := fmt.Sprintf(MsgNoBigFiles, file.Path, humanize.Bytes(file.Size), humanize.Bytes(largeFileThreshold))
+		msg := fmt.Sprintf(MsgNoBigFiles, file.Path, humanize.Bytes(file.Size), humanize.Bytes(l.Threshold))
 		issues = append(issues, api.NewIssue(l.Name(), "", api.SeverityWarning, msg))
 	}
 

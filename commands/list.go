@@ -64,7 +64,10 @@ func listEnabled(_ *cobra.Command, args []string) error {
 		conf = config.Default()
 	}
 
-	linters := projectlinters.FilterEnabled(projectlinters.GetAllLinters(), conf.Rules)
+	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
+	if err != nil {
+		return err
+	}
 	prettyPrintRules(linters)
 	return nil
 }
