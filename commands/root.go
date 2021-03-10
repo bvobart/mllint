@@ -35,7 +35,7 @@ func NewRootCommand() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	quiet = cmd.PersistentFlags().BoolP("quiet", "q", false, "Set this to true to minimise what is being printed to the bare minimum.")
+	quiet = cmd.PersistentFlags().BoolP("quiet", "q", false, "Set this to true to minimise printing to the bare minimum.")
 	cmd.AddCommand(NewRunCommand())
 	cmd.AddCommand(NewListCommand())
 	cmd.AddCommand(NewConfigCommand())

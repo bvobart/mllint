@@ -107,7 +107,7 @@ with open("ReadMe.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name="mllint",
-  version="0.1.3",
+  version="0.2.0",
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
