@@ -42,10 +42,16 @@ func lint(cmd *cobra.Command, args []string) error {
 	color.Green("Linting project at  %s", color.HiWhiteString(projectdir))
 	conf, err := config.ParseFromDir(projectdir)
 	if err != nil {
-		return err
+		if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		color.Yellow("No .mllint.yml found in project folder, using default configuration")
+		conf = config.Default()
+	} else {
+		color.Green("Using configuration from project")
 	}
 
-	allIssues := []api.Issue{}
+	allIssues := api.IssueList{}
 	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
 	if err != nil {
 		return err
@@ -60,10 +66,10 @@ func lint(cmd *cobra.Command, args []string) error {
 		allIssues = append(allIssues, issues...)
 	}
 
-	// TODO: filter all issues of rules that were not enabled.
+	enabledIssues := allIssues.FilterEnabled(conf.Rules)
+	prettyPrintIssues(enabledIssues)
 
-	prettyPrintIssues(allIssues)
-	if len(allIssues) > 0 {
+	if len(enabledIssues) > 0 {
 		return fmt.Errorf("%s %w %s", color.RedString("❌"), ErrIssuesFound, color.HiWhiteString("%d", len(allIssues)))
 	}
 	color.Green("✔️ Passed!")

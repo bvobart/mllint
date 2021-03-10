@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"gitlab.com/bvobart/mllint/config"
 )
 
 func NewIssue(linter string, rule string, severity Severity, msg string) Issue {
@@ -29,11 +30,18 @@ type Issue struct {
 	Severity Severity
 }
 
+func (issue Issue) FullRule() string {
+	if issue.Rule == "" {
+		return issue.Linter
+	}
+	return issue.Linter + "/" + issue.Rule
+}
+
 func (issue Issue) String() string {
-	rule := color.Set(color.Faint).Sprint(issue.Rule)
+	fullrule := color.Set(color.Faint).Sprint(issue.FullRule())
 	color.Unset()
 	msg := strings.ReplaceAll(issue.Message, ">", color.HiYellowString(">"))
-	return fmt.Sprintf("%s  %s  %s", issue.Severity.String(), rule, msg)
+	return fmt.Sprintf("%s  %s  %s", issue.Severity.String(), fullrule, msg)
 }
 
 type Severity string
@@ -55,4 +63,23 @@ func (s Severity) String() string {
 	default:
 		return string(s)
 	}
+}
+
+type IssueList []Issue
+
+func (list IssueList) FilterEnabled(conf config.RuleConfig) IssueList {
+	enabled := IssueList{}
+
+	disabledRules := map[string]interface{}{}
+	for _, rule := range conf.Disabled {
+		disabledRules[rule] = struct{}{}
+	}
+
+	for _, issue := range list {
+		if _, isDisabled := disabledRules[issue.FullRule()]; !isDisabled {
+			enabled = append(enabled, issue)
+		}
+	}
+
+	return enabled
 }
