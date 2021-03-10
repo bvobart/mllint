@@ -23,32 +23,32 @@ func TestUseDependencyManager(t *testing.T) {
 		{Name: "Correct/Pipenv", Dir: "test-resources/dependencies/correct-pipenv", Expected: nil},
 		{Name: "Correct/Poetry", Dir: "test-resources/dependencies/correct-poetry", Expected: nil},
 		{Name: "Invalid/None", Dir: "test-resources/dependencies/none", Expected: []api.Issue{
-			api.NewIssue(linter.Name(), api.SeverityError, projectlinters.MsgUseDependencyManager),
+			api.NewIssue(linter.Name(), "", api.SeverityError, projectlinters.MsgUseDependencyManager),
 		}},
 		{Name: "Invalid/RequirementsTxt", Dir: "test-resources/dependencies/requirementstxt", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleNoRequirementsTxt, api.SeverityWarning, projectlinters.MsgNoRequirementsTxt),
+			api.NewIssue(linter.Name(), projectlinters.RuleNoRequirementsTxt, api.SeverityWarning, projectlinters.MsgNoRequirementsTxt),
 		}},
 		{Name: "Invalid/SetupPy", Dir: "test-resources/dependencies/setuppy", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleNoSetupPy, api.SeverityWarning, projectlinters.MsgNoSetupPy),
+			api.NewIssue(linter.Name(), projectlinters.RuleNoSetupPy, api.SeverityWarning, projectlinters.MsgNoSetupPy),
 		}},
 
 		{Name: "Invalid/Multiple/Pipenv+SetupPy", Dir: "test-resources/dependencies/multiple/pipenv+setuppy", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombinePipenvSetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePipenvSetupPy),
+			api.NewIssue(linter.Name(), projectlinters.RuleDontCombinePipenvSetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePipenvSetupPy),
 		}},
 		{Name: "Invalid/Multiple/RequirementsTxt+SetupPy", Dir: "test-resources/dependencies/multiple/requirementstxt+setuppy", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtSetupPy, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtSetupPy),
+			api.NewIssue(linter.Name(), projectlinters.RuleDontCombineRequirementsTxtSetupPy, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtSetupPy),
 		}},
 		{Name: "Invalid/Multiple/Pipenv+RequirementsTxt", Dir: "test-resources/dependencies/multiple/poetry+requirementstxt", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
+			api.NewIssue(linter.Name(), projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
 		}},
 		{Name: "Invalid/Multiple/Poetry+RequirementsTxt", Dir: "test-resources/dependencies/multiple/poetry+requirementstxt", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
+			api.NewIssue(linter.Name(), projectlinters.RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, projectlinters.MsgDontCombineRequirementsTxtPoetryPipenv),
 		}},
 		{Name: "Invalid/Multiple/Poetry+SetupPy", Dir: "test-resources/dependencies/multiple/poetry+setuppy", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleDontCombinePoetrySetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePoetrySetupPy),
+			api.NewIssue(linter.Name(), projectlinters.RuleDontCombinePoetrySetupPy, api.SeverityInfo, projectlinters.MsgDontCombinePoetrySetupPy),
 		}},
 		{Name: "Invalid/Multiple/Poetry+Pipenv", Dir: "test-resources/dependencies/multiple/poetry+pipenv", Expected: []api.Issue{
-			api.NewIssue(linter.Name()+"/"+projectlinters.RuleSingle, api.SeverityWarning, fmt.Sprintf(projectlinters.MsgUseSingleDependencyManager, []depsmgmt.DependencyManagerType{depsmgmt.TypePoetry, depsmgmt.TypePipenv})),
+			api.NewIssue(linter.Name(), projectlinters.RuleSingle, api.SeverityWarning, fmt.Sprintf(projectlinters.MsgUseSingleDependencyManager, []depsmgmt.DependencyManagerType{depsmgmt.TypePoetry, depsmgmt.TypePipenv})),
 		}},
 	}
 

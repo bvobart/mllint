@@ -11,20 +11,19 @@ stages:
     paths:
       - .go/pkg/mod/
 
-# Build and test mllint
+# Build and test mllint. Runs only on non-protected branches (i.e. everything that's not 'main')
 build+test:
   stage: build
   image: golang:1.15-buster
   extends: .go-cache
   script:
     - go get github.com/t-yuki/gocover-cobertura
-    - make build
+    - make build-local
     - make test-coverage
     - $GOPATH/bin/gocover-cobertura < coverage.txt > coverage.xml
   artifacts:
     reports:
       cobertura: coverage.xml
   except:
-    changes:
-      - .gitignore
-      - ReadMe.md
+    refs:
+      - main # protected branch, CI will run on GitHub Actions.

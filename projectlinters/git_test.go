@@ -19,7 +19,7 @@ func TestUseGit(t *testing.T) {
 	dir = os.TempDir()
 	issues, err = linter.LintProject(dir)
 	require.NoError(t, err)
-	require.Equal(t, []api.Issue{api.NewIssue(linter.Name(), api.SeverityError, projectlinters.MsgUseGit)}, issues)
+	require.Equal(t, []api.Issue{api.NewIssue(linter.Name(), "", api.SeverityError, projectlinters.MsgUseGit)}, issues)
 }
 
 func TestNoBigFiles(t *testing.T) {

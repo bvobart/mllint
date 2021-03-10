@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gitlab.com/bvobart/mllint/api"
+	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/utils/depsmgmt"
 )
 
@@ -79,15 +80,23 @@ const (
 // - Project is not using any dependency management.
 type UseDependencyManager struct{}
 
-func (l UseDependencyManager) Name() string {
+func (l *UseDependencyManager) Name() string {
 	return "use-dependency-manager"
 }
 
-func (l UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error) {
+func (l *UseDependencyManager) Rules() []string {
+	return []string{RuleSingle, RuleNoRequirementsTxt, RuleNoSetupPy, RuleDontCombinePipenvSetupPy, RuleDontCombinePoetrySetupPy, RuleDontCombineRequirementsTxtPoetryPipenv, RuleDontCombineRequirementsTxtSetupPy}
+}
+
+func (l *UseDependencyManager) Configure(_ *config.Config) error {
+	return nil
+}
+
+func (l *UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error) {
 	// detect dependency managers
 	depmanagers := depsmgmt.Detect(projectdir)
 	if len(depmanagers) == 0 {
-		return []api.Issue{api.NewIssue(l.Name(), api.SeverityError, MsgUseDependencyManager)}, nil
+		return []api.Issue{api.NewIssue(l.Name(), "", api.SeverityError, MsgUseDependencyManager)}, nil
 	}
 
 	// if using only one dependency manager
@@ -100,10 +109,10 @@ func (l UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error
 			return nil, nil
 		// if using Pip requirements.txt, give warning
 		case depsmgmt.TypeRequirementsTxt:
-			return []api.Issue{api.NewIssue(l.Name()+"/"+RuleNoRequirementsTxt, api.SeverityWarning, MsgNoRequirementsTxt)}, nil
+			return []api.Issue{api.NewIssue(l.Name(), RuleNoRequirementsTxt, api.SeverityWarning, MsgNoRequirementsTxt)}, nil
 		// if using Pip setup.py, give warning
 		case depsmgmt.TypeSetupPy:
-			return []api.Issue{api.NewIssue(l.Name()+"/"+RuleNoSetupPy, api.SeverityWarning, MsgNoSetupPy)}, nil
+			return []api.Issue{api.NewIssue(l.Name(), RuleNoSetupPy, api.SeverityWarning, MsgNoSetupPy)}, nil
 		default:
 			return nil, fmt.Errorf("new dependency manager %s was added, but %s linter was not updated", depmanagers[0].Type(), l.Name())
 		}
@@ -115,27 +124,27 @@ func (l UseDependencyManager) LintProject(projectdir string) ([]api.Issue, error
 
 	// don't combine Pipenv and setup.py, consider using Poetry instead, info
 	if containsAll(types, depsmgmt.TypePipenv, depsmgmt.TypeSetupPy) {
-		issues = append(issues, api.NewIssue(l.Name()+"/"+RuleDontCombinePipenvSetupPy, api.SeverityInfo, MsgDontCombinePipenvSetupPy))
+		issues = append(issues, api.NewIssue(l.Name(), RuleDontCombinePipenvSetupPy, api.SeverityInfo, MsgDontCombinePipenvSetupPy))
 	}
 
 	// don't combine requirements.txt and setup.py, use Poetry, warning
 	if containsAll(types, depsmgmt.TypeRequirementsTxt, depsmgmt.TypeSetupPy) {
-		issues = append(issues, api.NewIssue(l.Name()+"/"+RuleDontCombineRequirementsTxtSetupPy, api.SeverityWarning, MsgDontCombineRequirementsTxtSetupPy))
+		issues = append(issues, api.NewIssue(l.Name(), RuleDontCombineRequirementsTxtSetupPy, api.SeverityWarning, MsgDontCombineRequirementsTxtSetupPy))
 	}
 
 	// don't combine requirements.txt with Pipenv or Poetry, simply use Pipenv or Poetry, warning
 	if contains(types, depsmgmt.TypeRequirementsTxt) && (contains(types, depsmgmt.TypePipenv) || contains(types, depsmgmt.TypePoetry)) {
-		issues = append(issues, api.NewIssue(l.Name()+"/"+RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, MsgDontCombineRequirementsTxtPoetryPipenv))
+		issues = append(issues, api.NewIssue(l.Name(), RuleDontCombineRequirementsTxtPoetryPipenv, api.SeverityWarning, MsgDontCombineRequirementsTxtPoetryPipenv))
 	}
 
 	// don't combine Poetry and setup.py, it's redundant, just use setup.py, info
 	if containsAll(types, depsmgmt.TypePoetry, depsmgmt.TypeSetupPy) {
-		issues = append(issues, api.NewIssue(l.Name()+"/"+RuleDontCombinePoetrySetupPy, api.SeverityInfo, MsgDontCombinePoetrySetupPy))
+		issues = append(issues, api.NewIssue(l.Name(), RuleDontCombinePoetrySetupPy, api.SeverityInfo, MsgDontCombinePoetrySetupPy))
 	}
 
 	// add a generic warning if no more specific warning was emitted
 	if len(issues) == 0 {
-		issues = append(issues, api.NewIssue(l.Name()+"/"+RuleSingle, api.SeverityWarning, fmt.Sprintf(MsgUseSingleDependencyManager, types)))
+		issues = append(issues, api.NewIssue(l.Name(), RuleSingle, api.SeverityWarning, fmt.Sprintf(MsgUseSingleDependencyManager, types)))
 	}
 
 	return issues, nil
