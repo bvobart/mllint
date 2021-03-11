@@ -78,6 +78,9 @@ const (
 //
 // Finally, an error is emitted in the following situations:
 // - Project is not using any dependency management.
+//
+// This linter relates to the best practice of using proper dependency management,
+// as found to be a major obstacle towards reproducibility of ML projects in https://arxiv.org/abs/2103.04146
 type UseDependencyManager struct{}
 
 func (l *UseDependencyManager) Name() string {

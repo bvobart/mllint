@@ -19,6 +19,8 @@ const (
 )
 
 // UseGit is a linting rule that checks whether the project is using Git.
+// Relates to best practice 'Use Versioning for Data, Model, Configurations and Training Script'
+// See https://se-ml.github.io/best_practices/02-data_version/
 type UseGit struct{}
 
 func (l *UseGit) Name() string {
@@ -41,6 +43,8 @@ func (l *UseGit) LintProject(projectdir string) ([]api.Issue, error) {
 }
 
 // GitNoBigFiles is a linting rule that will check whether there are no big files in the Git repository.
+// Relates to best practices of Git usage.
+// See https://docs.github.com/en/github/managing-large-files/what-is-my-disk-quota
 type GitNoBigFiles struct {
 	Threshold uint64
 }
