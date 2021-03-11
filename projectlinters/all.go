@@ -9,5 +9,6 @@ func GetAllLinters() api.LinterList {
 		&UseGit{},
 		&GitNoBigFiles{},
 		&UseDependencyManager{},
+		&UseDVC{},
 	}
 }

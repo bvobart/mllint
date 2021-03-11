@@ -12,10 +12,10 @@ import (
 const (
 	MsgUseGit = `Your project is not using Git. Version control software such as Git allows you to track changes to your code,
 		easily return to an earlier version, and help to collaborate with other people in developing your project.
-		> Start using Git.`
+		> Start using Git by running 'git init'`
 	MsgNoBigFiles = `File '%s' is being tracked by Git, but it is %s, which is too large (> %s) to comfortably use in a Git repository. 
 		> Consider removing this file from the Git index 
-		> and versioning it using Git LFS, Data Version Control (DVC), or another tool for versioning large files with Git.`
+		> and versioning it using Data Version Control (DVC), Git LFS, or another tool for versioning large files with Git.`
 )
 
 // UseGit is a linting rule that checks whether the project is using Git.
