@@ -1,6 +1,7 @@
 package git_test
 
 import (
+	"io/ioutil"
 	"math"
 	"os"
 	"testing"
@@ -18,6 +19,19 @@ func TestDetect(t *testing.T) {
 
 	dir = os.TempDir()
 	require.False(t, git.Detect(dir))
+}
+
+func TestIsTracking(t *testing.T) {
+	dir := "."
+	require.True(t, git.IsTracking(dir, "git_test.go"))
+	require.True(t, git.IsTracking(dir, "git*.go"))
+	require.False(t, git.IsTracking(dir, "non-existant-file"))
+
+	file, err := ioutil.TempFile(dir, "git.is-tracking.test-resource.*.txt")
+	require.NoError(t, err)
+	require.False(t, git.IsTracking(dir, file.Name()))
+
+	require.NoError(t, os.Remove(file.Name())) // cleanup
 }
 
 func TestFindLargeFiles(t *testing.T) {
