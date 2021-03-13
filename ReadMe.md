@@ -1,12 +1,25 @@
 # `mllint` — Linter for Machine Learning projects
 
+<p align="center">
+  <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/bvobart/mllint/Build%20mllint%20and%20upload%20to%20PyPI">
+  <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/bvobart/mllint">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Linux%20%7C%20MacOS%20%7C%20Windows-informational">
+</p>
+<p align="center">
+  <a href="https://pypi.org/project/mllint/"><img alt="PyPI" src="https://img.shields.io/pypi/v/mllint"></a>
+  <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Status" src="https://img.shields.io/pypi/status/mllint"></a>
+  <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Downloads - Daily" src="https://img.shields.io/pypi/dd/mllint"></a>
+  <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Downloads - Monthly" src="https://img.shields.io/pypi/dm/mllint"></a>
+  <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mllint"></a>
+</p>
+
 `mllint` is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository. It measures the project's adherence to ML best practices, as collected and deduced from se4ml.github.io and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml).
 
-TODO: write overview of linting rules
+TODO: write overview of linting rules or implement `mllint describe <rule>`
 
 ## Getting Started
 
-`mllint` is published to PyPI, so it can be installed using `pip`:
+`mllint` works on Linux, MacOS and Windows, and is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
 ```sh
 pip install mllint
 ```

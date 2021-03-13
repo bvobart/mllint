@@ -18,6 +18,16 @@ func Detect(dir string) bool {
 	return err == nil
 }
 
+// IsTracking checks whether the Git repository in the given folder is tracking the files specified
+// by the given pattern. This can be a literal folder or file name, but can also be a pattern
+// containing wildcards, e.g. 'foo.*'
+func IsTracking(dir string, pattern string) bool {
+	cmd := exec.Command("git", "ls-files", "--error-unmatch", pattern)
+	cmd.Dir = dir
+	_, err := cmd.Output()
+	return err == nil
+}
+
 // FileSize is the return type for FindLargeFiles. Contains the path to the file and its filesize.
 type FileSize struct {
 	Path string
