@@ -107,7 +107,7 @@ with open("ReadMe.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name="mllint",
-  version="0.2.0",
+  version="0.3.0",
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
@@ -119,7 +119,7 @@ setuptools.setup(
       "Bug Tracker": "https://gitlab.com/bvobart/mllint/-/issues",
   },
   classifiers=[
-      "Development Status :: 2 - Pre-Alpha",
+      "Development Status :: 3 - Alpha",
       "Environment :: Console",
       "Intended Audience :: Developers",
       "Intended Audience :: Information Technology",
@@ -128,9 +128,14 @@ setuptools.setup(
       "Natural Language :: English",
       "Operating System :: MacOS",
       "Operating System :: Microsoft :: Windows",
-      "Operating System :: POSIX :: BSD :: FreeBSD",
       "Operating System :: POSIX :: Linux",
       "Programming Language :: Python :: 3",
+      "Programming Language :: Python :: 3 :: Only",
+      "Programming Language :: Python :: 3.6",
+      "Programming Language :: Python :: 3.7",
+      "Programming Language :: Python :: 3.8",
+      "Programming Language :: Python :: 3.9",
+      "Programming Language :: Python :: 3.10",
       "Topic :: Scientific/Engineering :: Artificial Intelligence",
       "Topic :: Scientific/Engineering :: Information Analysis",
       "Topic :: Software Development :: Build Tools",
