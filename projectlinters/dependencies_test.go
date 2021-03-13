@@ -10,7 +10,7 @@ import (
 	"gitlab.com/bvobart/mllint/utils/depsmgmt"
 )
 
-type test struct {
+type linterTest struct {
 	Name     string
 	Dir      string
 	Expected []api.Issue
@@ -19,7 +19,7 @@ type test struct {
 func TestUseDependencyManager(t *testing.T) {
 	linter := projectlinters.UseDependencyManager{}
 
-	tests := []test{
+	tests := []linterTest{
 		{Name: "Correct/Pipenv", Dir: "test-resources/dependencies/correct-pipenv", Expected: nil},
 		{Name: "Correct/Poetry", Dir: "test-resources/dependencies/correct-poetry", Expected: nil},
 		{Name: "Invalid/None", Dir: "test-resources/dependencies/none", Expected: []api.Issue{
