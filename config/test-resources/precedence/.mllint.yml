@@ -1,0 +1,4 @@
+rules:
+  disabled:
+    - rule1
+    - rule2

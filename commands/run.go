@@ -39,10 +39,11 @@ func lint(cmd *cobra.Command, args []string) error {
 	}
 
 	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(projectdir)) })
-	conf, err := getConfig(projectdir)
+	conf, _, err := getConfig(projectdir)
 	if err != nil {
 		return err
 	}
+	shush(func() { fmt.Print("---\n\n") })
 
 	allIssues := api.IssueList{}
 	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
