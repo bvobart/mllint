@@ -1,23 +1,30 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
-	"os"
 
 	"github.com/fatih/color"
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
+
 	"gitlab.com/bvobart/mllint/config"
 	"gitlab.com/bvobart/mllint/utils"
-	"gopkg.in/yaml.v3"
 )
 
 func NewConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config [dir]",
 		Short: "Prints the current mllint configuration.",
-		Long: `Prints the mllint configuration as parsed from the '.mllint.yml' file in the root of the given (or current) directory, or the default configuration if none was found.
+		Long: fmt.Sprintf(`Prints the mllint configuration as parsed from  a configuration file in the root of the given (or current) directory. 
+
+This can be either:
+	- %s  Uses the YAML syntax as output by this command.
+	- %s  Uses the TOML syntax configuration in the [tool.mllint] section. Has the same structure as the YAML
+	- the default configuration if none of the files above was found.
+
 Specifying --quiet or -q will cause this command to purely print the current or default config, allowing for e.g. 'mllint config -q > .mllint.yml'`,
+			color.YellowString(string(config.YAMLFile)), color.YellowString(string(config.TOMLFile))),
 		RunE: runConfig,
 		Args: cobra.MaximumNArgs(1),
 	}
@@ -27,13 +34,7 @@ Specifying --quiet or -q will cause this command to purely print the current or 
 func runConfig(_ *cobra.Command, args []string) error {
 	// catch `mllint config default`
 	if len(args) == 1 && args[0] == "default" && !utils.FolderExists("default") {
-		shush(func() { color.Green("Using default configuration\n\n") })
-		output, err := yaml.Marshal(config.Default())
-		if err != nil {
-			return err
-		}
-		fmt.Println(string(output))
-		return nil
+		return runConfigDefault()
 	}
 
 	projectdir, err := parseProjectDir(args)
@@ -42,30 +43,52 @@ func runConfig(_ *cobra.Command, args []string) error {
 	}
 	shush(func() { color.Green("Using project at  %s", color.HiWhiteString(projectdir)) })
 
-	conf, err := getConfig(projectdir)
+	conf, _, err := getConfig(projectdir)
 	if err != nil {
 		return err
 	}
+	shush(func() { fmt.Print("---\n\n") })
 
+	// print the config
 	output, err := yaml.Marshal(conf)
 	if err != nil {
 		return err
 	}
 	fmt.Println(string(output))
+
+	shush(func() { fmt.Println("---") })
 	return nil
 }
 
-func getConfig(projectdir string) (*config.Config, error) {
-	conf, err := config.ParseFromDir(projectdir)
-	if err == nil {
-		shush(func() { color.Green("Using configuration from project\n") })
-		return conf, nil
+func runConfigDefault() error {
+	shush(func() { color.Green("Using default configuration\n\n") })
+
+	output, err := yaml.Marshal(config.Default())
+	if err != nil {
+		return err
 	}
 
-	if errors.Is(err, os.ErrNotExist) {
-		shush(func() { color.Yellow("No .mllint.yml found in project folder, using default configuration\n\n") })
-		return config.Default(), nil
+	fmt.Println(string(output))
+	return nil
+}
+
+// Parses the config from the project dir and prints a nice message about where it came from.
+func getConfig(projectdir string) (*config.Config, config.FileType, error) {
+	conf, typee, err := config.ParseFromDir(projectdir)
+	if err != nil {
+		return conf, typee, err
 	}
 
-	return nil, err
+	isDefault := cmp.Equal(conf, config.Default())
+	if typee == config.YAMLFile {
+		shush(func() { color.Green("Using configuration from %s (default: %v)\n", config.YAMLFile, isDefault) })
+	} else if typee == config.TOMLFile {
+		shush(func() { color.Green("Using configuration from %s (default: %v)\n", config.TOMLFile, isDefault) })
+	} else {
+		shush(func() {
+			color.Yellow("No .mllint.yml or pyproject.toml found in project folder, using default configuration\n")
+		})
+	}
+
+	return conf, typee, err
 }

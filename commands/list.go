@@ -53,16 +53,19 @@ func listEnabled(_ *cobra.Command, args []string) error {
 	}
 	shush(func() { color.Green("Using project at  %s", color.HiWhiteString(projectdir)) })
 
-	conf, err := getConfig(projectdir)
+	conf, _, err := getConfig(projectdir)
 	if err != nil {
 		return err
 	}
+	shush(func() { fmt.Print("---\n\n") })
 
 	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
 	if err != nil {
 		return err
 	}
 	prettyPrintRules(linters)
+
+	shush(func() { fmt.Println("\n---") })
 	return nil
 }
 
