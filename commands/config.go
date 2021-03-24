@@ -16,12 +16,12 @@ func NewConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config [dir]",
 		Short: "Prints the current mllint configuration.",
-		Long: fmt.Sprintf(`Prints the mllint configuration as parsed from  a configuration file in the root of the given (or current) directory. 
+		Long: fmt.Sprintf(`Prints the mllint configuration as parsed from a configuration file in the root of the given (or current) directory. 
 
 This can be either:
-	- %s  Uses the YAML syntax as output by this command.
-	- %s  Uses the TOML syntax configuration in the [tool.mllint] section. Has the same structure as the YAML
-	- the default configuration if none of the files above was found.
+  - %s  Uses the YAML syntax as output by this command.
+  - %s  Uses the TOML syntax configuration in the [tool.mllint] section. Has the same structure as the YAML
+  - the default configuration if none of the files above was found.
 
 Specifying --quiet or -q will cause this command to purely print the current or default config, allowing for e.g. 'mllint config -q > .mllint.yml'`,
 			color.YellowString(string(config.YAMLFile)), color.YellowString(string(config.TOMLFile))),

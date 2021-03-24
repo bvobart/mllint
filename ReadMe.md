@@ -17,12 +17,20 @@
 
 TODO: write overview of linting rules or implement `mllint describe <rule>`
 
+---
+
 ## Getting Started
+
+---
+
+#### Installing `mllint`
 
 `mllint` works on Linux, MacOS and Windows, and is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
 ```sh
 pip install mllint
 ```
+
+#### Running `mllint`
 
 To run `mllint` in its default configuration, use one of the following commands:
 ```sh
@@ -32,6 +40,8 @@ mllint
 # Run `mllint` on the project in projects/my-ml-project
 mllint projects/my-ml-project
 ```
+
+#### Linters and rules
 
 To list all available or all enabled linting rules, use one of the following commands:
 ```sh
@@ -45,11 +55,18 @@ mllint list enabled
 mllint list enabled projects/my-ml-project
 ```
 
+---
+
 ## Configuration
+
+---
+
+#### YAML
 
 `mllint` can be configured using a `.mllint.yml` file that should be placed at the root of the project directory. This is a YAML file in which you can disable specific rules / linters, as well as configure specific settings for various linters.
 
 An example `.mllint.yml` looks as follows:
+
 ```yaml
 rules:
   disabled:
@@ -58,7 +75,19 @@ rules:
     # - use-dependency-manager # this would disable the 'use-dependency-manager' linter and all of its rules entirely.
 ```
 
-Here are some commands related to configuration:
+#### TOML
+
+Alternatively, if no `.mllint.yml` exists, `mllint` can be configured from the `pyproject.toml` file in the root of the project. This should be done in the `[tool.mllint]` section. TOML has a slightly different syntax, but the structure is otherwise the same as the config in the YAML file. The example below is identical to the YAML example above.
+
+```toml
+[tool.mllint]
+[tool.mllint.rules]
+disabled = ["use-git", "use-dependency-manager/single"]
+```
+
+---
+
+Here are some useful commands related to configuration:
 ```sh
 # Print the configuration of the project in the current folder
 mllint config
