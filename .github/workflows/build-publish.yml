@@ -26,8 +26,6 @@ jobs:
           # In order:
           # * Go module download cache
           # * Go build cache (Linux)
-          # * Go build cache (Mac)
-          # * Go build cache (Windows)
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
@@ -47,6 +45,7 @@ jobs:
           path: ./build/bin/*
 
   build_wheels:
+    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
     name: Build Pip wheels on ${{ matrix.os }}
     needs: build_golang
     runs-on: ${{ matrix.os }}
@@ -80,6 +79,7 @@ jobs:
           path: ./build/wheelhouse/*.whl
 
   build_sdist:
+    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
     name: Build Pip package source distribution
     needs: build_golang
     runs-on: ubuntu-latest
@@ -106,6 +106,8 @@ jobs:
           path: ./build/dist/*.tar.gz
 
   upload_pypi:
+    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
+    name: Upload Pip packages to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:
