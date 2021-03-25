@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gitlab.com/bvobart/mllint/utils/git"
+	"github.com/bvobart/mllint/utils/git"
 )
 
 func TestDetect(t *testing.T) {

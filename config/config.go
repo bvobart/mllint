@@ -8,7 +8,7 @@ import (
 	"path"
 
 	"github.com/pelletier/go-toml"
-	"gitlab.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils"
 	"gopkg.in/yaml.v3"
 )
 

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"gitlab.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/config"
 )
 
 const yamlRulesDisabled = `

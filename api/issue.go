@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"gitlab.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/config"
 )
 
 func NewIssue(linter string, rule string, severity Severity, msg string) Issue {

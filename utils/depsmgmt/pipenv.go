@@ -3,7 +3,7 @@ package depsmgmt
 import (
 	"path"
 
-	"gitlab.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils"
 )
 
 type Pipenv struct{}

@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	"gitlab.com/bvobart/mllint/config"
-	"gitlab.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/utils"
 )
 
 func NewConfigCommand() *cobra.Command {

@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/projectlinters"
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/projectlinters"
 )
 
 func TestUseGit(t *testing.T) {

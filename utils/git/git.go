@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils"
 )
 
 // Detect detects whether this directory is inside a Git repository

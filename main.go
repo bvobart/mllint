@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"gitlab.com/bvobart/mllint/commands"
+	"github.com/bvobart/mllint/commands"
 )
 
 func main() {

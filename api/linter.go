@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"gitlab.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/config"
 )
 
 // Linter is the main interface for any linter usable by `mllint`.

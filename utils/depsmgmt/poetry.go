@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
 
-	"gitlab.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils"
 )
 
 type Poetry struct{}

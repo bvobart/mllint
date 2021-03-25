@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/projectlinters"
-	"gitlab.com/bvobart/mllint/utils/dvc"
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/projectlinters"
+	"github.com/bvobart/mllint/utils/dvc"
 )
 
 func TestUseDVC(t *testing.T) {
