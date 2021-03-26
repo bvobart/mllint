@@ -1,0 +1,45 @@
+name: Build mllint
+
+# Build on every branch push and pull request change.
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+
+jobs:
+
+  build_golang:
+    name: Build and test mllint's Golang source code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ^1.16
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          # In order:
+          # * Go module download cache
+          # * Go build cache (Linux)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ubuntu-latest-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ubuntu-latest-go-
+
+      - name: Run mllint tests
+        run: ./test.sh
+
+      - name: Build mllint with GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: build --snapshot --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload code coverage to Codecov.io
+        uses: codecov/codecov-action@v1

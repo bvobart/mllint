@@ -1,24 +1,19 @@
-name: Build mllint and upload to PyPI
+name: Publish mllint and upload to PyPI
 
-# Build on every branch push, tag push, and pull request change:
-on: [push, pull_request]
-# Alternatively, to publish when a (published) GitHub Release is created, use the following:
-# on:
-#   push:
-#   pull_request:
-#   release:
-#     types:
-#       - published
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
 
   build_golang:
-    name: Build and test mllint's Golang source code on Ubuntu
+    name: Build and test mllint's Golang source code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: ^1.15
+          go-version: ^1.16
       - uses: actions/checkout@v2
 
       - uses: actions/cache@v2
@@ -34,18 +29,22 @@ jobs:
             ubuntu-latest-go-
 
       - name: Run mllint tests
-        run: make test
+        run: ./test.sh
 
-      - name: Build mllint executables
-        run: make build-all
+      - name: Build mllint & release to GitHub
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v2
         with:
           name: mllint-binaries
-          path: ./build/bin/*
+          path: ./dist
 
   build_wheels:
-    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
     name: Build Pip wheels on ${{ matrix.os }}
     needs: build_golang
     runs-on: ${{ matrix.os }}
@@ -64,8 +63,10 @@ jobs:
           name: mllint-binaries
           path: ./build/bin
 
-      - name: Prepare packaging
-        run: make pre-package
+      - name: Clean & Prepare packaging
+        run: |
+          rm -r build/build build/dist build/mllint.egg-info || true
+          cp ReadMe.md build/
 
       - name: Build Pip wheels
         uses: joerick/cibuildwheel@v1.10.0
@@ -93,8 +94,10 @@ jobs:
           name: mllint-binaries
           path: ./build/bin
 
-      - name: Prepare packaging
-        run: make pre-package
+      - name: Clean & Prepare packaging
+        run: |
+          rm -r build/build build/dist build/mllint.egg-info || true
+          cp ReadMe.md build/
 
       - name: Build Pip package source distribution
         working-directory: ./build
@@ -106,7 +109,6 @@ jobs:
           path: ./build/dist/*.tar.gz
 
   upload_pypi:
-    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
     name: Upload Pip packages to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
