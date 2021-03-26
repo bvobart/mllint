@@ -3,11 +3,11 @@ package projectlinters
 import (
 	"path"
 
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/config"
-	"gitlab.com/bvobart/mllint/utils"
-	"gitlab.com/bvobart/mllint/utils/dvc"
-	"gitlab.com/bvobart/mllint/utils/git"
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils/dvc"
+	"github.com/bvobart/mllint/utils/git"
 )
 
 const (

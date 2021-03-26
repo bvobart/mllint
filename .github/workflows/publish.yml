@@ -1,24 +1,19 @@
-name: Build mllint and upload to PyPI
+name: Publish mllint and upload to PyPI
 
-# Build on every branch push, tag push, and pull request change:
-on: [push, pull_request]
-# Alternatively, to publish when a (published) GitHub Release is created, use the following:
-# on:
-#   push:
-#   pull_request:
-#   release:
-#     types:
-#       - published
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
 
   build_golang:
-    name: Build and test mllint's Golang source code on Ubuntu
+    name: Build and test mllint's Golang source code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: ^1.15
+          go-version: ^1.16
       - uses: actions/checkout@v2
 
       - uses: actions/cache@v2
@@ -26,8 +21,6 @@ jobs:
           # In order:
           # * Go module download cache
           # * Go build cache (Linux)
-          # * Go build cache (Mac)
-          # * Go build cache (Windows)
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
@@ -36,15 +29,20 @@ jobs:
             ubuntu-latest-go-
 
       - name: Run mllint tests
-        run: make test
+        run: ./test.sh
 
-      - name: Build mllint executables
-        run: make build-all
+      - name: Build mllint & release to GitHub
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v2
         with:
           name: mllint-binaries
-          path: ./build/bin/*
+          path: ./dist
 
   build_wheels:
     name: Build Pip wheels on ${{ matrix.os }}
@@ -59,14 +57,19 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: actions/checkout@v2
 
+      - name: Set MLLINT_VERSION
+        run: echo "MLLINT_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
       - name: Download mllint executables from previous job
         uses: actions/download-artifact@v2
         with:
           name: mllint-binaries
           path: ./build/bin
 
-      - name: Prepare packaging
-        run: make pre-package
+      - name: Clean & Prepare packaging
+        run: |
+          rm -r build/build build/dist build/mllint.egg-info || true
+          cp ReadMe.md build/
 
       - name: Build Pip wheels
         uses: joerick/cibuildwheel@v1.10.0
@@ -80,6 +83,7 @@ jobs:
           path: ./build/wheelhouse/*.whl
 
   build_sdist:
+    if: ${{ github.ref == 'refs/heads/main' }} # only run on main branch
     name: Build Pip package source distribution
     needs: build_golang
     runs-on: ubuntu-latest
@@ -87,14 +91,19 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
 
+      - name: Set MLLINT_VERSION
+        run: echo "MLLINT_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
       - name: Download mllint executables from previous job
         uses: actions/download-artifact@v2
         with:
           name: mllint-binaries
           path: ./build/bin
 
-      - name: Prepare packaging
-        run: make pre-package
+      - name: Clean & Prepare packaging
+        run: |
+          rm -r build/build build/dist build/mllint.egg-info || true
+          cp ReadMe.md build/
 
       - name: Build Pip package source distribution
         working-directory: ./build
@@ -106,6 +115,7 @@ jobs:
           path: ./build/dist/*.tar.gz
 
   upload_pypi:
+    name: Upload Pip packages to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     steps:

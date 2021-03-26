@@ -3,6 +3,8 @@ import platform
 import setuptools
 import shutil
 
+version = os.getenv("MLLINT_VERSION", "dev-snapshot")
+
 #-------------------------------------------------------------------------------
 
 def get_mllint_exe() -> str:
@@ -12,31 +14,37 @@ def get_mllint_exe() -> str:
   """
   system, _, _, _, machine, _ = platform.uname()
 
-  # Windows
+  # Windows 32-bit x86
   if system == 'Windows' and (machine == 'i386' or machine == 'i686'):
-    return os.path.join('bin', 'mllint-windows-386')
-
+    return os.path.join('bin', 'mllint_windows_386', 'mllint.exe')
+  # Windows 64-bit x86
   elif system == 'Windows' and machine == 'AMD64':
-    return os.path.join('bin', 'mllint-windows-amd64')
+    return os.path.join('bin', 'mllint_windows_amd64', 'mllint.exe')
 
-  # MacOS
+  # MacOS 64-bit x86
   elif system == 'Darwin' and machine == 'x86_64':
-    return os.path.join('bin', 'mllint-darwin-amd64')
+    return os.path.join('bin', 'mllint_darwin_amd64', 'mllint')
+  # MacOS 64-bit ARM (aka Apple M1)
+  elif system == 'Darwin' and machine == 'arm64':
+    return os.path.join('bin', 'mllint_darwin_arm64', 'mllint')
 
-  # Linux
+  # Linux 32-bit x86
   elif system == 'Linux' and (machine == 'i386' or machine == 'i686'):
-    return os.path.join('bin', 'mllint-linux-386')
-
+    return os.path.join('bin', 'mllint_linux_386', 'mllint')
+  # Linux 64-bit x86
   elif system == 'Linux' and machine == 'x86_64':
-    return os.path.join('bin', 'mllint-linux-amd64')
+    return os.path.join('bin', 'mllint_linux_amd64', 'mllint')
+  # Linux 64-bit ARM
+  elif system == 'Linux' and machine == 'arm64':
+    return os.path.join('bin', 'mllint_linux_arm64', 'mllint')
 
   # Other OSes are not supported right now, might be able to support more if the Go compiler supports it and people want it.
   else:
     print()
     print('Sorry, your OS is not supported. mllint currently supports:')
-    print('- Linux (32 or 64-bit x86)')
+    print('- Linux (32 or 64-bit x86, or ARM64)')
     print('- Windows (32 or 64-bit x86)')
-    print('- MacOS (only 64-bit x86)')
+    print('- MacOS (64-bit x86, or ARM64 (Apple M1))')
     print()
     print(f'Your OS: {system} ({machine})')
     print()
@@ -94,7 +102,7 @@ exe_path = get_mllint_exe()
 if not os.path.exists(exe_path):
   print()
   print(f'Expected to find a compiled mllint binary at {exe_path} but it did not exist!')
-  print("> If you're compiling mllint from source, run 'make build-all' before building this package, or just run 'make package'")
+  print("> If you're manually compiling mllint from source, run 'build.sh' before running 'test.package.sh'")
   print("> If you're installing mllint using 'pip install', then it seems pip downloaded the source package, instead of a platform-specific wheel.")
   print()
   raise Exception(f'Expected to find a compiled mllint binary at {exe_path} but it did not exist!')
@@ -107,16 +115,16 @@ with open("ReadMe.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name="mllint",
-  version="0.3.1",
+  version=version,
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
   license='MIT',
   long_description=long_description,
   long_description_content_type="text/markdown",
-  url="https://gitlab.com/bvobart/mllint",
+  url="https://github.com/bvobart/mllint",
   project_urls={
-      "Bug Tracker": "https://gitlab.com/bvobart/mllint/-/issues",
+      "Bug Tracker": "https://github.com/bvobart/mllint/issues",
   },
   classifiers=[
       "Development Status :: 3 - Alpha",

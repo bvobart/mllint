@@ -1,4 +1,4 @@
-module gitlab.com/bvobart/mllint
+module github.com/bvobart/mllint
 
 go 1.15
 

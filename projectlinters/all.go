@@ -1,7 +1,7 @@
 package projectlinters
 
 import (
-	"gitlab.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/api"
 )
 
 func GetAllLinters() api.LinterList {

@@ -5,8 +5,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/projectlinters"
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/projectlinters"
 )
 
 func NewListCommand() *cobra.Command {

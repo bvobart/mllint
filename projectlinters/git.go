@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/dustin/go-humanize"
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/config"
-	"gitlab.com/bvobart/mllint/utils/git"
+
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/utils/git"
 )
 
 const (

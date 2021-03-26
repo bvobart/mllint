@@ -3,9 +3,9 @@ package projectlinters
 import (
 	"fmt"
 
-	"gitlab.com/bvobart/mllint/api"
-	"gitlab.com/bvobart/mllint/config"
-	"gitlab.com/bvobart/mllint/utils/depsmgmt"
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/utils/depsmgmt"
 )
 
 // TODO: include links to documentation sites where users can go for more info, e.g. about poetry / pipenv.

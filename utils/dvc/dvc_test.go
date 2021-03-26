@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gitlab.com/bvobart/mllint/utils/dvc"
+	"github.com/bvobart/mllint/utils/dvc"
 )
 
 func TestIsInstalled(t *testing.T) {
