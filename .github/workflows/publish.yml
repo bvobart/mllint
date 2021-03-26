@@ -67,7 +67,7 @@ jobs:
           name: mllint-binaries
           path: ./build/bin
 
-      - name: Clean & Prepare packaging
+      - name: Clean & Prepare packaging (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           rm -r -ErrorAction SilentlyContinue .\build\build 
@@ -75,7 +75,7 @@ jobs:
           rm -r -ErrorAction SilentlyContinue .\build\mllint.egg-info
           cp ReadMe.md build/
 
-      - name: Clean & Prepare packaging
+      - name: Clean & Prepare packaging (Linux and MacOS)
         if: matrix.os != 'windows-latest'
         run: |
           rm -r build/build build/dist build/mllint.egg-info || true
@@ -87,7 +87,8 @@ jobs:
           package-dir: ./build
           output-dir: ./build/wheelhouse
         env:
-          CIBW_ENVIRONMENT: "MLLINT_VERSION=$MLLINT_VERSION"
+          CIBW_ENVIRONMENT: MLLINT_VERSION=$MLLINT_VERSION
+          CIBW_ARCHS_MACOS: x86_64 arm64
 
       - uses: actions/upload-artifact@v2
         with:

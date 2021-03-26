@@ -4,6 +4,7 @@ import setuptools
 import shutil
 
 version = os.getenv("MLLINT_VERSION", "dev-snapshot")
+print(f'> Building mllint version {version}')
 
 #-------------------------------------------------------------------------------
 
