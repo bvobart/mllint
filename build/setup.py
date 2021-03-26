@@ -3,6 +3,8 @@ import platform
 import setuptools
 import shutil
 
+version = os.getenv("MLLINT_VERSION", "dev-snapshot")
+
 #-------------------------------------------------------------------------------
 
 def get_mllint_exe() -> str:
@@ -113,16 +115,16 @@ with open("ReadMe.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name="mllint",
-  version="0.3.1", # TODO: inject version through tag or something idk.
+  version=version,
   author="Bart van Oort",
   author_email="bart@vanoort.is",
   description="Linter for Machine Learning projects",
   license='MIT',
   long_description=long_description,
   long_description_content_type="text/markdown",
-  url="https://gitlab.com/bvobart/mllint",
+  url="https://github.com/bvobart/mllint",
   project_urls={
-      "Bug Tracker": "https://gitlab.com/bvobart/mllint/-/issues",
+      "Bug Tracker": "https://github.com/bvobart/mllint/issues",
   },
   classifiers=[
       "Development Status :: 3 - Alpha",
