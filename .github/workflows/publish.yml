@@ -57,6 +57,10 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: actions/checkout@v2
 
+      - name: Set MLLINT_VERSION
+        run: echo "MLLINT_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Download mllint executables from previous job
         uses: actions/download-artifact@v2
         with:
@@ -64,7 +68,7 @@ jobs:
           path: ./build/bin
 
       - name: Clean & Prepare packaging
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: matrix.os == 'windows-latest'
         run: |
           rm -r -ErrorAction SilentlyContinue .\build\build 
           rm -r -ErrorAction SilentlyContinue .\build\dist 
@@ -72,7 +76,7 @@ jobs:
           cp ReadMe.md build/
 
       - name: Clean & Prepare packaging
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: matrix.os != 'windows-latest'
         run: |
           rm -r build/build build/dist build/mllint.egg-info || true
           cp ReadMe.md build/
@@ -83,7 +87,7 @@ jobs:
           package-dir: ./build
           output-dir: ./build/wheelhouse
         env:
-          CIBW_ENVIRONMENT: "MLLINT_VERSION=${GITHUB_REF#refs/tags/v}"
+          CIBW_ENVIRONMENT: "MLLINT_VERSION=$MLLINT_VERSION"
 
       - uses: actions/upload-artifact@v2
         with:
