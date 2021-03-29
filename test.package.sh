@@ -16,10 +16,11 @@ function print_red {
   echo -e "${red}$1${nocolor}"
 }
 
-[[ ! -d dist ]] && print_red "Error: no dist folder. Please run 'build.sh' before running 'test.package.sh'" && false
-
 print_yellow "> Cleaning build folder"
-rm -r build/bin build/build build/dist build/mllint.egg-info &> /dev/null || true
+./clean.sh
+
+print_yellow "> Building mllint..."
+./build.sh --snapshot
 
 print_yellow "> Copying ./dist to ./build/bin"
 cp -r dist build/bin
