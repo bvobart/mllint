@@ -88,3 +88,89 @@ Evaluates to what degree the project is ready for deployment onto real-world inf
 
 - has a Dockerfile? Dockerfile structure maybe?
 - security compliance?
+
+## Output
+
+### Example console output
+
+```
+Linting project at  /home/bart/tudelft/thesis/mllint
+No .mllint.yml or pyproject.toml found in project folder, using default configuration
+---
+
+Category:  Version Control (version-control)
+Score:     100%
+
+Passed Score Weight Rule                                                 Slug
+✔️     100%  TODO   Code: Project uses Git                               code/git
+✔️     100%         Code: Project isn't using Git to track large files   code/git-no-big-files
+✔️     100%         Data: Project uses Data Version Control (DVC)        data/dvc
+❌     0%           Data: DVC is installed                               data/dvc-is-installed
+❌     0%           Data: .dvc folder should be committed to Git         data/dvc-commit-dvc-folder
+
+
+---
+
+Category:  File and Folder structure (file-and-folder-structure)
+Score:     65%
+
+Passed Score Weight Rule                                                 Slug
+✔️     100%  TODO   Code: Project uses Git                               code/git
+✔️     100%         Code: Project isn't using Git to track large files   code/git-no-big-files
+✔️     100%         Data: Project uses Data Version Control (DVC)        data/dvc
+❌     0%           Data: DVC is installed                               data/dvc-is-installed
+❌     0%           Data: .dvc folder should be committed to Git         data/dvc-commit-dvc-folder
+
+
+---
+took: 13.37ms
+```
+
+### Example Markdown output
+
+```md
+# ML Project Report
+
+Project | Details      
+--------|------
+Project | /home/bart/tudelft/thesis/mllint
+Config  | default|configFilePath
+Date    | $date
+Commit  | $commitId
+
+Overall Score             | 1337% | Weight
+--------------------------|-------|--------
+Version Control           | 80%   | TODO
+File and Folder structure | 80%   | TODO
+
+---
+
+## Report per category
+
+### Version Control (`version-control`) &mdash; 80%
+
+Passed | Score | Weight | Rule                                               | Slug
+:-----:|------:|--------|----------------------------------------------------|------
+✔️     | 100%  | TODO   | Code: Project uses Git                             | code/git
+✔️     | 100%  |        | Code: Project isn't using Git to track large files | code/git-no-big-files
+✔️     | 100%  |        | Data: Project uses Data Version Control (DVC)      | data/dvc
+❌     | 0%    |        | Data: DVC is installed                             | data/dvc-is-installed
+❌     | 0%    |        | Data: .dvc folder should be committed to Git       | data/dvc-commit-dvc-folder
+
+### File and Folder structure (`file-and-folder-structure`) &mdash; 80%
+
+Passed | Score | Weight | Rule                                               | Slug
+:-----:|------:|--------|----------------------------------------------------|------
+✔️     | 100%  | TODO   | Code: Project uses Git                             | code/git
+✔️     | 100%  |        | Code: Project isn't using Git to track large files | code/git-no-big-files
+✔️     | 100%  |        | Data: Project uses Data Version Control (DVC)      | data/dvc
+❌     | 0%    |        | Data: DVC is installed                             | data/dvc-is-installed
+❌     | 0%    |        | Data: .dvc folder should be committed to Git       | data/dvc-commit-dvc-folder
+
+---
+
+## Appendices
+
+Place any added appendices here, such as the output of Pylint or other tools.
+
+```
