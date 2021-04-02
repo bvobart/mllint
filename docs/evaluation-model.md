@@ -98,29 +98,7 @@ Linting project at  /home/bart/tudelft/thesis/mllint
 No .mllint.yml or pyproject.toml found in project folder, using default configuration
 ---
 
-Category:  Version Control (version-control)
-Score:     100%
-
-Passed Score Weight Rule                                                 Slug
-✔️     100%  TODO   Code: Project uses Git                               code/git
-✔️     100%         Code: Project isn't using Git to track large files   code/git-no-big-files
-✔️     100%         Data: Project uses Data Version Control (DVC)        data/dvc
-❌     0%           Data: DVC is installed                               data/dvc-is-installed
-❌     0%           Data: .dvc folder should be committed to Git         data/dvc-commit-dvc-folder
-
-
----
-
-Category:  File and Folder structure (file-and-folder-structure)
-Score:     65%
-
-Passed Score Weight Rule                                                 Slug
-✔️     100%  TODO   Code: Project uses Git                               code/git
-✔️     100%         Code: Project isn't using Git to track large files   code/git-no-big-files
-✔️     100%         Data: Project uses Data Version Control (DVC)        data/dvc
-❌     0%           Data: DVC is installed                               data/dvc-is-installed
-❌     0%           Data: .dvc folder should be committed to Git         data/dvc-commit-dvc-folder
-
+<insert the Markdown output here from below, rendered as console output by https://github.com/MichaelMure/go-term-markdown>
 
 ---
 took: 13.37ms
@@ -152,25 +130,37 @@ File and Folder structure | 80%   | TODO
 Passed | Score | Weight | Rule                                               | Slug
 :-----:|------:|--------|----------------------------------------------------|------
 ✔️     | 100%  | TODO   | Code: Project uses Git                             | code/git
-✔️     | 100%  |        | Code: Project isn't using Git to track large files | code/git-no-big-files
+✔️     | 100%  |        | Code: Project should not use Git to track large files | code/git-no-big-files
 ✔️     | 100%  |        | Data: Project uses Data Version Control (DVC)      | data/dvc
 ❌     | 0%    |        | Data: DVC is installed                             | data/dvc-is-installed
 ❌     | 0%    |        | Data: .dvc folder should be committed to Git       | data/dvc-commit-dvc-folder
 
+#### Details
+
+##### Project should not use Git to track large files
+Git is great for version controlling small, textual files, but not for binary or large files.
+Large files should instead be version controlled as Data, e.g. using Git LFS or DVC. See `data/` rules in the Version Control category.
+
+It is not enough to just remove these large files from your local filesystem, as the files will still exist inside your Git history. Instead, see [this StackOverflow post](https://stackoverflow.com/a/46615578/8059181) to learn how to also remove these files from your project's Git history.
+
+Your project is tracking the following files that are larger than 10 MB:
+- 20.20 MB  data/json/example1.json
+- 18.1 MB   data/tables/example2.csv
+- 13.37 MB  docs/largebook.pdf
+
+---
+
 ### File and Folder structure (`file-and-folder-structure`) &mdash; 80%
+
+same structure, different rules
 
 Passed | Score | Weight | Rule                                               | Slug
 :-----:|------:|--------|----------------------------------------------------|------
 ✔️     | 100%  | TODO   | Code: Project uses Git                             | code/git
-✔️     | 100%  |        | Code: Project isn't using Git to track large files | code/git-no-big-files
+✔️     | 100%  |        | Code: Project should not use Git to track large files | code/git-no-big-files
 ✔️     | 100%  |        | Data: Project uses Data Version Control (DVC)      | data/dvc
 ❌     | 0%    |        | Data: DVC is installed                             | data/dvc-is-installed
 ❌     | 0%    |        | Data: .dvc folder should be committed to Git       | data/dvc-commit-dvc-folder
 
 ---
-
-## Appendices
-
-Place any added appendices here, such as the output of Pylint or other tools.
-
 ```

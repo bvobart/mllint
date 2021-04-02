@@ -3,9 +3,9 @@ package api_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
+	"github.com/stretchr/testify/require"
 )
 
 type testLinter struct {
@@ -17,7 +17,7 @@ func (l *testLinter) Name() string {
 	return l.name
 }
 
-func (l *testLinter) Rules() []string {
+func (l *testLinter) Rules() []api.Rule {
 	return nil
 }
 
@@ -26,8 +26,8 @@ func (l *testLinter) Configure(_ *config.Config) error {
 	return nil
 }
 
-func (l *testLinter) LintProject(projectdir string) ([]api.Issue, error) {
-	return nil, nil
+func (l *testLinter) LintProject(projectdir string) (api.Report, error) {
+	return api.Report{}, nil
 }
 
 func TestFilterEnabled(t *testing.T) {

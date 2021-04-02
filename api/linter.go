@@ -6,24 +6,15 @@ import (
 	"github.com/bvobart/mllint/config"
 )
 
-// Linter is the main interface for any linter usable by `mllint`.
+// Linter is the main interface for a struct that defines a linter over a certain category.
+// There must be one Linter per Category, which may be a linters.CompositeLinter that employs
+// several other Linters to subdivide checking all the rules within that category.
 // It is recommended to implement this interface as a struct with methods that have pointer receivers.
 type Linter interface {
-	// Name returns the name of this linter. Linter names should be lowercased, use dashes for spaces and contain no special characters.
-	// e.g. 'use-dependency-manager'
 	Name() string
 
-	// Rules returns a list of the rules that this linter enforces.
-	// The name of a linting rule should also be lowercased, use dashes for spaces, contain no special characters and should not contain the linter's name, so,
-	// e.g. 'no-requirements-txt'.
-	//
-	// These linting rule names will be combined with the linter's name to form the full name of the rule,
-	// which will be used to enable and disable these specific rules.
-	// e.g. 'use-dependency-manager/no-requirements-txt'
-	//
-	// If your linter only enforces one rule, or if the linter has one main rule that should have the name of the linter,
-	// then include an empty string in this method's response, e.g. `[]string{""}`.
-	Rules() []string
+	// Rules returns all the rules that this linter can check while linting a project
+	Rules() []Rule
 
 	// Configure will be called before LintProject() is called to analyse a project.
 	// Implement this method such that the linter configures itself to use the settings in the config object,
@@ -35,10 +26,27 @@ type Linter interface {
 
 	// LintProject is the main method that runs this linter. It will receive the full path to the
 	// directory in which the project is located. It is then expected to perform its respective analysis
-	// and return a list of issues (or nil if there were no issues) or an error if there was one.
+	// and return a Report or an error if there was one.
 	//
-	// Any issues of rules that are not enabled will be filtered out before the issues are displayed to the user.
-	LintProject(projectdir string) ([]Issue, error)
+	// The returned Report should contain a mapping of each checked Rule to a percentual score between 0 and 100.
+	// A linter may also add additional details to a report related to a specific rule, which is especially
+	// recommended if the rule scored less than 100.
+	LintProject(projectdir string) (Report, error)
+}
+
+// Report is the type of object returned by a Linter after linting a project.
+type Report struct {
+	// Scores maps each evaluated rule to a score
+	Scores map[Rule]float64
+
+	// Details contains any additional details to accompany a Rule's evaluation.
+	// Typically, when a Linter detects that a project does not conform to a Rule,
+	// it will want to provide some form of reasoning about it, pointers to which
+	// parts of the project repo the Rule violation occcurs in, and what the user can
+	// do to fix the issue.
+	//
+	// The mapped string may be formatted using Markdown.
+	Details map[Rule]string
 }
 
 type LinterList []Linter
