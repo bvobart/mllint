@@ -96,8 +96,9 @@ func collectRules(linters ...api.Linter) (rules []*api.Rule, lintersByRule map[*
 	lintersByRule = map[*api.Rule]api.Linter{}
 
 	for _, linter := range linters {
+		linterName := linter.Name()
 		for _, rule := range linter.Rules() {
-			r := compositeRule(*rule, linter.Name())
+			r := compositeRule(*rule, linterName)
 
 			rules = append(rules, &r)
 			lintersByRule[&r] = linter
