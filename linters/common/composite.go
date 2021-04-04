@@ -2,39 +2,64 @@ package common
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
 )
 
-func NewCompositeLinter(name string, linters ...api.Linter) api.Linter {
-	return &CompositeLinter{name, linters}
+func NewCompositeLinter(name string, linters ...api.Linter) api.ConfigurableLinter {
+	rules, lintersByRule := collectRules(linters...)
+	return &CompositeLinter{name, linters, rules, lintersByRule}
 }
 
 type CompositeLinter struct {
 	name    string
 	linters []api.Linter
+	rules   []*api.Rule
+	// maps the rules that the CompositeLinter returns to the underlying linter that checks it.
+	lintersByRule map[*api.Rule]api.Linter
 }
 
 func (l *CompositeLinter) Name() string {
 	return l.name
 }
 
-func (l *CompositeLinter) Rules() []api.Rule {
-	rules := []api.Rule{}
-	for _, linter := range l.linters {
-		for _, rule := range linter.Rules() {
-			rule.Name = l.prefixRule(rule.Name)
-			rules = append(rules, rule)
+func (l *CompositeLinter) Rules() []*api.Rule {
+	return l.rules
+}
+
+func (l *CompositeLinter) DisableRule(rule *api.Rule) {
+	linter, ok := l.lintersByRule[rule]
+	if !ok {
+		return
+	}
+
+	rule.Disable()
+
+	slashIndex := strings.Index(rule.Slug, "/")
+	originalSlug := rule.Slug[slashIndex+1:]
+
+	for _, originalRule := range linter.Rules() {
+		if originalSlug == originalRule.Slug {
+			if compLinter, ok := linter.(*CompositeLinter); ok {
+				compLinter.DisableRule(originalRule)
+				return
+			}
+
+			originalRule.Disable()
+			return
 		}
 	}
-	return rules
 }
 
 func (l *CompositeLinter) Configure(conf *config.Config) error {
 	for _, linter := range l.linters {
-		if err := linter.Configure(conf); err != nil {
-			return fmt.Errorf("configuration error in linter '%s': %w", linter.Name(), err)
+		configurable, ok := linter.(api.Configurable)
+		if ok {
+			if err := configurable.Configure(conf); err != nil {
+				return fmt.Errorf("configuration error in linter '%s': %w", linter.Name(), err)
+			}
 		}
 	}
 	return nil
@@ -50,19 +75,34 @@ func (l *CompositeLinter) LintProject(projectdir string) (api.Report, error) {
 		}
 
 		for rule, score := range report.Scores {
-			rule.Name = l.prefixRule(rule.Name)
-			finalReport.Scores[rule] = score
+			finalReport.Scores[compositeRule(rule, linter.Name())] = score
 		}
 		for rule, details := range report.Details {
-			rule.Name = l.prefixRule(rule.Name)
-			finalReport.Details[rule] = details
+			finalReport.Details[compositeRule(rule, linter.Name())] = details
 		}
 	}
 
 	return finalReport, nil
 }
 
-// prefixes the name of a rule with the name of this linter and a colon.
-func (l *CompositeLinter) prefixRule(name string) string {
-	return l.name + ": " + name
+func compositeRule(rule api.Rule, linterName string) api.Rule {
+	rule.Name = linterName + ": " + rule.Name
+	rule.Slug = api.Slug(linterName) + "/" + rule.Slug
+	return rule
+}
+
+func collectRules(linters ...api.Linter) (rules []*api.Rule, lintersByRule map[*api.Rule]api.Linter) {
+	rules = []*api.Rule{}
+	lintersByRule = map[*api.Rule]api.Linter{}
+
+	for _, linter := range linters {
+		for _, rule := range linter.Rules() {
+			r := compositeRule(*rule, linter.Name())
+
+			rules = append(rules, &r)
+			lintersByRule[&r] = linter
+		}
+	}
+
+	return rules, lintersByRule
 }
