@@ -21,3 +21,13 @@ var All = []api.Category{
 	Testing,
 	Deployment,
 }
+
+var BySlug = makeSlugMap()
+
+func makeSlugMap() map[string]api.Category {
+	res := map[string]api.Category{}
+	for _, cat := range All {
+		res[cat.Slug()] = cat
+	}
+	return res
+}

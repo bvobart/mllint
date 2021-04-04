@@ -15,4 +15,15 @@ type Rule struct {
 
 	// Weight determines the weight of this rule's score within its respective category.
 	Weight float64 // TODO: figure out what to with this...
+
+	// Whether this rule was explicitly disabled by the user.
+	Disabled bool
+}
+
+func (r *Rule) Disable() {
+	r.Disabled = true
+}
+
+func (r *Rule) Enable() {
+	r.Disabled = false
 }
