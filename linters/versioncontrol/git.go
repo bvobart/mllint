@@ -25,8 +25,8 @@ func (l *GitLinter) Name() string {
 	return "Code"
 }
 
-func (l *GitLinter) Rules() []api.Rule {
-	return []api.Rule{RuleGit, RuleGitNoBigFiles}
+func (l *GitLinter) Rules() []*api.Rule {
+	return []*api.Rule{&RuleGit, &RuleGitNoBigFiles}
 }
 
 func (l *GitLinter) Configure(conf *config.Config) error {
@@ -35,7 +35,8 @@ func (l *GitLinter) Configure(conf *config.Config) error {
 }
 
 func (l *GitLinter) LintProject(projectdir string) (api.Report, error) {
-	report := api.Report{}
+	report := api.NewReport()
+
 	report.Scores[RuleGit] = 100
 	if !git.Detect(projectdir) {
 		report.Scores[RuleGit] = 0
@@ -49,12 +50,17 @@ func (l *GitLinter) LintProject(projectdir string) (api.Report, error) {
 
 	report.Scores[RuleGitNoBigFiles] = math.Max(float64(100-penaltyPerLargeFile*len(largeFiles)), 0)
 	if len(largeFiles) > 0 {
-		details := strings.Builder{}
-		details.WriteString(fmt.Sprintf("Your project is tracking the following files that are larger than %s:\n", humanize.Bytes(l.MaxFileSize)))
-		for _, file := range largeFiles {
-			details.WriteString(fmt.Sprintf("- **%s**  %s\n", humanize.Bytes(file.Size), file.Path))
-		}
-		report.Details[RuleGitNoBigFiles] = details.String()
+		report.Details[RuleGitNoBigFiles] = l.buildDetails(largeFiles)
 	}
+
 	return report, nil
+}
+
+func (l *GitLinter) buildDetails(largeFiles []git.FileSize) string {
+	details := strings.Builder{}
+	details.WriteString(fmt.Sprintf("Your project is tracking the following files that are larger than %s:\n", humanize.Bytes(l.MaxFileSize)))
+	for _, file := range largeFiles {
+		details.WriteString(fmt.Sprintf("- **%s**  %s\n", humanize.Bytes(file.Size), file.Path))
+	}
+	return details.String()
 }
