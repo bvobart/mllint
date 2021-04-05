@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/projectlinters"
+	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/utils"
 )
 
 var (
-	ErrNotAFolder  = errors.New("not a folder")
-	ErrIssuesFound = errors.New(color.RedString("issues found:"))
+	ErrNotAFolder        = errors.New("not a folder")
+	ErrRulesUnsuccessful = errors.New(color.RedString("rules unsuccessful:"))
 )
 
 func NewRunCommand() *cobra.Command {
@@ -45,27 +45,26 @@ func lint(cmd *cobra.Command, args []string) error {
 	}
 	shush(func() { fmt.Print("---\n\n") })
 
-	allIssues := api.IssueList{}
-	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
-	if err != nil {
+	linters.DisableAll(conf.Rules.Disabled)
+	if err = linters.ConfigureAll(conf); err != nil {
 		return err
 	}
 
-	for _, linter := range linters {
-		issues, err := linter.LintProject(projectdir)
+	reports := map[api.Category]api.Report{}
+	for cat, linter := range linters.ByCategory {
+		report, err := linter.LintProject(projectdir)
 		if err != nil {
-			return fmt.Errorf("%s failed to lint project: %w", linter.Name(), err)
+			return fmt.Errorf("linter %s failed to lint project: %w", linter.Name(), err)
 		}
 
-		allIssues = append(allIssues, issues...)
+		reports[cat] = report
 	}
 
-	enabledIssues := allIssues.FilterEnabled(conf.Rules)
-	prettyPrintIssues(enabledIssues)
-
-	if len(enabledIssues) > 0 {
-		return fmt.Errorf("%s %w %s", color.RedString("❌"), ErrIssuesFound, color.HiWhiteString("%d", len(allIssues)))
+	rulesFailed := prettyPrintReports(reports)
+	if rulesFailed > 0 {
+		return fmt.Errorf("%s %w %s", color.RedString("❌"), ErrRulesUnsuccessful, color.HiWhiteString("%d", rulesFailed))
 	}
+
 	color.Green("✔️ Passed!")
 	fmt.Println()
 	return nil
@@ -89,12 +88,24 @@ func parseProjectDir(args []string) (string, error) {
 	return projectdir, nil
 }
 
-func prettyPrintIssues(issues []api.Issue) {
-	for i, issue := range issues {
-		fmt.Printf("%d:  %s\n\n", i+1, issue.String())
-	}
+func prettyPrintReports(reports map[api.Category]api.Report) int {
+	rulesFailed := 0
+	for cat, report := range reports {
+		color.Set(color.Bold).Println(cat)
+		color.Unset()
 
-	if len(issues) > 0 {
+		for rule, score := range report.Scores {
+			if !rule.Disabled {
+				if score < 100 {
+					rulesFailed++
+				}
+
+				fmt.Println(fmt.Sprintf("%s: %.2f", rule.Name, score) + "%")
+			}
+		}
+
 		fmt.Println()
 	}
+
+	return rulesFailed
 }
