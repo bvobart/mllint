@@ -5,17 +5,19 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/bvobart/mllint/utils/dvc"
+
+	"github.com/bvobart/mllint/linters/versioncontrol/dvc"
+	"github.com/bvobart/mllint/utils/exec"
 )
 
 func TestIsInstalled(t *testing.T) {
-	dvc.ExecLookupPath = func(file string) (string, error) {
+	exec.LookPath = func(file string) (string, error) {
 		require.Equal(t, "dvc", file)
 		return file, nil
 	}
 	require.True(t, dvc.IsInstalled())
 
-	dvc.ExecLookupPath = func(file string) (string, error) {
+	exec.LookPath = func(file string) (string, error) {
 		require.Equal(t, "dvc", file)
 		return file, fmt.Errorf("not on path or something")
 	}
@@ -24,7 +26,7 @@ func TestIsInstalled(t *testing.T) {
 
 func TestRemotes(t *testing.T) {
 	t.Run("with remotes", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"remote", "list"}))
@@ -43,7 +45,7 @@ tmpfolder2       /tmp/dvcstore
 	})
 
 	t.Run("no remotes", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"remote", "list"}))
@@ -53,7 +55,7 @@ tmpfolder2       /tmp/dvcstore
 	})
 
 	t.Run("error", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"remote", "list"}))
@@ -65,7 +67,7 @@ tmpfolder2       /tmp/dvcstore
 
 func TestFiles(t *testing.T) {
 	t.Run("with files", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"list", ".", "-R", "--dvc-only"}))
@@ -84,7 +86,7 @@ data/prepared/train.tsv
 	})
 
 	t.Run("no files", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"list", ".", "-R", "--dvc-only"}))
@@ -94,7 +96,7 @@ data/prepared/train.tsv
 	})
 
 	t.Run("error", func(t *testing.T) {
-		dvc.ExecCommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, ".", dir)
 			require.Equal(t, "dvc", name)
 			require.True(t, arrayEqual(args, []string{"list", ".", "-R", "--dvc-only"}))

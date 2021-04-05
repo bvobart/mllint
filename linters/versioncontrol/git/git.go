@@ -2,19 +2,17 @@ package git
 
 import (
 	"fmt"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils/exec"
 )
 
 // Detect detects whether this directory is inside a Git repository
 func Detect(dir string) bool {
-	cmd := exec.Command("git", "rev-parse", "--git-dir")
-	cmd.Dir = dir
-	_, err := cmd.Output()
+	_, err := exec.CommandOutput(dir, "git", "rev-parse", "--git-dir")
 	return err == nil
 }
 
@@ -22,9 +20,7 @@ func Detect(dir string) bool {
 // by the given pattern. This can be a literal folder or file name, but can also be a pattern
 // containing wildcards, e.g. 'foo.*'
 func IsTracking(dir string, pattern string) bool {
-	cmd := exec.Command("git", "ls-files", "--error-unmatch", pattern)
-	cmd.Dir = dir
-	_, err := cmd.Output()
+	_, err := exec.CommandOutput(dir, "git", "ls-files", "--error-unmatch", pattern)
 	return err == nil
 }
 
@@ -35,11 +31,9 @@ type FileSize struct {
 }
 
 // FindLargeFiles looks for any files being tracked in the current Git repository that have a
-// filesize larger than the given threshold.
+// filesize larger than the given threshold, measured in bytes.
 func FindLargeFiles(dir string, threshold uint64) ([]FileSize, error) {
-	cmd := exec.Command("git", "ls-tree", "-r", "-t", "-l", "--full-name", "HEAD")
-	cmd.Dir = dir
-	output, err := cmd.Output()
+	output, err := exec.CommandOutput(dir, "git", "ls-tree", "-r", "-t", "-l", "--full-name", "HEAD")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read Git files: %w", utils.WrapExitError(err))
 	}
