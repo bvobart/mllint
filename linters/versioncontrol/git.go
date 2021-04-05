@@ -9,7 +9,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
-	"github.com/bvobart/mllint/utils/git"
+	"github.com/bvobart/mllint/linters/versioncontrol/git"
 )
 
 const penaltyPerLargeFile = 25 // percent
