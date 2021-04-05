@@ -5,15 +5,19 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/projectlinters"
+	"github.com/bvobart/mllint/linters"
 )
 
 func NewListCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list all|enabled",
-		Short: "Lists all available or all enabled linting rules",
-		Long:  "Lists all available or all enabled linting rules that will be used while analysing a project. All rules are enabled by default, but you can configure rules to enable or disable in a .mllint.yml file in the root of your project folder.",
+		Short: "Lists all available or all enabled linting rules for each category",
+		Long: `For each category of evaluation, this command lists all available or all enabled linting rules that will be used to analyse a project.
+
+All rules are enabled by default, but if desired, it is possible to disable rules in your project's mllint configuration.
+See mllint's ReadMe or run 'mllint help config' to learn more about configuring mllint.`,
 	}
 	cmd.AddCommand(NewListAllCommand())
 	cmd.AddCommand(NewListEnabledCommand())
@@ -23,8 +27,8 @@ func NewListCommand() *cobra.Command {
 func NewListAllCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "all",
-		Short: "Lists all available linting rules",
-		Long:  "Lists all available linting rules",
+		Short: "Lists all available linting rules for each category",
+		Long:  "Lists all available linting rules for each category",
 		RunE:  listAll,
 		Args:  cobra.NoArgs,
 	}
@@ -33,16 +37,18 @@ func NewListAllCommand() *cobra.Command {
 func NewListEnabledCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "enabled [dir]",
-		Short: "Lists all enabled linting rules in the current project",
-		Long:  "Lists all enabled linting rules in the project in the given directory, or the current directory if none was given.",
-		RunE:  listEnabled,
-		Args:  cobra.MaximumNArgs(1),
+		Short: "Lists all enabled linting rules in the current project for each category",
+		Long: `For each category, lists all enabled linting rules in the project in the given directory, or the current directory if none was given.
+
+All rules are enabled by default, but if desired, it is possible to disable rules in your project's mllint configuration.
+See mllint's ReadMe or run 'mllint help config' to learn more about configuring mllint.`,
+		RunE: listEnabled,
+		Args: cobra.MaximumNArgs(1),
 	}
 }
 
 func listAll(_ *cobra.Command, args []string) error {
-	linters := projectlinters.GetAllLinters()
-	prettyPrintRules(linters)
+	prettyPrintLinters(linters.ByCategory)
 	return nil
 }
 
@@ -59,28 +65,34 @@ func listEnabled(_ *cobra.Command, args []string) error {
 	}
 	shush(func() { fmt.Print("---\n\n") })
 
-	linters, err := projectlinters.GetAllLinters().FilterEnabled(conf.Rules).Configure(conf)
-	if err != nil {
+	linters.DisableAll(conf.Rules.Disabled)
+	if err := linters.ConfigureAll(conf); err != nil {
 		return err
 	}
-	prettyPrintRules(linters)
+	prettyPrintLinters(linters.ByCategory)
 
-	shush(func() { fmt.Println("\n---") })
+	shush(func() { fmt.Println("---") })
 	return nil
 }
 
-func prettyPrintRules(linters []api.Linter) {
-	for _, linter := range linters {
-		rules := linter.Rules()
-		if len(rules) == 1 {
-			fmt.Println("-", color.BlueString(linter.Name()))
-			continue
+func prettyPrintLinters(linters map[api.Category]api.Linter) {
+	if len(linters) == 0 {
+		color.Red("Oh no! Your mllint configuration has disabled ALL rules!")
+		fmt.Println()
+	}
+
+	for cat, linter := range linters {
+		color.Set(color.Bold).Print(cat)
+		color.Unset()
+		fmt.Print(" ")
+		color.Set(color.Faint).Printf("(%s)\n", cat.Slug())
+
+		for _, rule := range linter.Rules() {
+			if !rule.Disabled {
+				fmt.Println("-", cat.Slug()+"/"+rule.Slug)
+			}
 		}
 
-		faintSlash := color.Set(color.Faint).Sprint("/")
-		color.Unset()
-		for _, rule := range rules {
-			fmt.Println("-", color.BlueString(linter.Name())+faintSlash+rule)
-		}
+		fmt.Println()
 	}
 }
