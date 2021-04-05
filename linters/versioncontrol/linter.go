@@ -7,5 +7,5 @@ import (
 )
 
 func NewLinter() api.Linter {
-	return common.NewCompositeLinter(string(categories.VersionControl), &GitLinter{})
+	return common.NewCompositeLinter(string(categories.VersionControl), &GitLinter{}, &DVCLinter{})
 }
