@@ -89,7 +89,9 @@ func prettyPrintLinters(linters map[api.Category]api.Linter) {
 
 		for _, rule := range linter.Rules() {
 			if !rule.Disabled {
-				fmt.Println("-", cat.Slug()+"/"+rule.Slug)
+				coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug(), rule.Slug)
+				color.Unset()
+				fmt.Println("-", color.BlueString(rule.Name), coloredSlug)
 			}
 		}
 
