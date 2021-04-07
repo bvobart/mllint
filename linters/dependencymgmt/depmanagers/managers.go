@@ -1,4 +1,4 @@
-package depsmgmt
+package depmanagers
 
 const (
 	TypePoetry          DependencyManagerType = "Poetry"
