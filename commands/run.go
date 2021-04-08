@@ -100,9 +100,12 @@ func prettyPrintReports(reports map[api.Category]api.Report) int {
 					rulesFailed++
 				}
 
-				fmt.Println(fmt.Sprintf("%s: %.2f", rule.Name, score) + "%")
+				fmt.Printf("%.2f%%\t- %s\n", score, rule.Name)
 			}
 		}
+
+		// TODO: perhaps fix that scores are currently printed in arbitrary order since Go maps are unordered.
+		// Idea: perhaps use the ordered Rules() lists from each linter to determine printing order?
 
 		fmt.Println()
 	}
