@@ -16,7 +16,7 @@ var (
 func Execute() error {
 	startTime := time.Now()
 	err := NewRootCommand().Execute()
-	if err != nil && errors.Is(err, ErrIssuesFound) {
+	if err != nil && errors.Is(err, ErrRulesUnsuccessful) {
 		color.HiWhite("%s", err)
 	} else if err != nil {
 		color.Red("Fatal: %s", err)
