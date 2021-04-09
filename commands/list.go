@@ -82,20 +82,37 @@ func prettyPrintLinters(linters map[api.Category]api.Linter) {
 	}
 
 	for cat, linter := range linters {
-		color.Set(color.Bold).Print(cat.Name)
-		color.Unset()
-		fmt.Print(" ")
-		color.Set(color.Faint).Printf("(%s)\n", cat.Slug)
-		color.Unset()
-
-		for _, rule := range linter.Rules() {
-			if !rule.Disabled {
-				coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug, rule.Slug)
-				color.Unset()
-				fmt.Println("-", color.BlueString(rule.Name), coloredSlug)
-			}
-		}
-
+		prettyPrintCategory(cat)
+		prettyPrintLinterRules(cat, linter)
 		fmt.Println()
+	}
+}
+
+func prettyPrintCategory(cat api.Category) {
+	color.Set(color.Bold).Print(cat.Name)
+	color.Unset()
+	fmt.Print(" ")
+	color.Set(color.Faint).Printf("(%s)\n", cat.Slug)
+	color.Unset()
+}
+
+func prettyPrintLinterRules(cat api.Category, linter api.Linter) {
+	if linter == nil {
+		fmt.Println("[]")
+		return
+	}
+
+	rules := linter.Rules()
+	if len(rules) == 0 {
+		fmt.Println("[]")
+		return
+	}
+
+	for _, rule := range rules {
+		if !rule.Disabled {
+			coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug, rule.Slug)
+			color.Unset()
+			fmt.Println("-", color.BlueString(rule.Name), coloredSlug)
+		}
 	}
 }
