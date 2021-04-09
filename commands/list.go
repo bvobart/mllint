@@ -82,14 +82,15 @@ func prettyPrintLinters(linters map[api.Category]api.Linter) {
 	}
 
 	for cat, linter := range linters {
-		color.Set(color.Bold).Print(cat)
+		color.Set(color.Bold).Print(cat.Name)
 		color.Unset()
 		fmt.Print(" ")
-		color.Set(color.Faint).Printf("(%s)\n", cat.Slug())
+		color.Set(color.Faint).Printf("(%s)\n", cat.Slug)
+		color.Unset()
 
 		for _, rule := range linter.Rules() {
 			if !rule.Disabled {
-				coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug(), rule.Slug)
+				coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug, rule.Slug)
 				color.Unset()
 				fmt.Println("-", color.BlueString(rule.Name), coloredSlug)
 			}

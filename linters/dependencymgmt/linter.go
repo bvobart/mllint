@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/api/categories"
+	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters/dependencymgmt/depmanagers"
 )
 
@@ -18,7 +18,7 @@ func NewLinter() api.Linter {
 type DependenciesLinter struct{}
 
 func (l *DependenciesLinter) Name() string {
-	return string(categories.DependencyMgmt)
+	return categories.DependencyMgmt.Name
 }
 
 func (l *DependenciesLinter) Rules() []*api.Rule {

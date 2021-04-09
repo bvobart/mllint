@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/api/categories"
+	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 
 	"github.com/bvobart/mllint/linters/common"
@@ -53,15 +53,11 @@ func Disable(slug string) {
 		return
 	}
 
-	slashIndex := strings.Index(slug, "/")
-	if slashIndex == -1 {
-		return
-	}
-
 	// else, trim the referenced category, get the accompanying linter and disable the rule on that linter.
-	if cat, found := categories.BySlug[slug[:slashIndex]]; found {
+	if cat, found := GetCategory(slug); found {
 		if linter, lfound := ByCategory[cat]; lfound {
-			DisableRule(linter, slug[slashIndex+1:])
+			ruleSlug := strings.TrimPrefix(slug, cat.Slug+"/")
+			DisableRule(linter, ruleSlug)
 		}
 		return
 	}
@@ -95,4 +91,35 @@ func DisableRule(linter api.Linter, slug string) {
 			return
 		}
 	}
+}
+
+func GetCategory(slug string) (api.Category, bool) {
+	slashIndex := strings.Index(slug, "/")
+	if slashIndex == -1 {
+		return api.Category{}, false
+	}
+
+	cat, ok := categories.BySlug[slug[:slashIndex]]
+	return cat, ok
+}
+
+func GetRule(slug string) (api.Rule, bool) {
+	cat, ok := GetCategory(slug)
+	if !ok {
+		return api.Rule{}, false
+	}
+
+	linter, ok := ByCategory[cat]
+	if !ok {
+		return api.Rule{}, false
+	}
+
+	ruleSlug := strings.TrimPrefix(slug, cat.Slug+"/")
+	for _, rule := range linter.Rules() {
+		if rule.Slug == ruleSlug {
+			return *rule, true
+		}
+	}
+
+	return api.Rule{}, false
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/api/categories"
 	"github.com/bvobart/mllint/api/mock_api"
+	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/linters/common"
@@ -38,10 +38,10 @@ func TestDisableAllCategories(t *testing.T) {
 	}
 
 	disabled := []string{
-		categories.CodeQuality.Slug(), // category exists
-		categories.DataQuality.Slug(), // category exists
-		categories.VersionControl.Slug() + "/some/specific-rule",
-		categories.DependencyMgmt.Slug(), // category not in linters.ByCategory
+		categories.CodeQuality.Slug, // category exists
+		categories.DataQuality.Slug, // category exists
+		categories.VersionControl.Slug + "/some/specific-rule",
+		categories.DependencyMgmt.Slug, // category not in linters.ByCategory
 	}
 	linters.DisableAll(disabled)
 
@@ -59,9 +59,9 @@ func TestConfigureAll(t *testing.T) {
 	testLinter3 := mock_api.NewMockConfigurableLinter(mockctl)
 
 	linters.ByCategory = map[api.Category]api.Linter{
-		"test1": testLinter1,
-		"test2": testLinter2,
-		"test3": testLinter3,
+		{Name: "test1"}: testLinter1,
+		{Name: "test2"}: testLinter2,
+		{Name: "test3"}: testLinter3,
 	}
 
 	conf := config.Default()
@@ -79,9 +79,9 @@ func TestConfigureAllError(t *testing.T) {
 	testLinter3 := mock_api.NewMockConfigurableLinter(mockctl)
 
 	linters.ByCategory = map[api.Category]api.Linter{
-		"test1": testLinter1,
-		"test2": testLinter2,
-		"test3": testLinter3,
+		{Name: "test1"}: testLinter1,
+		{Name: "test2"}: testLinter2,
+		{Name: "test3"}: testLinter3,
 	}
 
 	conf := config.Default()
@@ -134,4 +134,54 @@ func TestDisableRuleCompositeLinter(t *testing.T) {
 	require.True(t, mockRules[1].Disabled)
 	require.True(t, mockRules[2].Disabled)
 	require.False(t, mockRules[3].Disabled)
+}
+
+func TestGetRule(t *testing.T) {
+	rules1 := []*api.Rule{
+		{Name: "Test Rule 1", Slug: "test-rule-1"},
+		{Name: "Test Rule 2", Slug: "test-rule-2"},
+	}
+	rules2 := []*api.Rule{
+		{Name: "Test Rule 3", Slug: "test-rule-3"},
+		{Name: "Test Rule 4", Slug: "test-rule-4"},
+	}
+
+	mockctl := gomock.NewController(t)
+	mockLinter1 := mock_api.NewMockLinter(mockctl)
+	mockLinter2 := mock_api.NewMockLinter(mockctl)
+	mockLinter1.EXPECT().Rules().Times(2).Return(rules1)
+	mockLinter2.EXPECT().Rules().Times(1).Return(rules2)
+
+	linters.ByCategory = map[api.Category]api.Linter{
+		categories.VersionControl: mockLinter1,
+		categories.CodeQuality:    mockLinter2,
+	}
+
+	t.Run("NoCategory", func(t *testing.T) {
+		rule, ok := linters.GetRule("basic-rulename")
+		require.False(t, ok)
+		require.Equal(t, api.Rule{}, rule)
+	})
+
+	t.Run("UnimplementedCategory", func(t *testing.T) {
+		rule, ok := linters.GetRule("data-quality/some-rule")
+		require.False(t, ok)
+		require.Equal(t, api.Rule{}, rule)
+	})
+
+	t.Run("CategoryKnownButNoRule", func(t *testing.T) {
+		rule, ok := linters.GetRule("version-control/some-rule")
+		require.False(t, ok)
+		require.Equal(t, api.Rule{}, rule)
+	})
+
+	t.Run("ExistingRules", func(t *testing.T) {
+		rule, ok := linters.GetRule("version-control/test-rule-1")
+		require.True(t, ok)
+		require.Equal(t, *rules1[0], rule)
+
+		rule, ok = linters.GetRule("code-quality/test-rule-4")
+		require.True(t, ok)
+		require.Equal(t, *rules2[1], rule)
+	})
 }
