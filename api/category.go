@@ -1,7 +1,11 @@
 package api
 
-type Category string
+type Category struct {
+	Name        string
+	Slug        string
+	Description string
+}
 
-func (c Category) Slug() string {
-	return Slug(string(c))
+func (c Category) String() string {
+	return c.Name
 }
