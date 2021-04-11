@@ -6,14 +6,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/api/categories"
+	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
 )
 
 var linter = dependencymgmt.NewLinter()
 
 func TestName(t *testing.T) {
-	require.Equal(t, string(categories.DependencyMgmt), linter.Name())
+	require.Equal(t, categories.DependencyMgmt.Name, linter.Name())
 }
 
 func TestRules(t *testing.T) {

@@ -235,3 +235,9 @@ func TestParseFromDir(t *testing.T) {
 		})
 	}
 }
+
+func TestConfigTypeString(t *testing.T) {
+	require.Equal(t, "default", config.FileType("").String())
+	require.Equal(t, string(config.YAMLFile), config.YAMLFile.String())
+	require.Equal(t, string(config.TOMLFile), config.TOMLFile.String())
+}

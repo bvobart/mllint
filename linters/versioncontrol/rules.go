@@ -12,9 +12,8 @@ import (
 var RuleGit = api.Rule{
 	Slug: "git",
 	Name: "Project uses Git",
-	Details: fmt.Sprintf(`The code of any software project should be tracked in version control software. Git is free, open-source, and the most popular tool for version controlling code, designed to handle anything from small projects to extremely large projects such as the Linux kernel.
-
-Version control software allows you to track changes to your code, easily return to an earlier version and helps to collaborate with other people in developing your project.
+	Details: fmt.Sprintf(`The code of any software project should be tracked in version control software.
+Git is the most widely-used, most popular, free and open-source version controlling tool, designed to handle anything from small projects to extremely large projects such as the Linux kernel.
 
 To start using Git, run %s in a terminal at the root of your project. See also [Git's documentation](https://git-scm.com/doc) for tutorials on how to work with Git.`, "`git init`"),
 	Weight: 1,
@@ -91,6 +90,7 @@ If you're seeing this in a report, then your project's Git repository is not tra
 To fix this, you may use the following commands:
 %s
 `, "```console\ngit add .dvc\ngit commit -m 'Adds .dvc folder for Data Version Control'\ngit push\n```"),
+	Weight: 1,
 }
 
 var RuleCommitDVCLock = api.Rule{

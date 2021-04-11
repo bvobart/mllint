@@ -14,19 +14,17 @@
   <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mllint"></a>
 </p>
 
-`mllint` is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository. It measures the project's adherence to ML best practices, as collected and deduced from se4ml.github.io and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml).
-
-TODO: write overview of linting rules or implement `mllint describe <rule>`
+`mllint` is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository. It measures the project's adherence to ML best practices, as collected and deduced from [SE4ML](https://se-ml.github.io/) and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml).
 
 ---
 
 ## Getting Started
 
----
-
 #### Installing `mllint`
 
-`mllint` works on Linux, MacOS and Windows, and is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
+`mllint` is compiled for Linux, MacOS and Windows, both 64 and 32 bit x86 (except MacOS), as well as 64-bit ARM on Linux and MacOS (Apple M1).
+
+`mllint` is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
 ```sh
 pip install mllint
 ```
@@ -42,6 +40,22 @@ mllint
 mllint projects/my-ml-project
 ```
 
+Of course, feel free to explore `mllint help` for more information about its commands.
+
+`mllint` will analyse your project and create a Markdown-formatted report of its analysis. By default, this will be pretty printed to your terminal. 
+
+If you instead prefer to export the raw Markdown text to a file, use the `--output` or `-o` flag and provide a filename. Using `-` as the filename prints the raw Markdown directly to your terminal.
+```sh
+# Prints the Markdown-formatted report of your project to 'report.md'
+mllint --output report.md
+
+# Prints the raw Markdown report to your terminal
+mllint -o -
+```
+
+See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
+
+
 #### Linters and rules
 
 To list all available or all enabled linting rules, use one of the following commands:
@@ -56,34 +70,42 @@ mllint list enabled
 mllint list enabled projects/my-ml-project
 ```
 
+To learn more about a certain rule or category, use `mllint describe` along with the slug of the category or rule. The slug is the lowercased, dashed text that is often or always displayed next to the category or rule. This is the same slug as you use to enable or disable rules.
+
+As an example:
+```sh
+# Describe the Version Control category. This will also list the rules that it checks.
+mllint describe version-control
+
+# Describe the rule on DVC usage in the Version Control category
+mllint describe version-control/data/dvc
+```
+
 ---
 
 ## Configuration
 
----
-
 #### YAML
 
-`mllint` can be configured using a `.mllint.yml` file that should be placed at the root of the project directory. This is a YAML file in which you can disable specific rules / linters, as well as configure specific settings for various linters.
+`mllint` can be configured using a `.mllint.yml` file that should be placed at the root of the project directory. This is a YAML file in which you can configure specific settings for various linting rules, as well as disable specific rules or even entire categories if you wish.
 
-An example `.mllint.yml` looks as follows:
+An example `.mllint.yml` that disables some rules looks as follows:
 
 ```yaml
 rules:
   disabled:
-    - use-git # disables the 'use-git' linter
-    - use-dependency-manager/single # disables the 'single' rule of the 'use-dependency-manager' linter.
-    # - use-dependency-manager # this would disable the 'use-dependency-manager' linter and all of its rules entirely.
+    - version-control/code/git
+    - dependency-management/single
 ```
 
 #### TOML
 
-Alternatively, if no `.mllint.yml` exists, `mllint` can be configured from the `pyproject.toml` file in the root of the project. This should be done in the `[tool.mllint]` section. TOML has a slightly different syntax, but the structure is otherwise the same as the config in the YAML file. The example below is identical to the YAML example above.
+Alternatively, if no `.mllint.yml` exists, `mllint` searches the `pyproject.toml` file in the root of the project for a `[tool.mllint]` section. TOML has a slightly different syntax, but the structure is otherwise the same as the config in the YAML file. The example below is identical to the YAML example above.
 
 ```toml
 [tool.mllint]
 [tool.mllint.rules]
-disabled = ["use-git", "use-dependency-manager/single"]
+disabled = ["version-control/code/git", "dependency-management/single"]
 ```
 
 ---
