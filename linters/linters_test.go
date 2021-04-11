@@ -86,9 +86,9 @@ func TestConfigureAllError(t *testing.T) {
 
 	conf := config.Default()
 	testErr := errors.New("test-error")
-	testLinter1.EXPECT().Configure(conf).Times(1).Return(nil)
-	testLinter2.EXPECT().Configure(conf).Times(1).Return(testErr)
-	testLinter3.EXPECT().Configure(conf).Times(0).Return(nil)
+	testLinter1.EXPECT().Configure(conf).MaxTimes(1).Return(nil)
+	testLinter2.EXPECT().Configure(conf).MaxTimes(1).Return(testErr)
+	testLinter3.EXPECT().Configure(conf).MaxTimes(1).Return(nil)
 
 	err := linters.ConfigureAll(conf)
 	require.Error(t, err)
