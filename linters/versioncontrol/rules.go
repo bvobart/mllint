@@ -90,6 +90,7 @@ If you're seeing this in a report, then your project's Git repository is not tra
 To fix this, you may use the following commands:
 %s
 `, "```console\ngit add .dvc\ngit commit -m 'Adds .dvc folder for Data Version Control'\ngit push\n```"),
+	Weight: 1,
 }
 
 var RuleCommitDVCLock = api.Rule{

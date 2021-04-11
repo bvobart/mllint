@@ -40,7 +40,21 @@ mllint
 mllint projects/my-ml-project
 ```
 
-Of course, feel free to explore `mllint help` as well.
+Of course, feel free to explore `mllint help` for more information about its commands.
+
+`mllint` will analyse your project and create a Markdown-formatted report of its analysis. By default, this will be pretty printed to your terminal. 
+
+If you instead prefer to export the raw Markdown text to a file, use the `--output` or `-o` flag and provide a filename. Using `-` as the filename prints the raw Markdown directly to your terminal.
+```sh
+# Prints the Markdown-formatted report of your project to 'report.md'
+mllint --output report.md
+
+# Prints the raw Markdown report to your terminal
+mllint -o -
+```
+
+See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
+
 
 #### Linters and rules
 
