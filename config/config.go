@@ -8,8 +8,9 @@ import (
 	"path"
 
 	"github.com/pelletier/go-toml"
-	"github.com/bvobart/mllint/utils"
 	"gopkg.in/yaml.v3"
+
+	"github.com/bvobart/mllint/utils"
 )
 
 // Config describes the structure of an `.mllint.yml` file
@@ -43,6 +44,13 @@ const (
 	YAMLFile FileType = ".mllint.yml"
 	TOMLFile FileType = "pyproject.toml"
 )
+
+func (t FileType) String() string {
+	if t == "" {
+		return "default"
+	}
+	return string(t)
+}
 
 // ParseFromDir parses the mllint config from the given project directory.
 // If an `.mllint.yml` file is present, then this will be used,

@@ -27,3 +27,7 @@ func (r *Rule) Disable() {
 func (r *Rule) Enable() {
 	r.Disabled = false
 }
+
+func (r Rule) FullSlug(cat Category) string {
+	return cat.Slug + "/" + r.Slug
+}
