@@ -3,11 +3,13 @@ package commands
 import (
 	"fmt"
 
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
+	"github.com/bvobart/mllint/utils/markdown"
 )
 
 func NewDescribeCommand() *cobra.Command {
@@ -15,7 +17,8 @@ func NewDescribeCommand() *cobra.Command {
 		Use:   "describe RULE...",
 		Short: "Describe an mllint category or rule by its slug.",
 		Long: `Describe an mllint category or rule by its slug.
-The slug is the lowercased, dashed reference string that every category and rule have. mllint often displays these together.`,
+The slug is the lowercased, dashed reference string that every category and rule have. mllint often displays these together.
+To list all rules and their slugs, use 'mllint list all'`,
 		RunE:          describe,
 		Args:          cobra.MinimumNArgs(1),
 		ValidArgs:     collectAllSlugs(),
@@ -50,8 +53,7 @@ func describeCategory(cat api.Category) {
 	color.Unset()
 
 	fmt.Println()
-	fmt.Println(cat.Description)
-	fmt.Println()
+	fmt.Println(markdown.Render(cat.Description))
 
 	color.Set(color.Bold).Println("Rules")
 	color.Unset()
@@ -71,7 +73,7 @@ func describeRule(rule api.Rule) {
 	color.Unset()
 
 	fmt.Println()
-	fmt.Println(rule.Details)
+	fmt.Println(markdown.Render(rule.Details))
 	fmt.Println()
 }
 
