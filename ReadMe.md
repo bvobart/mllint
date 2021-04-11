@@ -18,9 +18,7 @@
 
 ---
 
-## Getting Started
-
-#### Installing `mllint`
+## Installing `mllint`
 
 `mllint` is compiled for Linux, MacOS and Windows, both 64 and 32 bit x86 (except MacOS), as well as 64-bit ARM on Linux and MacOS (Apple M1).
 
@@ -29,7 +27,7 @@
 pip install mllint
 ```
 
-#### Running `mllint`
+## Running `mllint`
 
 To run `mllint` in its default configuration, use one of the following commands:
 ```sh
@@ -56,7 +54,7 @@ mllint -o -
 See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
 
 
-#### Linters and rules
+### Linters and rules
 
 To list all available or all enabled linting rules, use one of the following commands:
 ```sh
