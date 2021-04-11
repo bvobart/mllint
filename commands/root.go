@@ -8,9 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	quiet *bool
-)
+var quiet bool
 
 func Execute() error {
 	startTime := time.Now()
@@ -32,7 +30,10 @@ func NewRootCommand() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	quiet = cmd.PersistentFlags().BoolP("quiet", "q", false, "Set this to true to minimise printing to the bare minimum.")
+	cmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Set this to true to minimise printing to the bare minimum.")
+	cmd.Flags().StringVarP(&outputFile, "output", "o", "", `Export the report generated for your project to a Markdown file at the given location.
+Set this to '-' (a single dash) in order to print the raw Markdown directly to the console.`)
+
 	cmd.AddCommand(NewRunCommand())
 	cmd.AddCommand(NewListCommand())
 	cmd.AddCommand(NewConfigCommand())
@@ -45,12 +46,14 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	if len(args) > 1 {
 		return fmt.Errorf("accepts at most 1 arg, received %d", len(args))
 	}
-	return NewRunCommand().RunE(cmd, args)
+
+	runner := runCommand{}
+	return runner.RunLint(cmd, args)
 }
 
 // only execute f when quiet is nil or false.
 func shush(f func()) {
-	if quiet == nil || !*quiet {
+	if !quiet {
 		f()
 	}
 }

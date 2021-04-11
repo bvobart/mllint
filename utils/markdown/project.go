@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
-
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
@@ -51,7 +49,7 @@ func writeProjectReports(output *strings.Builder, reports map[api.Category]api.R
 }
 
 func writeCategoryReport(output *strings.Builder, category api.Category, linter api.Linter, report api.Report) {
-	output.WriteString(fmt.Sprintln("### ", category.Name, " (`", category.Slug, "`)"))
+	output.WriteString(fmt.Sprintln("###", category.Name, "(`"+category.Slug+"`)"))
 	output.WriteString("\n")
 	output.WriteString("Passed | Score | Weight | Rule | Slug\n")
 	output.WriteString(":-----:|------:|-------:|------|-----\n")
@@ -71,14 +69,14 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 		}
 	}
 
-	output.WriteString("\n\n")
+	output.WriteString("\n")
 	output.WriteString(details.String())
 }
 
 func writeRuleScore(output *strings.Builder, category api.Category, rule api.Rule, score float64) {
-	passed := color.GreenString("✔")
+	passed := "✅"
 	if score < 100 {
-		passed = color.RedString("❌")
+		passed = "❌"
 	}
 
 	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | %s\n", passed, score, rule.Weight, rule.Name, rule.FullSlug(category))
@@ -86,7 +84,7 @@ func writeRuleScore(output *strings.Builder, category api.Category, rule api.Rul
 }
 
 func writeRuleDetails(output *strings.Builder, rule api.Rule, details string) {
-	output.WriteString("#### " + rule.Name + "\n")
+	output.WriteString("#### " + rule.Name + "\n\n")
 	output.WriteString(details)
 	output.WriteString("\n\n")
 }

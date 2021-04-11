@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -10,12 +11,14 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
+	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 )
 
-var (
-	ErrNotAFolder = errors.New("not a folder")
-)
+var ErrNotAFolder = errors.New("not a folder")
+var ErrOutputFileAlreadyExists = errors.New("output file already exists")
+
+var outputFile string
 
 func NewRunCommand() *cobra.Command {
 	runner := runCommand{}
@@ -28,6 +31,8 @@ func NewRunCommand() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
+	cmd.Flags().StringVarP(&outputFile, "output", "o", "", `Export the report generated for your project to a Markdown file at the given location.
+Set this to '-' (a single dash) in order to print the raw Markdown directly to the console.`)
 	return cmd
 }
 
@@ -36,12 +41,27 @@ type runCommand struct {
 	Config  *config.Config
 }
 
+func outputToStdout() bool {
+	return outputFile == "-"
+}
+
+func outputToFile() bool {
+	return outputFile != "" && !outputToStdout()
+}
+
 func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
+	if outputToFile() && utils.FileExists(outputFile) {
+		return fmt.Errorf("%w: %s", ErrOutputFileAlreadyExists, utils.AbsolutePath(outputFile))
+	}
+	if outputToStdout() {
+		quiet = true
+	}
+
 	var err error
 	rc.Project = api.Project{}
 	rc.Project.Dir, err = parseProjectDir(args)
 	if err != nil {
-		return fmt.Errorf("invalid argument: %w", err)
+		return fmt.Errorf("invalid project path: %w", err)
 	}
 
 	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(rc.Project.Dir)) })
@@ -67,7 +87,20 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	output := markdown.FromProject(rc.Project)
-	fmt.Println(markdown.Render(output))
+
+	if outputToStdout() {
+		fmt.Println(output)
+		return nil
+	}
+
+	if outputToFile() {
+		if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
+			return fmt.Errorf("failed to write output file: %s", err)
+		}
+		shush(func() { fmt.Println("Your report is complete, see", utils.AbsolutePath(outputFile)+"\n") })
+	} else {
+		fmt.Println(markdown.Render(output))
+	}
 	shush(func() { fmt.Println("---") })
 
 	rulesFailed := rc.countRulesFailed()

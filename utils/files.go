@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -45,4 +46,11 @@ func OpenFile(folder string, pattern string) (*os.File, error) {
 	} else {
 		return os.Open(matches[0])
 	}
+}
+
+// AbsolutePath returns the absolute path to the given file,
+// assuming that it is a file path relative to the current working directory
+func AbsolutePath(filename string) string {
+	cwd, _ := os.Getwd()
+	return path.Join(cwd, filename)
 }
