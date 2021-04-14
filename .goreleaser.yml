@@ -25,6 +25,3 @@ checksum:
 
 changelog:
   sort: asc
-  filters:
-    include:
-      - '^*:'
