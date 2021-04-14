@@ -1,0 +1,65 @@
+package ci_test
+
+import (
+	"io/ioutil"
+	"os"
+	"path"
+	"testing"
+
+	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/linters/ci"
+	"github.com/bvobart/mllint/linters/ci/ciproviders"
+	"github.com/stretchr/testify/require"
+)
+
+func TestCILinter(t *testing.T) {
+	linter := ci.NewLinter()
+	require.Equal(t, "Continuous Integration (CI)", linter.Name())
+	require.Equal(t, []*api.Rule{&ci.RuleUseCI}, linter.Rules())
+
+	t.Run("None", func(t *testing.T) {
+		dir := "test-resources/none"
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 0, report.Scores[ci.RuleUseCI])
+	})
+
+	t.Run("Azure", func(t *testing.T) {
+		dir := "test-resources/azure"
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 100, report.Scores[ci.RuleUseCI])
+	})
+
+	t.Run("GitHubActions", func(t *testing.T) {
+		dir := "test-resources/ghactions"
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 100, report.Scores[ci.RuleUseCI])
+	})
+
+	t.Run("GitlabCI", func(t *testing.T) {
+		dir := "test-resources/gitlab"
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 100, report.Scores[ci.RuleUseCI])
+	})
+
+	t.Run("Travis", func(t *testing.T) {
+		dir := "test-resources/travis"
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 100, report.Scores[ci.RuleUseCI])
+	})
+
+	t.Run("GitlabUntracked", func(t *testing.T) {
+		dir, err := ioutil.TempDir("test-resources", "gitlab-untracked")
+		require.NoError(t, err)
+		require.NoError(t, ioutil.WriteFile(path.Join(dir, ciproviders.Gitlab{}.ConfigFile()), []byte("\n"), 0644))
+		defer os.RemoveAll(dir)
+
+		report, err := linter.LintProject(dir)
+		require.NoError(t, err)
+		require.EqualValues(t, 25, report.Scores[ci.RuleUseCI])
+	})
+}

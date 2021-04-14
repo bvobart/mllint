@@ -8,6 +8,7 @@ import (
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 
+	"github.com/bvobart/mllint/linters/ci"
 	"github.com/bvobart/mllint/linters/common"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
 	"github.com/bvobart/mllint/linters/versioncontrol"
@@ -15,8 +16,9 @@ import (
 
 // ByCategory contains a linter for each implemented category.
 var ByCategory = map[api.Category]api.Linter{
-	categories.VersionControl: versioncontrol.NewLinter(),
-	categories.DependencyMgmt: dependencymgmt.NewLinter(),
+	categories.VersionControl:        versioncontrol.NewLinter(),
+	categories.DependencyMgmt:        dependencymgmt.NewLinter(),
+	categories.ContinuousIntegration: ci.NewLinter(),
 }
 
 // Disabled contains all the linters for categories that have been disabled using Disable or DisableAll.
