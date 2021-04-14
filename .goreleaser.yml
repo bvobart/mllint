@@ -26,6 +26,5 @@ checksum:
 changelog:
   sort: asc
   filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+    include:
+      - '^*:'
