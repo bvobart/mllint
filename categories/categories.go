@@ -86,10 +86,25 @@ and probably also something on whether you're actually testing your ML code or n
 var ContinuousIntegration = api.Category{
 	Name: "Continuous Integration",
 	Slug: "ci",
-	Description: `This category evaluates your Continuous Integration (CI) setup.
+	Description: fmt.Sprintf(`This category evaluates checks whether your project uses Continuous Integration (CI) and how you are using it.
 
-It is not implemented yet, but will contain rules on whether you are using CI (GH Actions, Gitlab CI, Travis CI, Azure Pipelines).
-Later, it may be expanded with rules on the structure of your pipelines (e.g. has stages build, test, deploy, that actually build, test and deploy the project.`,
+Continuous Integration is the practice of automating the integration (merging) of all changes that multiple developers make to a software project.
+This is done by running an automated process for every commit to your project's Git repository.
+This process then downloads your project's source code at that commit, builds it, runs the linters configured for the project—we hope you include %s—and runs the project's tests against the system.
+
+The core idea is that the CI server should be the unbiased arbiter of whether the project's code **works** after a certain set of changes, 
+while providing a standardised environment to your whole team for verifying that the project truly works as intended.
+No more 'but it worked on my machine' excuses.
+
+Explore these sources to learn more about what CI entails:
+- [WikiPedia - Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration)
+- [ThoughtWorks](https://www.thoughtworks.com/continuous-integration), though a sales pitch, succinctly describes CI and several best practices relating to it, as well as its primary advantages.
+- [SE4ML Best Practice - Use Continuous Integration](https://se-ml.github.io/best_practices/03-cont-int/)
+
+To learn how to implement CI, see also the description of rule %s
+
+Note: that this category is not fully implemented yet. It may later be expanded with rules on the structure of your CI pipelines (e.g. has stages build, test, deploy, that actually build, test and deploy the project.`,
+		"`mllint`", "`ci/use`"),
 }
 
 var Deployment = api.Category{

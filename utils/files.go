@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -23,6 +24,21 @@ func FolderExists(filename string) bool {
 		return false
 	}
 	return info.IsDir()
+}
+
+// FolderIsEmpty checks if a folder is empty
+func FolderIsEmpty(filename string) (bool, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	_, err = file.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
 }
 
 // OpenFile looks inside of the given folder for a file matching the given pattern.
