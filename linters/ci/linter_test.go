@@ -21,7 +21,9 @@ func TestCILinter(t *testing.T) {
 		dir := "test-resources/none"
 		report, err := linter.LintProject(dir)
 		require.NoError(t, err)
-		require.EqualValues(t, 0, report.Scores[ci.RuleUseCI])
+		score, found := report.Scores[ci.RuleUseCI]
+		require.True(t, found)
+		require.EqualValues(t, 0, score)
 	})
 
 	t.Run("Azure", func(t *testing.T) {

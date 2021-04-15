@@ -22,6 +22,7 @@ func (l *CILinter) Rules() []*api.Rule {
 
 func (l *CILinter) LintProject(projectdir string) (api.Report, error) {
 	report := api.NewReport()
+	report.Scores[RuleUseCI] = 0
 
 	providers := ciproviders.Detect(projectdir)
 	if len(providers) > 0 {
