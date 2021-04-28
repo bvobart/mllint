@@ -27,7 +27,7 @@ func (l *DependenciesLinter) Rules() []*api.Rule {
 
 func (l *DependenciesLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
-	managers := depmanagers.Detect(project)
+	managers := project.DepManagers
 
 	if len(managers) == 0 {
 		report.Scores[RuleUse] = 0

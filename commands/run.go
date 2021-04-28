@@ -11,6 +11,8 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
+	"github.com/bvobart/mllint/setools/cqlinters"
+	"github.com/bvobart/mllint/setools/depmanagers"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 )
@@ -71,11 +73,19 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 	shush(func() { fmt.Print("---\n\n") })
 
+	// disable any rules from config
 	linters.DisableAll(rc.Config.Rules.Disabled)
+
+	// configure all linters with config
 	if err = linters.ConfigureAll(rc.Config); err != nil {
 		return err
 	}
 
+	// run pre-analysis checks
+	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
+	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
+
+	// do all linting
 	rc.ProjectR.Reports = map[api.Category]api.Report{}
 	for cat, linter := range linters.ByCategory {
 		report, err := linter.LintProject(rc.ProjectR.Project)
@@ -86,6 +96,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 		rc.ProjectR.Reports[cat] = report
 	}
 
+	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
 
 	if outputToStdout() {

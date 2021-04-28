@@ -8,6 +8,7 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
+	"github.com/bvobart/mllint/setools/depmanagers"
 )
 
 var linter = dependencymgmt.NewLinter()
@@ -95,6 +96,7 @@ func TestLintProject(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
 			project := api.Project{Dir: test.Dir}
+			project.DepManagers = depmanagers.Detect(project)
 			report, err := linter.LintProject(project)
 			test.Expect(report, err)
 		})
