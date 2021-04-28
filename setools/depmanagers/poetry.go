@@ -6,13 +6,14 @@ import (
 	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
 
+	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/utils"
 )
 
 type Poetry struct{}
 
-func (p Poetry) Detect(projectdir string) bool {
-	poetryFile := path.Join(projectdir, "pyproject.toml")
+func (p Poetry) Detect(project api.Project) bool {
+	poetryFile := path.Join(project.Dir, "pyproject.toml")
 	if !utils.FileExists(poetryFile) {
 		return false
 	}
@@ -27,6 +28,6 @@ func (p Poetry) Detect(projectdir string) bool {
 	return backend == "poetry.core.masonry.api"
 }
 
-func (p Poetry) Type() DependencyManagerType {
+func (p Poetry) Type() api.DependencyManagerType {
 	return TypePoetry
 }

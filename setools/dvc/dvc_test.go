@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bvobart/mllint/linters/versioncontrol/dvc"
+	"github.com/bvobart/mllint/setools/dvc"
 	"github.com/bvobart/mllint/utils/exec"
 )
 
