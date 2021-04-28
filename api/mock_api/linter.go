@@ -63,18 +63,18 @@ func (mr *MockLinterMockRecorder) Rules() *gomock.Call {
 }
 
 // LintProject mocks base method
-func (m *MockLinter) LintProject(projectdir string) (api.Report, error) {
+func (m *MockLinter) LintProject(project api.Project) (api.Report, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LintProject", projectdir)
+	ret := m.ctrl.Call(m, "LintProject", project)
 	ret0, _ := ret[0].(api.Report)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LintProject indicates an expected call of LintProject
-func (mr *MockLinterMockRecorder) LintProject(projectdir interface{}) *gomock.Call {
+func (mr *MockLinterMockRecorder) LintProject(project interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LintProject", reflect.TypeOf((*MockLinter)(nil).LintProject), projectdir)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LintProject", reflect.TypeOf((*MockLinter)(nil).LintProject), project)
 }
 
 // MockConfigurable is a mock of Configurable interface
@@ -166,18 +166,18 @@ func (mr *MockConfigurableLinterMockRecorder) Rules() *gomock.Call {
 }
 
 // LintProject mocks base method
-func (m *MockConfigurableLinter) LintProject(projectdir string) (api.Report, error) {
+func (m *MockConfigurableLinter) LintProject(project api.Project) (api.Report, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LintProject", projectdir)
+	ret := m.ctrl.Call(m, "LintProject", project)
 	ret0, _ := ret[0].(api.Report)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LintProject indicates an expected call of LintProject
-func (mr *MockConfigurableLinterMockRecorder) LintProject(projectdir interface{}) *gomock.Call {
+func (mr *MockConfigurableLinterMockRecorder) LintProject(project interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LintProject", reflect.TypeOf((*MockConfigurableLinter)(nil).LintProject), projectdir)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LintProject", reflect.TypeOf((*MockConfigurableLinter)(nil).LintProject), project)
 }
 
 // Configure mocks base method

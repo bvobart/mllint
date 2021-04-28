@@ -22,7 +22,7 @@ type Linter interface {
 	// The returned Report should contain a mapping of each checked Rule to a percentual score between 0 and 100.
 	// A linter may also add additional details to a report related to a specific rule, which is especially
 	// recommended if the rule scored less than 100.
-	LintProject(projectdir string) (Report, error)
+	LintProject(project Project) (Report, error)
 }
 
 // Configure should be implemented such that the struct that implements it configures itself to use the settings
