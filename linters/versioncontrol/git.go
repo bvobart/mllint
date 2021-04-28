@@ -9,7 +9,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
-	"github.com/bvobart/mllint/linters/versioncontrol/git"
+	"github.com/bvobart/mllint/setools/git"
 )
 
 const penaltyPerLargeFile = 25 // percent
@@ -34,16 +34,16 @@ func (l *GitLinter) Configure(conf *config.Config) error {
 	return nil
 }
 
-func (l *GitLinter) LintProject(projectdir string) (api.Report, error) {
+func (l *GitLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 
 	report.Scores[RuleGit] = 100
-	if !git.Detect(projectdir) {
+	if !git.Detect(project.Dir) {
 		report.Scores[RuleGit] = 0
 		return report, nil
 	}
 
-	largeFiles, err := git.FindLargeFiles(projectdir, l.MaxFileSize)
+	largeFiles, err := git.FindLargeFiles(project.Dir, l.MaxFileSize)
 	if err != nil {
 		return api.Report{}, err
 	}

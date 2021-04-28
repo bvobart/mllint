@@ -22,7 +22,7 @@ func (l *Linter) Rules() []*api.Rule {
 	return []*api.Rule{&RuleSomething} // add all the rules that your linter may report on here.
 }
 
-func (l *Linter) LintProject(projectdir string) (api.Report, error) {
+func (l *Linter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 
 	// Implement me by doing your checks and appending scores and details to the report,

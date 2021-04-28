@@ -6,7 +6,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
-	"github.com/bvobart/mllint/linters/dependencymgmt/depmanagers"
+	"github.com/bvobart/mllint/setools/depmanagers"
 )
 
 func NewLinter() api.Linter {
@@ -25,9 +25,9 @@ func (l *DependenciesLinter) Rules() []*api.Rule {
 	return []*api.Rule{&RuleUse, &RuleSingle} // TODO: add the rest
 }
 
-func (l *DependenciesLinter) LintProject(projectdir string) (api.Report, error) {
+func (l *DependenciesLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
-	managers := depmanagers.Detect(projectdir)
+	managers := depmanagers.Detect(project)
 
 	if len(managers) == 0 {
 		report.Scores[RuleUse] = 0
@@ -78,15 +78,15 @@ func (l *DependenciesLinter) LintProject(projectdir string) (api.Report, error) 
 	return report, nil
 }
 
-func types(managers []depmanagers.DependencyManager) []depmanagers.DependencyManagerType {
-	types := []depmanagers.DependencyManagerType{}
+func types(managers []api.DependencyManager) []api.DependencyManagerType {
+	types := []api.DependencyManagerType{}
 	for _, manager := range managers {
 		types = append(types, manager.Type())
 	}
 	return types
 }
 
-func contains(types []depmanagers.DependencyManagerType, target depmanagers.DependencyManagerType) bool {
+func contains(types []api.DependencyManagerType, target api.DependencyManagerType) bool {
 	for _, typ := range types {
 		if typ == target {
 			return true
@@ -95,7 +95,7 @@ func contains(types []depmanagers.DependencyManagerType, target depmanagers.Depe
 	return false
 }
 
-func containsAll(types []depmanagers.DependencyManagerType, targets ...depmanagers.DependencyManagerType) bool {
+func containsAll(types []api.DependencyManagerType, targets ...api.DependencyManagerType) bool {
 	for _, target := range targets {
 		if !contains(types, target) {
 			return false
