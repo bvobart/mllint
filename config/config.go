@@ -15,8 +15,9 @@ import (
 
 // Config describes the structure of an `.mllint.yml` file
 type Config struct {
-	Rules RuleConfig `yaml:"rules" toml:"rules"`
-	Git   GitConfig  `yaml:"git" toml:"git"`
+	Rules       RuleConfig        `yaml:"rules" toml:"rules"`
+	Git         GitConfig         `yaml:"git" toml:"git"`
+	CodeQuality CodeQualityConfig `yaml:"code-quality" toml:"code-quality"`
 }
 
 // RuleConfig contains info about which rules are enabled / disabled.
@@ -31,10 +32,16 @@ type GitConfig struct {
 	MaxFileSize uint64 `yaml:"maxFileSize" toml:"maxFileSize"`
 }
 
+type CodeQualityConfig struct {
+	// Defines all code linters to use in the Code Quality category
+	Linters []string `yaml:"linters" toml:"linters"`
+}
+
 func Default() *Config {
 	return &Config{
-		Rules: RuleConfig{Disabled: []string{}},
-		Git:   GitConfig{MaxFileSize: 10_000_000}, // 10 MB
+		Rules:       RuleConfig{Disabled: []string{}},
+		Git:         GitConfig{MaxFileSize: 10_000_000},     // 10 MB
+		CodeQuality: CodeQualityConfig{Linters: []string{}}, // TODO: fill in.
 	}
 }
 
