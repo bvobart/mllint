@@ -37,8 +37,8 @@ Set this to '-' (a single dash) in order to print the raw Markdown directly to t
 }
 
 type runCommand struct {
-	Project api.Project
-	Config  *config.Config
+	ProjectR api.ProjectReport
+	Config   *config.Config
 }
 
 func outputToStdout() bool {
@@ -58,14 +58,14 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	var err error
-	rc.Project = api.Project{}
-	rc.Project.Dir, err = parseProjectDir(args)
+	rc.ProjectR = api.ProjectReport{}
+	rc.ProjectR.Dir, err = parseProjectDir(args)
 	if err != nil {
 		return fmt.Errorf("invalid project path: %w", err)
 	}
 
-	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(rc.Project.Dir)) })
-	rc.Config, rc.Project.ConfigType, err = getConfig(rc.Project.Dir)
+	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(rc.ProjectR.Dir)) })
+	rc.Config, rc.ProjectR.ConfigType, err = getConfig(rc.ProjectR.Dir)
 	if err != nil {
 		return err
 	}
@@ -76,17 +76,17 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	rc.Project.Reports = map[api.Category]api.Report{}
+	rc.ProjectR.Reports = map[api.Category]api.Report{}
 	for cat, linter := range linters.ByCategory {
-		report, err := linter.LintProject(rc.Project.Dir)
+		report, err := linter.LintProject(rc.ProjectR.Project)
 		if err != nil {
 			return fmt.Errorf("linter %s failed to lint project: %w", linter.Name(), err)
 		}
 
-		rc.Project.Reports[cat] = report
+		rc.ProjectR.Reports[cat] = report
 	}
 
-	output := markdown.FromProject(rc.Project)
+	output := markdown.FromProject(rc.ProjectR)
 
 	if outputToStdout() {
 		fmt.Println(output)
@@ -115,7 +115,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 
 func (rc *runCommand) countRulesFailed() int {
 	rulesFailed := 0
-	for _, report := range rc.Project.Reports {
+	for _, report := range rc.ProjectR.Reports {
 		for _, score := range report.Scores {
 			if score < 100 {
 				rulesFailed++

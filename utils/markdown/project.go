@@ -11,14 +11,14 @@ import (
 )
 
 // FromReport creates an ML project report formatted as a Markdown string
-func FromProject(project api.Project) string {
+func FromProject(project api.ProjectReport) string {
 	output := strings.Builder{}
 	writeProjectHeader(&output, project)
 	writeProjectReports(&output, project.Reports)
 	return output.String()
 }
 
-func writeProjectHeader(output *strings.Builder, project api.Project) {
+func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
 	output.WriteString("# ML Project Report\n")
 	output.WriteString("Project | Details\n")
 	output.WriteString("--------|--------\n")
