@@ -5,6 +5,11 @@ import "os/exec"
 var (
 	// LookPath is a function that performs `exec.LookPath`.
 	// The sole purpose of this variable is to be able to mock calls to the exec module during tests.
+	//
+	// LookPath searches for an executable named file in the directories named by the PATH environment variable.
+	// If file contains a slash, it is tried directly and the PATH is not consulted.
+	// The result may be an absolute path or a path relative to the current directory.
+	// (from exec.LookPath docstring)
 	LookPath = DefaultLookPath
 
 	// CommandOutput is a function that performs `exec.Command` in a certain dir, returning the command's Output().

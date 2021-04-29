@@ -8,6 +8,7 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/setools/cqlinters"
+	"github.com/bvobart/mllint/setools/depmanagers"
 )
 
 func TestFromConfig(t *testing.T) {
@@ -26,4 +27,13 @@ func TestFromConfigNotFound(t *testing.T) {
 	linters, err := cqlinters.FromConfig(conf)
 	require.EqualError(t, err, "could not parse these code quality linters from mllint's config: [eslint]")
 	require.Equal(t, expected, linters)
+}
+
+func TestDetect(t *testing.T) {
+	project := api.Project{Dir: "test-resources"}
+	require.True(t, depmanagers.TypePoetry.Detect(project))
+	project.DepManagers = []api.DependencyManager{depmanagers.TypePoetry.For(project)}
+
+	linters := cqlinters.Detect(project)
+	require.Equal(t, []api.CQLinter{cqlinters.Pylint{}}, linters)
 }

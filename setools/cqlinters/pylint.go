@@ -6,6 +6,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils/exec"
 )
 
 type Pylint struct{}
@@ -16,6 +17,11 @@ func (p Pylint) Type() api.CQLinterType {
 
 func (p Pylint) String() string {
 	return "Pylint"
+}
+
+func (p Pylint) IsInstalled() bool {
+	_, err := exec.LookPath("pylint")
+	return err == nil
 }
 
 func (p Pylint) Detect(project api.Project) bool {
