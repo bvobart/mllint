@@ -25,8 +25,13 @@ var ByType = map[api.CQLinterType]api.CQLinter{
 }
 
 func Detect(project api.Project) []api.CQLinter {
-	// TODO: implement
-	return []api.CQLinter{}
+	res := []api.CQLinter{}
+	for _, linter := range ByType {
+		if linter.Detect(project) {
+			res = append(res, linter)
+		}
+	}
+	return res
 }
 
 func FromConfig(conf config.CodeQualityConfig) ([]api.CQLinter, error) {

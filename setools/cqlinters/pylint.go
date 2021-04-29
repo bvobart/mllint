@@ -2,8 +2,10 @@ package cqlinters
 
 import (
 	"fmt"
+	"path"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/utils"
 )
 
 type Pylint struct{}
@@ -17,7 +19,14 @@ func (p Pylint) String() string {
 }
 
 func (p Pylint) Detect(project api.Project) bool {
-	// TODO: implement
+	if len(project.DepManagers) > 0 && project.DepManagers.Main().HasDependency("pylint") {
+		return true
+	}
+
+	if utils.FileExists(path.Join(project.Dir, "pylintrc")) || utils.FileExists(path.Join(project.Dir, ".pylintrc")) {
+		return true
+	}
+
 	return false
 }
 
