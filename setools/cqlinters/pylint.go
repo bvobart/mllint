@@ -12,6 +12,10 @@ func (p Pylint) Type() api.CQLinterType {
 	return TypePylint
 }
 
+func (p Pylint) String() string {
+	return "Pylint"
+}
+
 func (p Pylint) Detect(project api.Project) bool {
 	// TODO: implement
 	return false
