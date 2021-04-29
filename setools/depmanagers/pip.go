@@ -41,8 +41,9 @@ func (p RequirementsTxt) Type() api.DependencyManagerType {
 }
 
 func (p RequirementsTxt) HasDependency(dependency string) bool {
-	matched, err := regexp.MatchString("^"+dependency, p.reqFile)
-	return err != nil && matched
+	// (?m) means multiline, i.e. ^ and $ will match on start and end of every line.
+	matched, err := regexp.MatchString(`(?m)^\s*`+dependency, p.reqFile)
+	return err == nil && matched
 }
 
 //---------------------------------------------------------------------------------------

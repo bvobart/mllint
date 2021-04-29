@@ -1,0 +1,4 @@
+flask==0.12.1
+numpy>=1.2.3
+pytest
+  pylint
