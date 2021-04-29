@@ -11,7 +11,7 @@ type Project struct {
 	// Type of mllint configuration
 	ConfigType config.FileType
 	// Dependency managers that this project uses, e.g. requirements.txt, Poetry or Pipenv
-	DepManagers []DependencyManager
+	DepManagers DependencyManagerList
 	// Code Quality linters that this project uses, i.e. static analysis tools that focus on analysing code, such as Pylint, Mypy and Bandit.
 	CQLinters []CQLinter
 }

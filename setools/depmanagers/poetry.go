@@ -10,9 +10,15 @@ import (
 	"github.com/bvobart/mllint/utils"
 )
 
-type Poetry struct{}
+//---------------------------------------------------------------------------------------
 
-func (p Poetry) Detect(project api.Project) bool {
+type typePoetry string
+
+func (p typePoetry) String() string {
+	return string(p)
+}
+
+func (p typePoetry) Detect(project api.Project) bool {
 	poetryFile := path.Join(project.Dir, "pyproject.toml")
 	if !utils.FileExists(poetryFile) {
 		return false
@@ -28,6 +34,28 @@ func (p Poetry) Detect(project api.Project) bool {
 	return backend == "poetry.core.masonry.api"
 }
 
+func (p typePoetry) For(project api.Project) api.DependencyManager {
+	poetryFile := path.Join(project.Dir, "pyproject.toml")
+	tomlConf, err := toml.LoadFile(poetryFile)
+	if err != nil {
+		panic(err)
+	}
+	return Poetry{Project: project, config: tomlConf}
+}
+
+//---------------------------------------------------------------------------------------
+
+type Poetry struct {
+	Project api.Project
+	config  *toml.Tree
+}
+
 func (p Poetry) Type() api.DependencyManagerType {
 	return TypePoetry
 }
+
+func (p Poetry) HasDependency(dependency string) bool {
+	return p.config.Has("tool.poetry.dependencies."+dependency) || p.config.Has("tool.poetry.dev-dependencies."+dependency)
+}
+
+//---------------------------------------------------------------------------------------
