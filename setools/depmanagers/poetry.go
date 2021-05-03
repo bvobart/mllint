@@ -55,7 +55,11 @@ func (p Poetry) Type() api.DependencyManagerType {
 }
 
 func (p Poetry) HasDependency(dependency string) bool {
-	return p.config.Has("tool.poetry.dependencies."+dependency) || p.config.Has("tool.poetry.dev-dependencies."+dependency)
+	return p.config.Has("tool.poetry.dependencies."+dependency) || p.HasDevDependency(dependency)
+}
+
+func (p Poetry) HasDevDependency(dependency string) bool {
+	return p.config.Has("tool.poetry.dev-dependencies." + dependency)
 }
 
 //---------------------------------------------------------------------------------------

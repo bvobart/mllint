@@ -40,5 +40,9 @@ func (p Pipenv) Type() api.DependencyManagerType {
 }
 
 func (p Pipenv) HasDependency(dependency string) bool {
-	return p.pipfile.Has("packages."+dependency) || p.pipfile.Has("dev-packages."+dependency)
+	return p.pipfile.Has("packages."+dependency) || p.HasDevDependency(dependency)
+}
+
+func (p Pipenv) HasDevDependency(dependency string) bool {
+	return p.pipfile.Has("dev-packages." + dependency)
 }

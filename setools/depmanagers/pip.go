@@ -46,6 +46,12 @@ func (p RequirementsTxt) HasDependency(dependency string) bool {
 	return err == nil && matched
 }
 
+func (p RequirementsTxt) HasDevDependency(dependency string) bool {
+	// a requirements.txt file has no concept of dev-dependencies unless users homebrew their own requirements-dev.txt or so,
+	// so we just return false.
+	return false
+}
+
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
@@ -74,6 +80,11 @@ func (p SetupPy) Type() api.DependencyManagerType {
 }
 
 func (p SetupPy) HasDependency(dependency string) bool {
+	// setup.py is a dynamic script, so this is too difficult to determine.
+	return false
+}
+
+func (p SetupPy) HasDevDependency(dependency string) bool {
 	// setup.py is a dynamic script, so this is too difficult to determine.
 	return false
 }

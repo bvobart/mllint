@@ -15,7 +15,14 @@ type DependencyManagerType interface {
 }
 
 type DependencyManager interface {
+	// HasDependency should return true if this dependency manager is tracking this dependency.
+	// This means it can either be in the regular dependencies, or dev dependencies.
 	HasDependency(dependency string) bool
+
+	// HasDevDependency should only return true if this dependency manager is tracking this dependency in its dev dependencies.
+	HasDevDependency(dependency string) bool
+
+	// Type returns the type of this DependencyManager.
 	Type() DependencyManagerType
 }
 
