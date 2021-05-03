@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/fatih/color"
+	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
@@ -90,8 +91,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	for cat, linter := range linters.ByCategory {
 		report, err := linter.LintProject(rc.ProjectR.Project)
 		if err != nil {
-			// TODO: make this not return on failure of a linter
-			return fmt.Errorf("linter %s failed to lint project: %w", linter.Name(), err)
+			rc.ProjectR.Errors = multierror.Append(rc.ProjectR.Errors, fmt.Errorf("**%s** - %w", linter.Name(), err))
 		}
 
 		rc.ProjectR.Reports[cat] = report

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
@@ -15,6 +17,7 @@ func FromProject(project api.ProjectReport) string {
 	output := strings.Builder{}
 	writeProjectHeader(&output, project)
 	writeProjectReports(&output, project.Reports)
+	writeProjectErrors(&output, project.Errors)
 	return output.String()
 }
 
@@ -87,4 +90,23 @@ func writeRuleDetails(output *strings.Builder, rule api.Rule, details string) {
 	output.WriteString("#### " + rule.Name + "\n\n")
 	output.WriteString(details)
 	output.WriteString("\n\n")
+}
+
+func writeProjectErrors(output *strings.Builder, multiErr *multierror.Error) {
+	if multiErr == nil {
+		return
+	}
+
+	output.WriteString("## Errors\n\n")
+
+	multiErr.ErrorFormat = func(errors []error) string {
+		b := strings.Builder{}
+		b.WriteString(fmt.Sprintln(len(errors), "error(s) occurred while analysing your project:"))
+		for _, err := range errors {
+			b.WriteString(fmt.Sprintln("- ❌", err))
+		}
+		return b.String()
+	}
+
+	output.WriteString(fmt.Sprint(multiErr))
 }

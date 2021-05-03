@@ -28,7 +28,7 @@ func (l *CQLinter) Name() string {
 }
 
 func (l *CQLinter) Rules() []*api.Rule {
-	return []*api.Rule{&RuleUseLinters}
+	return []*api.Rule{&RuleUseLinters, &RuleLintersInstalled, &pylint.RuleNoIssues}
 }
 
 func (l *CQLinter) Configure(conf *config.Config) (err error) {

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"github.com/hashicorp/go-multierror"
+
 	"github.com/bvobart/mllint/config"
 )
 
@@ -20,4 +22,5 @@ type Project struct {
 type ProjectReport struct {
 	Project
 	Reports map[Category]Report
+	Errors  *multierror.Error
 }
