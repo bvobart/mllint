@@ -19,21 +19,17 @@ func (p Pylint) String() string {
 	return "Pylint"
 }
 
+func (p Pylint) DependencyName() string {
+	return "pylint"
+}
+
 func (p Pylint) IsInstalled() bool {
 	_, err := exec.LookPath("pylint")
 	return err == nil
 }
 
-func (p Pylint) Detect(project api.Project) bool {
-	if len(project.DepManagers) > 0 && project.DepManagers.Main().HasDependency("pylint") {
-		return true
-	}
-
-	if utils.FileExists(path.Join(project.Dir, "pylintrc")) || utils.FileExists(path.Join(project.Dir, ".pylintrc")) {
-		return true
-	}
-
-	return false
+func (p Pylint) IsConfigured(project api.Project) bool {
+	return utils.FileExists(path.Join(project.Dir, "pylintrc")) || utils.FileExists(path.Join(project.Dir, ".pylintrc"))
 }
 
 func (p Pylint) Run(projectdir string) error {
