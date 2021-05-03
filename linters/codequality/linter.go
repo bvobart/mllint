@@ -1,12 +1,19 @@
 package codequality
 
 import (
+	"github.com/hashicorp/go-multierror"
+
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/linters/codequality/pylint"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
+
+var sublinters = map[api.CQLinterType]api.Linter{
+	cqlinters.TypePylint: pylint.NewLinter(),
+}
 
 func NewLinter() api.ConfigurableLinter {
 	return &CQLinter{}
@@ -29,6 +36,7 @@ func (l *CQLinter) Configure(conf *config.Config) (err error) {
 	return err
 }
 
+// TODO: check whether there is a configuration for a CQLinter in the repository?
 func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	detectedLinters := project.CQLinters
@@ -42,25 +50,39 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Scores[RuleUseLinters] = 100
 		report.Details[RuleUseLinters] = "All linters detected!\n\n" + markdowngen.List(asInterfaceList(desiredLinters))
 	} else {
-		report.Scores[RuleUseLinters] = 100 - 100*float64(len(missingLinters)/len(desiredLinters))
+		report.Scores[RuleUseLinters] = 100 * (1 - float64(len(missingLinters)/len(desiredLinters)))
 		report.Details[RuleUseLinters] = "Your project should employ the following linters to help you measure the quality of your code:\n\n" + markdowngen.List(asInterfaceList(missingLinters))
 	}
 
-	for _, desiredLinter := range desiredLinters {
-		// TODO: desiredLinter.Run()
-		// then gather linting issues
-		// find a way to score the specific rule for this CQlinter
-		_ = desiredLinter
+	notInstalledLinters := findNotInstalled(desiredLinters)
+	if len(notInstalledLinters) == 0 {
+		report.Scores[RuleLintersInstalled] = 100
+	} else {
+		report.Scores[RuleLintersInstalled] = 100 * (1 - float64(len(notInstalledLinters)/len(desiredLinters)))
+		report.Details[RuleLintersInstalled] = "The following linters were not installed, so we could not analyse what they had to say about your project:\n\n" + markdowngen.List(asInterfaceList(notInstalledLinters))
 	}
 
-	// TODO: for each configured / desired linter:
-	// 					check whether there is a configuration for it in the repository?
-	//          run linter
-	//          gather issues
-	//          count to gain score
-	// may want separate linter objects for this.
+	var multiErr *multierror.Error
+	subReports := []api.Report{}
+	for _, desiredLinter := range desiredLinters {
+		if !desiredLinter.IsInstalled() {
+			continue
+		}
 
-	return report, nil
+		mlLinter, ok := sublinters[desiredLinter.Type()]
+		if !ok {
+			continue
+		}
+
+		subReport, err := mlLinter.LintProject(project)
+		if err != nil {
+			multiErr = multierror.Append(multiErr, err)
+		}
+
+		subReports = append(subReports, subReport)
+	}
+
+	return api.MergeReports(report, subReports...), multiErr.ErrorOrNil()
 }
 
 func contains(linters []api.CQLinter, target api.CQLinter) bool {
@@ -80,6 +102,16 @@ func findMissing(desired []api.CQLinter, detected []api.CQLinter) []api.CQLinter
 		}
 	}
 	return missing
+}
+
+func findNotInstalled(desired []api.CQLinter) []api.CQLinter {
+	notInstalled := []api.CQLinter{}
+	for _, desiredLinter := range desired {
+		if !desiredLinter.IsInstalled() {
+			notInstalled = append(notInstalled, desiredLinter)
+		}
+	}
+	return notInstalled
 }
 
 func asInterfaceList(list []api.CQLinter) []interface{} {

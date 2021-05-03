@@ -90,6 +90,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	for cat, linter := range linters.ByCategory {
 		report, err := linter.LintProject(rc.ProjectR.Project)
 		if err != nil {
+			// TODO: make this not return on failure of a linter
 			return fmt.Errorf("linter %s failed to lint project: %w", linter.Name(), err)
 		}
 

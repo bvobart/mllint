@@ -66,7 +66,7 @@ func (l *CompositeLinter) Configure(conf *config.Config) error {
 }
 
 func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
-	finalReport := api.Report{Scores: make(map[api.Rule]float64), Details: make(map[api.Rule]string)}
+	finalReport := api.NewReport()
 
 	for _, linter := range l.linters {
 		report, err := linter.LintProject(project)

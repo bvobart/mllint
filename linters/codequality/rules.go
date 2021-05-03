@@ -1,6 +1,10 @@
 package codequality
 
-import "github.com/bvobart/mllint/api"
+import (
+	"fmt"
+
+	"github.com/bvobart/mllint/api"
+)
 
 var RuleUseLinters = api.Rule{
 	Name: "Project should use code quality linters",
@@ -26,5 +30,17 @@ Linter | Why?
 
 This rule will be satisfied, iff for each of these linters (customisable via config), 
 there is _either_ a configuration file in the repository, _or_ the linter is a dependency of the project.`,
+	Weight: 1,
+}
+
+var RuleLintersInstalled = api.Rule{
+	Name: "The code quality linters should be installed in the current environment",
+	Slug: "linters-installed",
+	Details: fmt.Sprintf(`In order for mllint to be able to run the recommended code quality linters, they must be installed in the current environment,
+i.e. they must be on PATH. 
+
+This can be done in a variety of ways, such as installing them globally and / or appending to PATH,
+but a more recommended way is to install them into a virtualenv, then activating this virtual environment and running mllint within it.
+Poetry and Pipenv do this automatically, simply install them as development dependencies (%s) and run e.g. %s to open a shell in which to run mllint.`, "`--dev`", "`poetry shell`"),
 	Weight: 1,
 }
