@@ -44,7 +44,7 @@ func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 	if len(results) == 0 {
 		report.Details[RuleNoIssues] = "Congratulations, Pylint is happy with your project!"
 	} else {
-		report.Details[RuleNoIssues] = "Pylint reported some issues with your project:\n\n" + markdowngen.List(asInterfaceList(results))
+		report.Details[RuleNoIssues] = fmt.Sprintf("Pylint reported %d issues with your project:\n\n", len(results)) + markdowngen.List(asInterfaceList(results))
 	}
 
 	// TODO: sort all messages by severity before displaying them.
