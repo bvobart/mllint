@@ -34,9 +34,9 @@ func (p Pylint) IsConfigured(project api.Project) bool {
 }
 
 func (p Pylint) Run(projectdir string) ([]api.CQLinterResult, error) { // TODO: fix the interface to allow this return type
-	files, err := findLintableFiles(projectdir)
+	files, err := utils.FindPythonFilesIn(projectdir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error searching for .py files: %w", err)
 	}
 	if len(files) == 0 {
 		return nil, nil
@@ -44,10 +44,8 @@ func (p Pylint) Run(projectdir string) ([]api.CQLinterResult, error) { // TODO: 
 
 	pylintArgs := []string{"-f", "json"}
 	pylintArgs = append(pylintArgs, files...)
-	output, err := exec.CommandOutput(projectdir, "pylint", pylintArgs...)
-	if err != nil {
-		return nil, fmt.Errorf("error running Pylint: %w", err)
-	}
+	output, _ := exec.CommandCombinedOutput(projectdir, "pylint", pylintArgs...)
+	// Pylint always exits with an error when there are messages, so we ignore the error.
 
 	var messages pylintMessageList
 	if err := json.Unmarshal(output, &messages); err != nil {
@@ -55,20 +53,6 @@ func (p Pylint) Run(projectdir string) ([]api.CQLinterResult, error) { // TODO: 
 	}
 
 	return messages.Decode(), nil
-}
-
-func findLintableFiles(projectdir string) (utils.Filenames, error) {
-	files, err := utils.FindPythonFilesIn(projectdir)
-	if err != nil {
-		return nil, fmt.Errorf("error searching for .py files: %w", err)
-	}
-
-	// wrap filenames in single quotes to avoid bash parsing errors when files have special characters like ( ) in their name.
-	for i, filename := range files {
-		files[i] = "'" + filename + "'"
-	}
-
-	return files, nil
 }
 
 type pylintMessageList []PylintMessage

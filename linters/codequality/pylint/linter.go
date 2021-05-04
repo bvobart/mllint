@@ -37,23 +37,25 @@ func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 		return report, fmt.Errorf("Pylint failed to run: %w", err)
 	}
 
+	// TODO: find a way to score the specific rule for this CQlinter
 	// TODO: scale this score by the number of total lines of Python code.
 	report.Scores[RuleNoIssues] = 100 - math.Min(100, float64(4*len(results))) // max 25 messages.
 
 	if len(results) == 0 {
 		report.Details[RuleNoIssues] = "Congratulations, Pylint is happy with your project!"
 	} else {
-		report.Details[RuleNoIssues] = "Pylint reported some issues with your project:" + markdowngen.List(asInterfaceList(results))
+		report.Details[RuleNoIssues] = "Pylint reported some issues with your project:\n\n" + markdowngen.List(asInterfaceList(results))
 	}
+
+	// TODO: sort all messages by severity before displaying them.
+
+	// TODO: find a solution for multi-line error messages such as those for duplicate code.
 
 	// for _, result := range results {
 	// 	message := result.(cqlinters.PylintMessage)
 	// 	// TODO: do some specific analysis of these results
 	// e.g. create rules about: duplicate code, import management, other stuff from paper.
 	// }
-
-	// TODO: gather linting issues
-	// TODO: find a way to score the specific rule for this CQlinter
 
 	return report, nil
 }

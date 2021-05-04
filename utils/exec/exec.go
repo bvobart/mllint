@@ -15,14 +15,25 @@ var (
 	// CommandOutput is a function that performs `exec.Command` in a certain dir, returning the command's Output().
 	// The sole purpose of this variable is to be able to mock calls to the exec module during tests.
 	CommandOutput = DefaultCommandOutput
+
+	// CommandCombinedOutput is a function that performs `exec.Command` in a certain dir, returning the command's CombinedOutput().
+	// The sole purpose of this variable is to be able to mock calls to the exec module during tests.
+	CommandCombinedOutput = DefaultCommandCombinedOutput
 )
 
 // DefaultLookPath simply calls os/exec.LookPath
 func DefaultLookPath(file string) (string, error) { return exec.LookPath(file) }
 
-// DefaultLookupPath simply calls os/exec.Command, sets the directory and returns the command's Output().
+// DefaultCommandOutput simply calls os/exec.Command, sets the directory and returns the command's Output().
 func DefaultCommandOutput(dir string, name string, args ...string) ([]byte, error) {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
 	return cmd.Output()
+}
+
+// DefaultCommandOutput simply calls os/exec.Command, sets the directory and returns the command's Output().
+func DefaultCommandCombinedOutput(dir string, name string, args ...string) ([]byte, error) {
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	return cmd.CombinedOutput()
 }

@@ -14,7 +14,7 @@ type PylintMessage struct {
 }
 
 func (msg PylintMessage) String() string {
-	return fmt.Sprintf("%s:%d:%d - %s (%s)", msg.Path, msg.Line, msg.Column, msg.Message, msg.MessageID)
+	return fmt.Sprintf("`%s[%d,%d]` - %s _(%s)_", msg.Path, msg.Line, msg.Column, msg.Message, msg.MessageID)
 }
 
 // MessageType is the type of Pylint message that is emitted
