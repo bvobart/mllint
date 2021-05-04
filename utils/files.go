@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 // FileExists checks if a file exists and is not a directory
@@ -69,4 +70,56 @@ func OpenFile(folder string, pattern string) (*os.File, error) {
 func AbsolutePath(filename string) string {
 	cwd, _ := os.Getwd()
 	return path.Join(cwd, filename)
+}
+
+// FindPythonFilesIn finds all Python (*.py) files in the given directory and subdirectories
+// Returns their filepaths, relative to the given directory
+// Ignores hidden folders (folders whose names start with a '.'), but not hidden files.
+func FindPythonFilesIn(dir string) (Filenames, error) {
+	return FindFilesByExtInDir(dir, ".py")
+}
+
+// FindIPynbFilesIn finds all Jupyter Notebook (*.ipynb) files in the given directory and
+// subdirectories. Returns their filepaths, relative to the given directory.
+// Ignores hidden folders (folders whose names start with a '.'), but not hidden files.
+func FindIPynbFilesIn(dir string) (Filenames, error) {
+	return FindFilesByExtInDir(dir, ".ipynb")
+}
+
+// FindFilesByExtInDir finds all files in the given directory and subdirectories that have
+// a certain file extension. File extension must start with a '.', e.g. ".py" or ".ipynb"
+// Returns filepaths relative to the given directory.
+// Ignores hidden folders (folders whose names start with a '.'), but not hidden files.
+func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
+	files := Filenames{}
+	err := filepath.Walk(dir, func(path string, file os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if file.IsDir() && strings.HasPrefix(file.Name(), ".") {
+			return filepath.SkipDir
+		}
+
+		if !file.IsDir() && filepath.Ext(path) == extension {
+			relpath, _ := filepath.Rel(dir, path)
+			files = append(files, relpath)
+		}
+
+		return nil
+	})
+
+	return files, err
+}
+
+// Filenames is simply an alias for []string, but allows me to add some methods.
+type Filenames []string
+
+// Prefix prefixes each of the filenames with a directory name.
+// i.e. Filenames{"name.py"}.Prefix("something") becomes Filenames{"something/name.py"}
+func (names Filenames) Prefix(dir string) Filenames {
+	for i, name := range names {
+		names[i] = filepath.Join(dir, name)
+	}
+	return names
 }

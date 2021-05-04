@@ -21,5 +21,9 @@ type CQLinter interface {
 	IsInstalled() bool
 
 	// Run runs the linter, collects the issues that it reports and returns them, or an error if that failed.
-	Run(projectdir string) error // TODO: find a way to allow this to return its full output
+	Run(projectdir string) ([]CQLinterResult, error)
+}
+
+type CQLinterResult interface {
+	fmt.Stringer
 }
