@@ -84,7 +84,7 @@ func writeRuleScore(output *strings.Builder, category api.Category, rule api.Rul
 		passed = "❌"
 	}
 
-	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | %s\n", passed, score, rule.Weight, rule.Name, rule.FullSlug(category))
+	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | `%s`\n", passed, score, rule.Weight, rule.Name, rule.FullSlug(category))
 	output.WriteString(line)
 }
 
