@@ -4,8 +4,8 @@ import (
 	"path"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/linters/versioncontrol/dvc"
-	"github.com/bvobart/mllint/linters/versioncontrol/git"
+	"github.com/bvobart/mllint/setools/dvc"
+	"github.com/bvobart/mllint/setools/git"
 	"github.com/bvobart/mllint/utils"
 )
 
@@ -22,7 +22,7 @@ func (l *DVCLinter) Rules() []*api.Rule {
 	return []*api.Rule{&RuleDVC, &RuleDVCIsInstalled, &RuleCommitDVCFolder, &RuleDVCHasRemote, &RuleDVCHasFiles, &RuleCommitDVCLock}
 }
 
-func (l *DVCLinter) LintProject(projectdir string) (api.Report, error) {
+func (l *DVCLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	report.Scores[RuleDVC] = 0
 	report.Scores[RuleDVCIsInstalled] = 0
@@ -31,13 +31,13 @@ func (l *DVCLinter) LintProject(projectdir string) (api.Report, error) {
 	report.Scores[RuleDVCHasFiles] = 0
 
 	// Test whether 'dvc init' was run by checking whether a .dvc/config exists.
-	if utils.FileExists(path.Join(projectdir, ".dvc", "config")) {
+	if utils.FileExists(path.Join(project.Dir, ".dvc", "config")) {
 		report.Scores[RuleDVC] = 100
 	} else {
 		return report, nil
 	}
 
-	if git.IsTracking(projectdir, ".dvc") {
+	if git.IsTracking(project.Dir, ".dvc") {
 		report.Scores[RuleCommitDVCFolder] = 100
 	}
 
@@ -49,19 +49,19 @@ func (l *DVCLinter) LintProject(projectdir string) (api.Report, error) {
 	}
 
 	// Test whether a remote has been configured: `dvc remote list`
-	if !RuleDVCHasRemote.Disabled && len(dvc.Remotes(projectdir)) > 0 {
+	if !RuleDVCHasRemote.Disabled && len(dvc.Remotes(project.Dir)) > 0 {
 		report.Scores[RuleDVCHasRemote] = 100
 	}
 
 	// Test whether there are any files being tracked with DVC: `dvc list . -R --dvc-only`
-	if !RuleDVCHasFiles.Disabled && len(dvc.Files(projectdir)) > 0 {
+	if !RuleDVCHasFiles.Disabled && len(dvc.Files(project.Dir)) > 0 {
 		report.Scores[RuleDVCHasFiles] = 100
 	}
 
 	// Check whether the user has committed their dvc.lock file.
-	if utils.FileExists(path.Join(projectdir, "dvc.lock")) {
+	if utils.FileExists(path.Join(project.Dir, "dvc.lock")) {
 		report.Scores[RuleCommitDVCLock] = 0
-		if git.IsTracking(projectdir, "dvc.lock") {
+		if git.IsTracking(project.Dir, "dvc.lock") {
 			report.Scores[RuleCommitDVCLock] = 100
 		}
 	}

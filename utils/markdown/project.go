@@ -5,26 +5,31 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
+
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
 )
 
 // FromReport creates an ML project report formatted as a Markdown string
-func FromProject(project api.Project) string {
+func FromProject(project api.ProjectReport) string {
 	output := strings.Builder{}
 	writeProjectHeader(&output, project)
 	writeProjectReports(&output, project.Reports)
+	writeProjectErrors(&output, project.Errors)
 	return output.String()
 }
 
-func writeProjectHeader(output *strings.Builder, project api.Project) {
+func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
 	output.WriteString("# ML Project Report\n")
 	output.WriteString("Project | Details\n")
 	output.WriteString("--------|--------\n")
-	output.WriteString("Path    | " + project.Dir + "\n")
-	output.WriteString("Config  | " + project.ConfigType.String() + "\n")
+	output.WriteString("Path    | `" + project.Dir + "`\n")
+	output.WriteString("Config  | `" + project.ConfigType.String() + "`\n")
 	output.WriteString(fmt.Sprintf("Date    | %s \n", time.Now().Format(time.RFC1123Z)))
+	output.WriteString(fmt.Sprintf("Number of Python files | %d\n", len(project.PythonFiles)))
+	output.WriteString(fmt.Sprintf("Lines of Python code | %d\n", project.PythonFiles.CountLoC()))
 	output.WriteString("\n---\n\n")
 }
 
@@ -87,4 +92,23 @@ func writeRuleDetails(output *strings.Builder, rule api.Rule, details string) {
 	output.WriteString("#### " + rule.Name + "\n\n")
 	output.WriteString(details)
 	output.WriteString("\n\n")
+}
+
+func writeProjectErrors(output *strings.Builder, multiErr *multierror.Error) {
+	if multiErr == nil {
+		return
+	}
+
+	output.WriteString("## Errors\n\n")
+
+	multiErr.ErrorFormat = func(errors []error) string {
+		b := strings.Builder{}
+		b.WriteString(fmt.Sprintln(len(errors), "error(s) occurred while analysing your project:"))
+		for _, err := range errors {
+			b.WriteString(fmt.Sprintln("- ❌", err))
+		}
+		return b.String()
+	}
+
+	output.WriteString(fmt.Sprint(multiErr))
 }

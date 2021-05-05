@@ -30,13 +30,13 @@ func TestGitConfigure(t *testing.T) {
 
 func TestProjectUsesGit(t *testing.T) {
 	linter := &versioncontrol.GitLinter{}
-	dir := "."
-	report, err := linter.LintProject(dir)
+	project := api.Project{Dir: "."}
+	report, err := linter.LintProject(project)
 	require.NoError(t, err)
 	require.EqualValues(t, 100, report.Scores[versioncontrol.RuleGit])
 
-	dir = os.TempDir()
-	report, err = linter.LintProject(dir)
+	project = api.Project{Dir: os.TempDir()}
+	report, err = linter.LintProject(project)
 	require.NoError(t, err)
 	require.EqualValues(t, 0, report.Scores[versioncontrol.RuleGit])
 }
@@ -46,8 +46,8 @@ func TestGitNoBigFiles(t *testing.T) {
 		MaxFileSize: 10_000_000, // 10 MB
 	}
 
-	dir := "."
-	report, err := linter.LintProject(dir)
+	project := api.Project{Dir: "."}
+	report, err := linter.LintProject(project)
 	require.NoError(t, err)
 	require.EqualValues(t, 100, report.Scores[versioncontrol.RuleGit])
 

@@ -2,3 +2,9 @@ rules:
   disabled:
     - rule1
     - rule2
+
+code-quality:
+  linters:
+    - pylint
+    - mypy
+    - black

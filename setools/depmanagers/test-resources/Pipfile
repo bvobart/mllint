@@ -1,0 +1,18 @@
+# This file was copied from: https://realpython.com/pipenv-guide/#the-pipfile
+
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+pytest = "*"
+pylint = "*"
+
+[packages]
+flask = "==0.12.1"
+numpy = "*"
+requests = {git = "https://github.com/requests/requests.git", editable = true}
+
+[requires]
+python_version = "3.6"

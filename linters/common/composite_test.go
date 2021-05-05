@@ -62,7 +62,7 @@ func (l *testLinter) Configure(_ *config.Config) error {
 	return nil
 }
 
-func (l *testLinter) LintProject(projectdir string) (api.Report, error) {
+func (l *testLinter) LintProject(project api.Project) (api.Report, error) {
 	return l.report, l.lintErr
 }
 
@@ -237,8 +237,8 @@ func TestCompositeLinterLintProject(t *testing.T) {
 	compLinter := common.NewCompositeLinter(name, linter1, linter2)
 
 	// When: compLinter.LintProject is called
-	projectdir := "test"
-	report, err := compLinter.LintProject(projectdir)
+	project := api.Project{Dir: "test"}
+	report, err := compLinter.LintProject(project)
 	require.NoError(t, err)
 
 	// Then: expect that the report contains the scores and details from the expected reports above,
@@ -267,8 +267,8 @@ func TestCompositeLinterLintProjectErr(t *testing.T) {
 	linter2 := &testLinter{name: "linter2", rules: []*api.Rule{&testRule3, &testRule4}, lintErr: lintErr}
 	compLinter := common.NewCompositeLinter(name, linter1, linter2)
 
-	projectdir := "test"
-	_, err := compLinter.LintProject(projectdir)
+	project := api.Project{Dir: "test"}
+	_, err := compLinter.LintProject(project)
 	require.Error(t, err)
 	require.ErrorIs(t, err, lintErr)
 	require.True(t, strings.Contains(err.Error(), linter2.Name()))

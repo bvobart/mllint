@@ -2,8 +2,8 @@ package ci
 
 import (
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/linters/ci/ciproviders"
-	"github.com/bvobart/mllint/linters/versioncontrol/git"
+	"github.com/bvobart/mllint/setools/ciproviders"
+	"github.com/bvobart/mllint/setools/git"
 )
 
 func NewLinter() api.Linter {
@@ -20,11 +20,11 @@ func (l *CILinter) Rules() []*api.Rule {
 	return []*api.Rule{&RuleUseCI}
 }
 
-func (l *CILinter) LintProject(projectdir string) (api.Report, error) {
+func (l *CILinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	report.Scores[RuleUseCI] = 0
 
-	providers := ciproviders.Detect(projectdir)
+	providers := ciproviders.Detect(project.Dir)
 	if len(providers) > 0 {
 		report.Scores[RuleUseCI] = 100
 	}
@@ -32,7 +32,7 @@ func (l *CILinter) LintProject(projectdir string) (api.Report, error) {
 	for _, provider := range providers {
 		// if the repo is not tracking the CI config file, then they're not really using CI,
 		// they're merely trying to define it, which is at least a step in the right direction.
-		if !git.IsTracking(projectdir, provider.ConfigFile()) {
+		if !git.IsTracking(project.Dir, provider.ConfigFile()) {
 			report.Scores[RuleUseCI] = 25
 		}
 	}

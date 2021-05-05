@@ -65,11 +65,11 @@ func (l *CompositeLinter) Configure(conf *config.Config) error {
 	return nil
 }
 
-func (l *CompositeLinter) LintProject(projectdir string) (api.Report, error) {
-	finalReport := api.Report{Scores: make(map[api.Rule]float64), Details: make(map[api.Rule]string)}
+func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
+	finalReport := api.NewReport()
 
 	for _, linter := range l.linters {
-		report, err := linter.LintProject(projectdir)
+		report, err := linter.LintProject(project)
 		if err != nil {
 			return api.Report{}, fmt.Errorf("linting error in linter '%s': %w", linter.Name(), err)
 		}

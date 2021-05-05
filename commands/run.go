@@ -6,11 +6,14 @@ import (
 	"io/ioutil"
 
 	"github.com/fatih/color"
+	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
+	"github.com/bvobart/mllint/setools/cqlinters"
+	"github.com/bvobart/mllint/setools/depmanagers"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 )
@@ -37,8 +40,8 @@ Set this to '-' (a single dash) in order to print the raw Markdown directly to t
 }
 
 type runCommand struct {
-	Project api.Project
-	Config  *config.Config
+	ProjectR api.ProjectReport
+	Config   *config.Config
 }
 
 func outputToStdout() bool {
@@ -47,6 +50,23 @@ func outputToStdout() bool {
 
 func outputToFile() bool {
 	return outputFile != "" && !outputToStdout()
+}
+
+// Runs pre-analysis checks:
+// - Detect dependency managers used in the project
+// - Detect code quality linters used in the project
+// - Detect the Python files in the project repository.
+func (rc *runCommand) runPreAnalysisChecks() error {
+	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
+	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
+
+	pyfiles, err := utils.FindPythonFilesIn(rc.ProjectR.Dir)
+	if err != nil {
+		return err
+	}
+	rc.ProjectR.PythonFiles = pyfiles.Prefix(rc.ProjectR.Dir)
+
+	return nil
 }
 
 func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
@@ -58,35 +78,45 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	var err error
-	rc.Project = api.Project{}
-	rc.Project.Dir, err = parseProjectDir(args)
+	rc.ProjectR = api.ProjectReport{}
+	rc.ProjectR.Dir, err = parseProjectDir(args)
 	if err != nil {
 		return fmt.Errorf("invalid project path: %w", err)
 	}
 
-	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(rc.Project.Dir)) })
-	rc.Config, rc.Project.ConfigType, err = getConfig(rc.Project.Dir)
+	shush(func() { color.Green("Linting project at  %s", color.HiWhiteString(rc.ProjectR.Dir)) })
+	rc.Config, rc.ProjectR.ConfigType, err = getConfig(rc.ProjectR.Dir)
 	if err != nil {
 		return err
 	}
 	shush(func() { fmt.Print("---\n\n") })
 
-	linters.DisableAll(rc.Config.Rules.Disabled)
+	// disable any rules from config
+	rulesDisabled := linters.DisableAll(rc.Config.Rules.Disabled)
+
+	// configure all linters with config
 	if err = linters.ConfigureAll(rc.Config); err != nil {
 		return err
 	}
 
-	rc.Project.Reports = map[api.Category]api.Report{}
-	for cat, linter := range linters.ByCategory {
-		report, err := linter.LintProject(rc.Project.Dir)
-		if err != nil {
-			return fmt.Errorf("linter %s failed to lint project: %w", linter.Name(), err)
-		}
-
-		rc.Project.Reports[cat] = report
+	// run pre-analysis checks
+	if err = rc.runPreAnalysisChecks(); err != nil {
+		return fmt.Errorf("failed to run pre-analysis checks: %w", err)
 	}
 
-	output := markdown.FromProject(rc.Project)
+	// do all linting
+	rc.ProjectR.Reports = map[api.Category]api.Report{}
+	for cat, linter := range linters.ByCategory {
+		report, err := linter.LintProject(rc.ProjectR.Project)
+		if err != nil {
+			rc.ProjectR.Errors = multierror.Append(rc.ProjectR.Errors, fmt.Errorf("**%s** - %w", linter.Name(), err))
+		}
+
+		rc.ProjectR.Reports[cat] = report
+	}
+
+	// convert project report to Markdown
+	output := markdown.FromProject(rc.ProjectR)
 
 	if outputToStdout() {
 		fmt.Println(output)
@@ -104,6 +134,9 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	shush(func() { fmt.Println("---") })
 
 	rulesFailed := rc.countRulesFailed()
+	if rulesDisabled > 0 {
+		printSkipped(rulesDisabled)
+	}
 	if rulesFailed == 0 {
 		printPassed()
 	} else {
@@ -115,9 +148,9 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 
 func (rc *runCommand) countRulesFailed() int {
 	rulesFailed := 0
-	for _, report := range rc.Project.Reports {
-		for _, score := range report.Scores {
-			if score < 100 {
+	for _, report := range rc.ProjectR.Reports {
+		for rule, score := range report.Scores {
+			if !rule.Disabled && score < 100 {
 				rulesFailed++
 			}
 		}
@@ -132,7 +165,7 @@ func printPassed() {
 }
 
 func printFailed(rulesFailed int) {
-	shush(func() { color.Red("❌ rules unsuccessful: %s", color.HiWhiteString("%d", rulesFailed)) })
+	shush(func() { color.Red("❌ rules unsuccessful:\t%s", color.HiWhiteString("%d", rulesFailed)) })
 
 	if rulesFailed <= 2 {
 		msg := "You're almost there! There's still a few improvements to be done to get your project up to quality."
@@ -147,4 +180,8 @@ func printFailed(rulesFailed int) {
 	msg := "Use %s " + color.RedString("with each rule's slug to learn more about what you can do to get the rules to pass and improve the quality of your ML project.")
 	shush(func() { color.Red(msg, color.YellowString("mllint describe")) })
 	shush(func() { fmt.Println() })
+}
+
+func printSkipped(rulesDisabled int) {
+	shush(func() { color.Red("⏭️ rules skipped: \t%s", color.HiWhiteString("%d", rulesDisabled)) })
 }

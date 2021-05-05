@@ -39,6 +39,10 @@ func FindLargeFiles(dir string, threshold uint64) ([]FileSize, error) {
 	}
 
 	files := []FileSize{}
+	if string(output) == "" {
+		return files, nil
+	}
+
 	for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 5 {

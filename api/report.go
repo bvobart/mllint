@@ -21,3 +21,15 @@ func NewReport() Report {
 		Details: map[Rule]string{},
 	}
 }
+
+func MergeReports(finalReport Report, reports ...Report) Report {
+	for _, report := range reports {
+		for rule, score := range report.Scores {
+			finalReport.Scores[rule] = score
+		}
+		for rule, details := range report.Details {
+			finalReport.Details[rule] = details
+		}
+	}
+	return finalReport
+}

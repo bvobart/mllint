@@ -22,6 +22,14 @@ rules:
     - another-rule
 `
 
+const yamlLinters = `
+code-quality:
+  linters:
+    - pylint
+    - mypy
+    - black
+`
+
 const yamlInvalid = `
 rules:
   disabled: nothing
@@ -34,6 +42,11 @@ const tomlRulesDisabled = `
   
 	[tool.mllint.git]
   maxFileSize = 1337
+`
+
+const tomlLinters = `
+[tool.mllint.code-quality]
+linters = ["pylint", "mypy"]
 `
 
 const tomlInvalid = `
@@ -70,6 +83,16 @@ func TestParseYAML(t *testing.T) {
 			Expected: func() *config.Config {
 				c := config.Default()
 				c.Rules.Disabled = []string{"use-git", "another-rule"}
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "YamlLinters",
+			File: strings.NewReader(yamlLinters),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.CodeQuality.Linters = []string{"pylint", "mypy", "black"}
 				return c
 			}(),
 			Err: nil,
@@ -129,6 +152,16 @@ func TestParseTOML(t *testing.T) {
 				c := config.Default()
 				c.Rules.Disabled = []string{"use-git", "another-toml-rule"}
 				c.Git.MaxFileSize = 1337
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "TomlLinters",
+			File: strings.NewReader(tomlLinters),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.CodeQuality.Linters = []string{"pylint", "mypy"}
 				return c
 			}(),
 			Err: nil,

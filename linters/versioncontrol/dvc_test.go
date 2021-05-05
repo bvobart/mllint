@@ -36,8 +36,8 @@ func TestDVCLinter(t *testing.T) {
 	linter := &versioncontrol.DVCLinter{}
 
 	t.Run("no dvc", func(t *testing.T) {
-		dir := "test-resources/dvc"
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: "test-resources/dvc"}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		require.EqualValues(t, 0, report.Scores[versioncontrol.RuleDVC])
@@ -60,7 +60,8 @@ func TestDVCLinter(t *testing.T) {
 		exec.LookPath = func(file string) (string, error) { return "", nil }
 		exec.CommandOutput = exec.DefaultCommandOutput
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -84,7 +85,8 @@ func TestDVCLinter(t *testing.T) {
 		exec.LookPath = func(file string) (string, error) { return "", fmt.Errorf("dvc not on path or something") }
 		exec.CommandOutput = exec.DefaultCommandOutput
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -96,11 +98,11 @@ func TestDVCLinter(t *testing.T) {
 	})
 
 	t.Run("DVC folder committed but DVC is not installed", func(t *testing.T) {
-		dir := "test-resources/dvc/dvc-init"
 		exec.LookPath = func(file string) (string, error) { return "", fmt.Errorf("dvc not on path or something") }
 		exec.CommandOutput = exec.DefaultCommandOutput
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: "test-resources/dvc/dvc-init"}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -123,7 +125,8 @@ func TestDVCLinter(t *testing.T) {
 			return []byte("\n"), nil
 		}
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -151,7 +154,8 @@ func TestDVCLinter(t *testing.T) {
 			return []byte("\n"), nil
 		}
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -182,7 +186,8 @@ func TestDVCLinter(t *testing.T) {
 			return []byte("\n"), nil
 		}
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -217,7 +222,8 @@ func TestDVCLinter(t *testing.T) {
 			return []byte("\n"), nil
 		}
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
@@ -249,7 +255,8 @@ func TestDVCLinter(t *testing.T) {
 			return []byte("\n"), nil
 		}
 
-		report, err := linter.LintProject(dir)
+		project := api.Project{Dir: dir}
+		report, err := linter.LintProject(project)
 		require.NoError(t, err)
 
 		// Then:
