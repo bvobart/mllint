@@ -32,10 +32,16 @@ func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 	linter := cqlinters.ByType[cqlinters.TypePylint]
 
 	// check if there is a configuration for Pylint
-	if linter.IsConfigured(project) {
-		report.Scores[RuleIsConfigured] = 100
-	} else {
-		report.Scores[RuleIsConfigured] = 0
+	if !RuleIsConfigured.Disabled {
+		if linter.IsConfigured(project) {
+			report.Scores[RuleIsConfigured] = 100
+		} else {
+			report.Scores[RuleIsConfigured] = 0
+		}
+	}
+
+	if RuleNoIssues.Disabled {
+		return report, nil
 	}
 
 	// check whether Pylint is installed so we can actually run it

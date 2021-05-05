@@ -37,4 +37,5 @@ However, those IDEs generally _do_ pick up your project's own Pylint configurati
 
 Having a Pylint configuration in the project also ensures that you, each of your colleages, as well as the CI,
 use the same linting configuration.`,
+	Weight: 1,
 }

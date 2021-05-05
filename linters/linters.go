@@ -41,60 +41,67 @@ func ConfigureAll(conf *config.Config) error {
 
 // Disables the linters for all categories or rules referenced by the given slugs.
 // Basically just a for-loop around linters.Disable()
-func DisableAll(slugs []string) {
+// Returns the amount of linting rules disabled.
+func DisableAll(slugs []string) int {
+	n := 0
 	for _, slug := range slugs {
-		Disable(slug)
+		n += Disable(slug)
 	}
+	return n
 }
 
 // Disables the linter for a specific category or rule by the category's or rule's slug.
 // In case of a Rule slug, this should include the category name, e.g. 'version-control/code/git-no-big-files',
 // such that the accompanying linter can be found and the rule can be disabled on it using linters.DisableRule.
-func Disable(slug string) {
+// Returns the amount of linting rules disabled.
+func Disable(slug string) int {
 	// if the slug exactly matches a category's slug, disable the entire category
 	if cat, found := categories.BySlug[slug]; found {
-		DisableCategory(cat)
-		return
+		return DisableCategory(cat)
 	}
 
 	// else, trim the referenced category, get the accompanying linter and disable the rule on that linter.
 	if cat, found := GetCategory(slug); found {
 		if linter, lfound := ByCategory[cat]; lfound {
 			ruleSlug := strings.TrimPrefix(slug, cat.Slug+"/")
-			DisableRule(linter, ruleSlug)
+			return DisableRule(linter, ruleSlug)
 		}
-		return
+		return 0
 	}
+
+	return 0
 }
 
 // DisableCategory disables the linter for a specific category, if a linter for that category
 // is known in linters.ByCategory. Given a category `cat`, this method will remove
 // linters.ByCategory[cat] and add it to linters.Disabled[cat]
-func DisableCategory(cat api.Category) {
+func DisableCategory(cat api.Category) int {
 	// only disable linter for a category if it is actually implemented
 	linter, found := ByCategory[cat]
 	if !found {
-		return
+		return 0
 	}
 
 	Disabled[cat] = linter
 	delete(ByCategory, cat)
+	return len(linter.Rules())
 }
 
 // DisableRule disables a rule on the linter by means of the rule's slug.
 // The slug used here should be the same as one of the `linter.Rules()[i].Slug`
-func DisableRule(linter api.Linter, slug string) {
+func DisableRule(linter api.Linter, slug string) int {
 	for _, rule := range linter.Rules() {
 		if rule.Slug == slug {
 			if compLinter, ok := linter.(*common.CompositeLinter); ok {
 				compLinter.DisableRule(rule)
-				return
+				return 1
 			}
 
 			rule.Disable()
-			return
+			return 1
 		}
 	}
+	return 0
 }
 
 func GetCategory(slug string) (api.Category, bool) {

@@ -92,7 +92,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	shush(func() { fmt.Print("---\n\n") })
 
 	// disable any rules from config
-	linters.DisableAll(rc.Config.Rules.Disabled)
+	rulesDisabled := linters.DisableAll(rc.Config.Rules.Disabled)
 
 	// configure all linters with config
 	if err = linters.ConfigureAll(rc.Config); err != nil {
@@ -134,6 +134,9 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	shush(func() { fmt.Println("---") })
 
 	rulesFailed := rc.countRulesFailed()
+	if rulesDisabled > 0 {
+		printSkipped(rulesDisabled)
+	}
 	if rulesFailed == 0 {
 		printPassed()
 	} else {
@@ -146,8 +149,8 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 func (rc *runCommand) countRulesFailed() int {
 	rulesFailed := 0
 	for _, report := range rc.ProjectR.Reports {
-		for _, score := range report.Scores {
-			if score < 100 {
+		for rule, score := range report.Scores {
+			if !rule.Disabled && score < 100 {
 				rulesFailed++
 			}
 		}
@@ -162,7 +165,7 @@ func printPassed() {
 }
 
 func printFailed(rulesFailed int) {
-	shush(func() { color.Red("❌ rules unsuccessful: %s", color.HiWhiteString("%d", rulesFailed)) })
+	shush(func() { color.Red("❌ rules unsuccessful:\t%s", color.HiWhiteString("%d", rulesFailed)) })
 
 	if rulesFailed <= 2 {
 		msg := "You're almost there! There's still a few improvements to be done to get your project up to quality."
@@ -177,4 +180,8 @@ func printFailed(rulesFailed int) {
 	msg := "Use %s " + color.RedString("with each rule's slug to learn more about what you can do to get the rules to pass and improve the quality of your ML project.")
 	shush(func() { color.Red(msg, color.YellowString("mllint describe")) })
 	shush(func() { fmt.Println() })
+}
+
+func printSkipped(rulesDisabled int) {
+	shush(func() { color.Red("⏭️ rules skipped: \t%s", color.HiWhiteString("%d", rulesDisabled)) })
 }
