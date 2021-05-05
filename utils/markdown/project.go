@@ -25,9 +25,11 @@ func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
 	output.WriteString("# ML Project Report\n")
 	output.WriteString("Project | Details\n")
 	output.WriteString("--------|--------\n")
-	output.WriteString("Path    | " + project.Dir + "\n")
+	output.WriteString("Path    | `" + project.Dir + "`\n")
 	output.WriteString("Config  | " + project.ConfigType.String() + "\n")
 	output.WriteString(fmt.Sprintf("Date    | %s \n", time.Now().Format(time.RFC1123Z)))
+	output.WriteString(fmt.Sprintf("Number of Python files | %d\n", len(project.PythonFiles)))
+	output.WriteString(fmt.Sprintf("Lines of Python code | %d\n", project.PythonFiles.CountLoC()))
 	output.WriteString("\n---\n\n")
 }
 

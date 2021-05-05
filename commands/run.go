@@ -52,6 +52,23 @@ func outputToFile() bool {
 	return outputFile != "" && !outputToStdout()
 }
 
+// Runs pre-analysis checks:
+// - Detect dependency managers used in the project
+// - Detect code quality linters used in the project
+// - Detect the Python files in the project repository.
+func (rc *runCommand) runPreAnalysisChecks() error {
+	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
+	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
+
+	pyfiles, err := utils.FindPythonFilesIn(rc.ProjectR.Dir)
+	if err != nil {
+		return err
+	}
+	rc.ProjectR.PythonFiles = pyfiles.Prefix(rc.ProjectR.Dir)
+
+	return nil
+}
+
 func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	if outputToFile() && utils.FileExists(outputFile) {
 		return fmt.Errorf("%w: %s", ErrOutputFileAlreadyExists, utils.AbsolutePath(outputFile))
@@ -83,8 +100,9 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	// run pre-analysis checks
-	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
-	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
+	if err = rc.runPreAnalysisChecks(); err != nil {
+		return fmt.Errorf("failed to run pre-analysis checks: %w", err)
+	}
 
 	// do all linting
 	rc.ProjectR.Reports = map[api.Category]api.Report{}
