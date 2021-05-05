@@ -1,7 +1,7 @@
 import os
 import platform
-import setuptools
 import shutil
+import setuptools
 
 version = os.getenv("MLLINT_VERSION", "dev-snapshot")
 print(f'> Building mllint version {version}')
@@ -16,40 +16,39 @@ def get_mllint_exe() -> str:
   system, _, _, _, machine, _ = platform.uname()
 
   # Windows 32-bit x86
-  if system == 'Windows' and (machine == 'i386' or machine == 'i686'):
+  if system == 'Windows' and machine in ('i386', 'i686'):
     return os.path.join('bin', 'mllint_windows_386', 'mllint.exe')
   # Windows 64-bit x86
-  elif system == 'Windows' and machine == 'AMD64':
+  if system == 'Windows' and machine == 'AMD64':
     return os.path.join('bin', 'mllint_windows_amd64', 'mllint.exe')
 
   # MacOS 64-bit x86
-  elif system == 'Darwin' and machine == 'x86_64':
+  if system == 'Darwin' and machine == 'x86_64':
     return os.path.join('bin', 'mllint_darwin_amd64', 'mllint')
   # MacOS 64-bit ARM (aka Apple M1)
-  elif system == 'Darwin' and machine == 'arm64':
+  if system == 'Darwin' and machine == 'arm64':
     return os.path.join('bin', 'mllint_darwin_arm64', 'mllint')
 
   # Linux 32-bit x86
-  elif system == 'Linux' and (machine == 'i386' or machine == 'i686'):
+  if system == 'Linux' and machine in ('i386', 'i686'):
     return os.path.join('bin', 'mllint_linux_386', 'mllint')
   # Linux 64-bit x86
-  elif system == 'Linux' and machine == 'x86_64':
+  if system == 'Linux' and machine == 'x86_64':
     return os.path.join('bin', 'mllint_linux_amd64', 'mllint')
   # Linux 64-bit ARM
-  elif system == 'Linux' and machine == 'arm64':
+  if system == 'Linux' and machine == 'arm64':
     return os.path.join('bin', 'mllint_linux_arm64', 'mllint')
 
-  # Other OSes are not supported right now, might be able to support more if the Go compiler supports it and people want it.
-  else:
-    print()
-    print('Sorry, your OS is not supported. mllint currently supports:')
-    print('- Linux (32 or 64-bit x86, or ARM64)')
-    print('- Windows (32 or 64-bit x86)')
-    print('- MacOS (64-bit x86, or ARM64 (Apple M1))')
-    print()
-    print(f'Your OS: {system} ({machine})')
-    print()
-    raise Exception(f'unsupported OS: {system} ({machine})')
+  # Other OSes are not supported right now, might be able to support more if people want it.
+  print()
+  print('Sorry, your OS is not supported. mllint currently supports:')
+  print('- Linux (32 or 64-bit x86, or ARM64)')
+  print('- Windows (32 or 64-bit x86)')
+  print('- MacOS (64-bit x86, or ARM64 (Apple M1))')
+  print()
+  print(f'Your OS: {system} ({machine})')
+  print()
+  raise Exception(f'unsupported OS: {system} ({machine})')
 
 #-------------------------------------------------------------------------------
 
@@ -71,20 +70,20 @@ def patch_distutils():
   def change_root(new_root, pathname):
     if os.name != 'nt': # if not Windows, just use the original change_root
       return original_change_root(new_root, pathname)
-    
+
     # else, if we're on Windows:
     (_, path) = os.path.splitdrive(pathname)
     if path and path[0] == '\\':
       path = path[1:]
     return os.path.join(new_root, path)
-  
+
   # From: https://github.com/bigartm/bigartm/issues/840#issuecomment-342825690
   class InstallPlatlib(install):
     def finalize_options(self):
       install.finalize_options(self)
       if self.distribution.has_ext_modules():
         self.install_lib = self.install_platlib
-  
+
   distutils.util.change_root = change_root
   distutils.command.install.install = InstallPlatlib
 
@@ -92,7 +91,7 @@ def patch_distutils():
 class PlatformSpecificDistribution(setuptools.Distribution):
   """Distribution which always forces a platform-specific package"""
   def has_ext_modules(self):
-      return True
+    return True
 
 patch_distutils()
 
