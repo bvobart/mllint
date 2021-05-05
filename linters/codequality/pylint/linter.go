@@ -60,7 +60,7 @@ func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 	}
 
 	// actually run Pylint
-	results, err := linter.Run(project.Dir)
+	results, err := linter.Run(project)
 	if err != nil {
 		return report, fmt.Errorf("Pylint failed to run: %w", err)
 	}

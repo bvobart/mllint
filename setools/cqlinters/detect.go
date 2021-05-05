@@ -18,7 +18,7 @@ const (
 
 var ByType = map[api.CQLinterType]api.CQLinter{
 	TypePylint: Pylint{},
-	// TypeMypy:   Mypy{},
+	TypeMypy:   Mypy{},
 	// TypeBlack:  Black{},
 	// TypeISort:  ISort{},
 	// TypeBandit: Bandit{},

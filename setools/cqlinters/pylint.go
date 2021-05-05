@@ -33,18 +33,14 @@ func (p Pylint) IsConfigured(project api.Project) bool {
 	return utils.FileExists(path.Join(project.Dir, "pylintrc")) || utils.FileExists(path.Join(project.Dir, ".pylintrc"))
 }
 
-func (p Pylint) Run(projectdir string) ([]api.CQLinterResult, error) { // TODO: fix the interface to allow this return type
-	files, err := utils.FindPythonFilesIn(projectdir)
-	if err != nil {
-		return nil, fmt.Errorf("error searching for .py files: %w", err)
-	}
-	if len(files) == 0 {
-		return nil, nil
+func (p Pylint) Run(project api.Project) ([]api.CQLinterResult, error) {
+	if len(project.PythonFiles) == 0 {
+		return []api.CQLinterResult{}, nil
 	}
 
 	pylintArgs := []string{"-f", "json"}
-	pylintArgs = append(pylintArgs, files...)
-	output, _ := exec.CommandCombinedOutput(projectdir, "pylint", pylintArgs...)
+	pylintArgs = append(pylintArgs, project.PythonFiles...)
+	output, _ := exec.CommandCombinedOutput(project.Dir, "pylint", pylintArgs...)
 	// Pylint always exits with an error when there are messages, so we ignore the error.
 
 	var messages pylintMessageList

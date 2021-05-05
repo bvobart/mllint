@@ -40,8 +40,8 @@ type CodeQualityConfig struct {
 func Default() *Config {
 	return &Config{
 		Rules:       RuleConfig{Disabled: []string{}},
-		Git:         GitConfig{MaxFileSize: 10_000_000},             // 10 MB
-		CodeQuality: CodeQualityConfig{Linters: []string{"pylint"}}, // TODO: add more
+		Git:         GitConfig{MaxFileSize: 10_000_000},                     // 10 MB
+		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy"}}, // TODO: add more
 	}
 }
 
