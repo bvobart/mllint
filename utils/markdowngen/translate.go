@@ -12,3 +12,7 @@ func List(items []interface{}) string {
 	}
 	return sb.String()
 }
+
+func CodeBlock(code string) string {
+	return "```\n" + code + "\n```\n"
+}

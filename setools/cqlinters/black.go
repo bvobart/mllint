@@ -42,7 +42,7 @@ func (p Black) Run(project api.Project) ([]api.CQLinterResult, error) {
 		return []api.CQLinterResult{}, nil
 	}
 
-	output, err := exec.CommandOutput(project.Dir, "black", "--check", project.Dir)
+	output, err := exec.CommandCombinedOutput(project.Dir, "black", "--check", project.Dir)
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}

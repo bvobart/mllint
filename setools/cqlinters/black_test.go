@@ -55,7 +55,7 @@ func TestBlackRun(t *testing.T) {
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
-		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
+		exec.CommandCombinedOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "black", name)
 			require.Equal(t, []string{"--check", project.Dir}, args)
