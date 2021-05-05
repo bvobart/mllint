@@ -23,3 +23,18 @@ Note that the measured amount of lines of code includes any non-hidden Python fi
 		"`score = 100 - 100 * min(1, 10 * number of msgs / lines of code)`"),
 	Weight: 1,
 }
+
+var RuleIsConfigured = api.Rule{
+	Slug: "pylint/is-configured",
+	Name: "Pylint is configured for this project",
+	Details: `[Pylint](https://pypi.org/project/pylint/) has a good default configuration,
+though there are likely to be rules that you may want to enable, disable or customise for your project.
+For example, you may want to configure your indentation width, your maximum line length, or configure which files to ignore while linting.
+
+Additionally, some IDEs have their own default configuration for these linters, which may only enable a subset of Pylint's rules.
+For example, VS Code [is known to do this](https://code.visualstudio.com/docs/python/linting#_default-pylint-rules).
+However, those IDEs generally _do_ pick up your project's own Pylint configuration.
+
+Having a Pylint configuration in the project also ensures that you, each of your colleages, as well as the CI,
+use the same linting configuration.`,
+}

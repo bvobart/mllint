@@ -24,12 +24,19 @@ func (l *PylintLinter) Name() string {
 }
 
 func (l *PylintLinter) Rules() []*api.Rule {
-	return []*api.Rule{}
+	return []*api.Rule{&RuleNoIssues, &RuleIsConfigured}
 }
 
 func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	linter := cqlinters.ByType[cqlinters.TypePylint]
+
+	// check if there is a configuration for Pylint
+	if linter.IsConfigured(project) {
+		report.Scores[RuleIsConfigured] = 100
+	} else {
+		report.Scores[RuleIsConfigured] = 0
+	}
 
 	// check whether Pylint is installed so we can actually run it
 	if !linter.IsInstalled() {
@@ -60,12 +67,10 @@ func (l *PylintLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleNoIssues] = fmt.Sprintf("Pylint reported %d issues with your project:\n\n", len(results)) + markdowngen.List(asInterfaceList(results))
 	}
 
-	// TODO: find a solution for multi-line error messages such as those for duplicate code.
-
 	// for _, result := range results {
 	// 	message := result.(cqlinters.PylintMessage)
 	// 	// TODO: do some specific analysis of these results
-	// e.g. create rules about: duplicate code, import management, other stuff from paper.
+	//  // e.g. create rules about: duplicate code, import management, other stuff from paper.
 	// }
 
 	return report, nil

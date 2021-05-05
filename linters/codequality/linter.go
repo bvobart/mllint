@@ -28,7 +28,7 @@ func (l *CQLinter) Name() string {
 }
 
 func (l *CQLinter) Rules() []*api.Rule {
-	return []*api.Rule{&RuleUseLinters, &RuleLintersInstalled, &pylint.RuleNoIssues}
+	return append([]*api.Rule{&RuleUseLinters, &RuleLintersInstalled}, pylint.NewLinter().Rules()...)
 }
 
 func (l *CQLinter) Configure(conf *config.Config) (err error) {
@@ -36,7 +36,6 @@ func (l *CQLinter) Configure(conf *config.Config) (err error) {
 	return err
 }
 
-// TODO: check whether there is a configuration for a CQLinter in the repository?
 func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	detectedLinters := project.CQLinters
