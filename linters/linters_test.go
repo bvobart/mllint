@@ -29,6 +29,8 @@ func TestDisableAllCategories(t *testing.T) {
 		mock_api.NewMockLinter(mockctl),
 	}
 	mockLinters[0].EXPECT().Rules().Times(1).Return([]*api.Rule{})
+	mockLinters[1].EXPECT().Rules().Times(1).Return([]*api.Rule{{}})
+	mockLinters[2].EXPECT().Rules().Times(1).Return([]*api.Rule{{}, {}})
 
 	linters.ByCategory = map[api.Category]api.Linter{
 		categories.VersionControl: mockLinters[0],
@@ -43,7 +45,7 @@ func TestDisableAllCategories(t *testing.T) {
 		categories.VersionControl.Slug + "/some/specific-rule",
 		categories.DependencyMgmt.Slug, // category not in linters.ByCategory
 	}
-	linters.DisableAll(disabled)
+	require.Equal(t, 3, linters.DisableAll(disabled))
 
 	enabled := map[api.Category]api.Linter{
 		categories.VersionControl: mockLinters[0],
@@ -105,7 +107,7 @@ func TestDisableRuleNormalLinter(t *testing.T) {
 	}
 	mockLinter.EXPECT().Rules().Times(1).Return(mockRules)
 
-	linters.DisableRule(mockLinter, "test-rule-2")
+	require.Equal(t, 1, linters.DisableRule(mockLinter, "test-rule-2"))
 	require.False(t, mockRules[0].Disabled)
 	require.True(t, mockRules[1].Disabled)
 	require.False(t, mockRules[2].Disabled)
@@ -127,8 +129,8 @@ func TestDisableRuleCompositeLinter(t *testing.T) {
 	mockLinter2.EXPECT().Rules().Times(2).Return(mockRules[2:])
 
 	compLinter := common.NewCompositeLinter("Testing", mockLinter1, mockLinter2)
-	linters.DisableRule(compLinter, "mock-1/test-rule-2")
-	linters.DisableRule(compLinter, "mock-2/test-rule-1")
+	require.Equal(t, 1, linters.DisableRule(compLinter, "mock-1/test-rule-2"))
+	require.Equal(t, 1, linters.DisableRule(compLinter, "mock-2/test-rule-1"))
 
 	require.False(t, mockRules[0].Disabled)
 	require.True(t, mockRules[1].Disabled)
