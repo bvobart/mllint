@@ -43,6 +43,9 @@ func (p Mypy) Run(project api.Project) ([]api.CQLinterResult, error) {
 
 func decodeMypyOutput(output []byte) []api.CQLinterResult {
 	msgs := strings.Split(string(output), "\n")
+	if len(msgs) < 2 {
+		return []api.CQLinterResult{}
+	}
 	msgs = msgs[:len(msgs)-2] // the last 2 lines are just "Found x errors in y files" and a blank line
 
 	res := make([]api.CQLinterResult, len(msgs))
