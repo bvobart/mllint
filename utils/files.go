@@ -7,24 +7,20 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/hhatto/gocloc"
 )
 
 // FileExists checks if a file exists and is not a directory
 func FileExists(filename string) bool {
 	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
+	return !os.IsNotExist(err) && !info.IsDir()
 }
 
 // FolderExists checks if a folder exists
 func FolderExists(filename string) bool {
 	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
+	return !os.IsNotExist(err) && info.IsDir()
 }
 
 // FolderIsEmpty checks if a folder is empty
@@ -57,7 +53,7 @@ func OpenFile(folder string, pattern string) (*os.File, error) {
 	}
 
 	if len(matches) == 0 {
-		return nil, fmt.Errorf("did not find a file matching %s in folder %s/%s", pattern, cwd, folder)
+		return nil, fmt.Errorf("did not find a file matching %s in folder %s/%s: %w", pattern, cwd, folder, os.ErrNotExist)
 	} else if len(matches) > 1 {
 		return nil, fmt.Errorf("pattern %s in folder %s/%s matches multiple files: %+v", pattern, cwd, folder, matches)
 	} else {
@@ -122,4 +118,16 @@ func (names Filenames) Prefix(dir string) Filenames {
 		names[i] = filepath.Join(dir, name)
 	}
 	return names
+}
+
+var langPython = gocloc.NewLanguage("Python", []string{"#"}, [][]string{{"\"\"\"", "\"\"\""}})
+
+func (names Filenames) CountLoC() int32 {
+	total := int32(0)
+	opts := gocloc.NewClocOptions()
+	for _, name := range names {
+		analysed := gocloc.AnalyzeFile(name, langPython, opts)
+		total += analysed.Code
+	}
+	return total
 }

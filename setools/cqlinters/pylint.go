@@ -49,7 +49,7 @@ func (p Pylint) Run(projectdir string) ([]api.CQLinterResult, error) { // TODO: 
 
 	var messages pylintMessageList
 	if err := json.Unmarshal(output, &messages); err != nil {
-		return nil, fmt.Errorf("error parsing Pylint output '%v': %w", output, err)
+		return nil, fmt.Errorf("error parsing Pylint output '%s': %w", output, err)
 	}
 
 	return messages.Decode(), nil
