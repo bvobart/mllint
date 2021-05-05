@@ -12,8 +12,8 @@ import (
 )
 
 func TestFromConfig(t *testing.T) {
-	conf := config.CodeQualityConfig{Linters: []string{"pylint", "mypy"}}
-	expected := []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}}
+	conf := config.CodeQualityConfig{Linters: []string{"pylint", "mypy", "black"}}
+	expected := []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}}
 
 	linters, err := cqlinters.FromConfig(conf)
 	require.NoError(t, err)
@@ -35,5 +35,6 @@ func TestDetect(t *testing.T) {
 	project.DepManagers = []api.DependencyManager{depmanagers.TypePoetry.For(project)}
 
 	linters := cqlinters.Detect(project)
-	require.Equal(t, []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}}, linters)
+	require.Len(t, linters, 3)
+	require.Subset(t, linters, []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}})
 }
