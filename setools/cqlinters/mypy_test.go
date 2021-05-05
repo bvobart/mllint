@@ -80,7 +80,7 @@ func TestMypyRun(t *testing.T) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "mypy", name)
 			require.Equal(t, []string{project.Dir}, args)
-			return []byte(testMypySuccessOutput), errors.New("mypy always exits with an error when there are messages")
+			return []byte(testMypySuccessOutput), nil
 		}
 
 		results, err := l.Run(project)

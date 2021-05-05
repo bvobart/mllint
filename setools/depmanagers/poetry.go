@@ -62,4 +62,8 @@ func (p Poetry) HasDevDependency(dependency string) bool {
 	return p.config.Has("tool.poetry.dev-dependencies." + dependency)
 }
 
+func (p Poetry) HasConfigSection(section string) bool {
+	return p.config.Has(section)
+}
+
 //---------------------------------------------------------------------------------------
