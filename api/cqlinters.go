@@ -20,8 +20,9 @@ type CQLinter interface {
 	// such that Run() can be called without errorring.
 	IsInstalled() bool
 
-	// Run runs the linter, collects the issues that it reports and returns them, or an error if that failed.
-	Run(projectdir string) ([]CQLinterResult, error)
+	// Run runs the linter on the project, collects the issues that it reports and returns them,
+	// or an error if that failed.
+	Run(project Project) ([]CQLinterResult, error)
 }
 
 type CQLinterResult interface {
