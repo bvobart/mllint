@@ -1,6 +1,9 @@
 package cqlinters
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // PylintMessage represents a Pylint error / warning message (in JSON)
 type PylintMessage struct {
@@ -14,7 +17,15 @@ type PylintMessage struct {
 }
 
 func (msg PylintMessage) String() string {
-	return fmt.Sprintf("`%s[%d,%d]` - %s _(%s)_", msg.Path, msg.Line, msg.Column, msg.Message, msg.MessageID)
+	message := msg.Message
+	// Pylint returns multi-line messages for duplicate-code messages, where the first line is the actual message
+	// and the rest of the lines are Python code that it assumes to be duplicated, so we display it in a nice code block.
+	if lines := strings.Split(message, "\n"); len(lines) > 1 {
+		message = lines[0] + "\n\t```python\n\t"
+		message += strings.Join(lines[1:], "\n\t")
+		message += "\n\t```"
+	}
+	return fmt.Sprintf("`%s[%d,%d]` - _(%s)_ %s ", msg.Path, msg.Line, msg.Column, msg.MessageID, message)
 }
 
 // MessageType is the type of Pylint message that is emitted
