@@ -6,6 +6,7 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/linters/codequality/mypy"
 	"github.com/bvobart/mllint/linters/codequality/pylint"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils/markdowngen"
@@ -13,6 +14,7 @@ import (
 
 var sublinters = map[api.CQLinterType]api.Linter{
 	cqlinters.TypePylint: pylint.NewLinter(),
+	cqlinters.TypeMypy:   mypy.NewLinter(),
 }
 
 func NewLinter() api.ConfigurableLinter {
@@ -28,7 +30,11 @@ func (l *CQLinter) Name() string {
 }
 
 func (l *CQLinter) Rules() []*api.Rule {
-	return append([]*api.Rule{&RuleUseLinters, &RuleLintersInstalled}, pylint.NewLinter().Rules()...)
+	rules := []*api.Rule{&RuleUseLinters, &RuleLintersInstalled}
+	return append(append(rules,
+		pylint.NewLinter().Rules()...),
+		mypy.NewLinter().Rules()...,
+	)
 }
 
 func (l *CQLinter) Configure(conf *config.Config) (err error) {
