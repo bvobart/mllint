@@ -32,6 +32,10 @@ func (p Mypy) IsConfigured(project api.Project) bool {
 	return utils.FileExists(path.Join(project.Dir, "mypy.ini")) || utils.FileExists(path.Join(project.Dir, ".mypy.ini"))
 }
 
+func (p Mypy) IsProperlyConfigured(project api.Project) bool {
+	return p.IsConfigured(project)
+}
+
 func (p Mypy) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if len(project.PythonFiles) == 0 {
 		return []api.CQLinterResult{}, nil

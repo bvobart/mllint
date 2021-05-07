@@ -34,7 +34,11 @@ func (p Black) IsConfigured(project api.Project) bool {
 	}
 
 	poetry := depmanagers.TypePoetry.For(project).(depmanagers.Poetry)
-	return poetry.HasConfigSection("tool.black")
+	return poetry.Config().Has("tool.black")
+}
+
+func (p Black) IsProperlyConfigured(project api.Project) bool {
+	return p.IsConfigured(project)
 }
 
 func (p Black) Run(project api.Project) ([]api.CQLinterResult, error) {

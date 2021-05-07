@@ -13,8 +13,12 @@ type CQLinter interface {
 	// DependencyName returns the name of the PyPI package that implements this linter
 	DependencyName() string
 
-	// IsConfigured returns true if there is a configuration for this linter in the given project.
+	// IsConfigured returns true if there is a configuration for this linter in the given project,
+	// regardless of whether this is a proper and clean configuration.
 	IsConfigured(project Project) bool
+
+	// IsProperlyConfigured returns true if the project is properly configured.
+	IsProperlyConfigured(project Project) bool
 
 	// IsInstalled returns true if the linter is installed (e.g. its executable is on PATH),
 	// such that Run() can be called without errorring.

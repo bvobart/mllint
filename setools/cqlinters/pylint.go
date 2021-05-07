@@ -33,6 +33,10 @@ func (p Pylint) IsConfigured(project api.Project) bool {
 	return utils.FileExists(path.Join(project.Dir, "pylintrc")) || utils.FileExists(path.Join(project.Dir, ".pylintrc"))
 }
 
+func (p Pylint) IsProperlyConfigured(project api.Project) bool {
+	return p.IsConfigured(project)
+}
+
 func (p Pylint) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if len(project.PythonFiles) == 0 {
 		return []api.CQLinterResult{}, nil
