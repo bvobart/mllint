@@ -130,6 +130,8 @@ Learn more about [getting started with data versioning](https://dvc.org/doc/star
 or the [%s](https://dvc.org/doc/command-reference/add) command.
 
 Then, add your datasets and models to DVC by running the command %s
-`, "`dvc add`", "`dvc add <files>`"),
+
+_Tip: Under the hood, mllint uses the command %s in order to see which files DVC is tracking._
+`, "`dvc add`", "`dvc add <files>`", "`dvc list . -R --dvc-only`"),
 	Weight: 1,
 }
