@@ -56,6 +56,21 @@ func TestBanditRun(t *testing.T) {
 			require.Equal(t, expectedBanditOutput[i], result)
 		}
 	})
+
+	t.Run("Errors", func(t *testing.T) {
+		project := api.Project{
+			Dir:         "test",
+			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
+		}
+
+		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
+			CommandName("bandit").CommandArgs("-f", "yaml", "-x", "test/.venv,test/venv", "-r", project.Dir).
+			ToOutput([]byte(testBanditErrorOutput), errors.New("bandit always exits with an error when there are messages"))
+
+		results, err := l.Run(project)
+		require.Nil(t, results)
+		require.EqualError(t, err, "Bandit had errors: [Tbh I have no idea what this could be or this]")
+	})
 }
 
 const testBanditOutput = `errors: []
@@ -304,6 +319,14 @@ var expectedBanditOutput = [4]cqlinters.BanditMessage{
 		Filename: "./build/mllint/cli.py", Line: 10,
 		Text:        "subprocess call - check for execution of untrusted input.",
 		MoreInfo:    "https://bandit.readthedocs.io/en/latest/plugins/b603_subprocess_without_shell_equals_true.html",
-		CodeSnippet: `9   os.chmod(mllint_exe, os.stat(mllint_exe).st_mode | 0o111) # Ensures mllint-exe is executable, equivalent to chmod +x\n10   return subprocess.run([mllint_exe] + sys.argv[1:]).returncode\n11 \n`,
+		CodeSnippet: `9   os.chmod(mllint_exe, os.stat(mllint_exe).st_mode | 0o111) # Ensures mllint-exe is executable, equivalent to chmod +x\n10   return subprocess.run([mllint_exe] + sys.argv[1:], check=False).returncode\n11 \n`,
 	},
 }
+
+const testBanditErrorOutput = `errors:
+- Tbh I have no idea what this could be
+- or this
+generated_at: '2021-05-08T15:18:24Z'
+metrics: []
+results: []
+`
