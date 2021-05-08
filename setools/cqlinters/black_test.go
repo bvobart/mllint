@@ -38,6 +38,12 @@ Oh no! 💥 💔 💥
 3 files would be reformatted, 4 files would be left unchanged.
 `
 
+var expectedBlackOutput = [3]string{
+	"utils/test-resources/python-files/some_other_script.py",
+	"utils/test-resources/python-files/subfolder/yet_another_script.py",
+	"utils/test-resources/python-files/some_script.py",
+}
+
 const testBlackSuccessOutput = `All done! ✨ 🍰 ✨
 1 file would be left unchanged.
 `
@@ -56,17 +62,16 @@ func TestBlackRun(t *testing.T) {
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
-		exec.CommandCombinedOutput = func(dir, name string, args ...string) ([]byte, error) {
-			require.Equal(t, project.Dir, dir)
-			require.Equal(t, "black", name)
-			require.Equal(t, []string{"--check", project.Dir}, args)
-			return []byte(testBlackOutput), errors.New("black always exits with an error when there are messages")
-		}
+		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
+			CommandName("black").CommandArgs("--check", project.Dir).
+			ToOutput([]byte(testBlackOutput), errors.New("black always exits with an error when there are messages"))
 
 		results, err := l.Run(project)
 		require.NoError(t, err)
-		require.Len(t, results, 1)
-		require.Equal(t, testBlackOutput, results[0].String())
+		require.Len(t, results, 3)
+		for i, result := range results {
+			require.Equal(t, expectedBlackOutput[i], result.String())
+		}
 	})
 
 	t.Run("NoMessages", func(t *testing.T) {
@@ -75,12 +80,9 @@ func TestBlackRun(t *testing.T) {
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
-		exec.CommandCombinedOutput = func(dir, name string, args ...string) ([]byte, error) {
-			require.Equal(t, project.Dir, dir)
-			require.Equal(t, "black", name)
-			require.Equal(t, []string{"--check", project.Dir}, args)
-			return []byte(testBlackSuccessOutput), nil
-		}
+		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
+			CommandName("black").CommandArgs("--check", project.Dir).
+			ToOutput([]byte(testBlackSuccessOutput), nil)
 
 		results, err := l.Run(project)
 		require.NoError(t, err)

@@ -2,6 +2,7 @@ package black
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/setools/cqlinters"
@@ -51,9 +52,17 @@ func (l *BlackLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleNoIssues] = "Congratulations, Black is happy with your project!"
 	} else {
 		report.Scores[RuleNoIssues] = 0
-		report.Details[RuleNoIssues] = "Black reported about your project that it ...\n\n" + markdowngen.CodeBlock(results[0].String()) +
+		report.Details[RuleNoIssues] = "Black reported " + strconv.Itoa(len(results)) + " files in your project that it would reformat:\n\n" + markdowngen.List(asInterfaceList(results)) +
 			"\nBlack can fix these issues automatically when you run `black .` in your project."
 	}
 
 	return report, nil
+}
+
+func asInterfaceList(list []api.CQLinterResult) []interface{} {
+	res := make([]interface{}, len(list))
+	for i, item := range list {
+		res[i] = item
+	}
+	return res
 }

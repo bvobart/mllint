@@ -2,6 +2,7 @@ package cqlinters
 
 import (
 	"path"
+	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/setools/depmanagers"
@@ -50,5 +51,19 @@ func (p Black) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}
-	return []api.CQLinterResult{stringer(string(output))}, nil
+	return decodeBlackOutput(string(output)), nil
+}
+
+func decodeBlackOutput(output string) []api.CQLinterResult {
+	results := []api.CQLinterResult{}
+
+	prefix := "would reformat "
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, prefix) {
+			results = append(results, stringer(strings.TrimPrefix(line, prefix)))
+		}
+	}
+
+	return results
 }
