@@ -12,8 +12,8 @@ import (
 )
 
 func TestFromConfig(t *testing.T) {
-	conf := config.CodeQualityConfig{Linters: []string{"pylint", "mypy", "black"}}
-	expected := []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}}
+	conf := config.CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort"}}
+	expected := []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}, cqlinters.ISort{}}
 
 	linters, err := cqlinters.FromConfig(conf)
 	require.NoError(t, err)
@@ -25,7 +25,7 @@ func TestFromConfigNotFound(t *testing.T) {
 	expected := []api.CQLinter{cqlinters.Pylint{}}
 
 	linters, err := cqlinters.FromConfig(conf)
-	require.EqualError(t, err, "could not parse these code quality linters from mllint's config: [eslint]")
+	require.EqualError(t, err, "unknown code quality linters in mllint's config: [eslint]")
 	require.Equal(t, expected, linters)
 }
 
@@ -35,6 +35,6 @@ func TestDetect(t *testing.T) {
 	project.DepManagers = []api.DependencyManager{depmanagers.TypePoetry.For(project)}
 
 	linters := cqlinters.Detect(project)
-	require.Len(t, linters, 3)
-	require.Subset(t, linters, []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}})
+	require.Len(t, linters, 4)
+	require.Subset(t, linters, []api.CQLinter{cqlinters.Pylint{}, cqlinters.Mypy{}, cqlinters.Black{}, cqlinters.ISort{}})
 }
