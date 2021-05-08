@@ -7,17 +7,34 @@ import (
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters/codequality/black"
+	"github.com/bvobart/mllint/linters/codequality/isort"
 	"github.com/bvobart/mllint/linters/codequality/mypy"
 	"github.com/bvobart/mllint/linters/codequality/pylint"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
-var sublinters = map[api.CQLinterType]api.Linter{
-	cqlinters.TypePylint: pylint.NewLinter(),
-	cqlinters.TypeMypy:   mypy.NewLinter(),
-	cqlinters.TypeBlack:  black.NewLinter(),
+type pair struct {
+	Linter api.Linter
+	Type   api.CQLinterType
 }
+
+var all = []pair{
+	{pylint.NewLinter(), cqlinters.TypePylint},
+	{mypy.NewLinter(), cqlinters.TypeMypy},
+	{black.NewLinter(), cqlinters.TypeBlack},
+	{isort.NewLinter(), cqlinters.TypeISort},
+}
+
+func toMap(all []pair) map[api.CQLinterType]api.Linter {
+	m := make(map[api.CQLinterType]api.Linter, len(all))
+	for _, l := range all {
+		m[l.Type] = l.Linter
+	}
+	return m
+}
+
+var sublinters = toMap(all)
 
 func NewLinter() api.ConfigurableLinter {
 	return &CQLinter{}
@@ -33,11 +50,10 @@ func (l *CQLinter) Name() string {
 
 func (l *CQLinter) Rules() []*api.Rule {
 	rules := []*api.Rule{&RuleUseLinters, &RuleLintersInstalled}
-	return append(append(append(rules,
-		pylint.NewLinter().Rules()...),
-		mypy.NewLinter().Rules()...),
-		black.NewLinter().Rules()...,
-	)
+	for _, l := range all {
+		rules = append(rules, l.Linter.Rules()...)
+	}
+	return rules
 }
 
 func (l *CQLinter) Configure(conf *config.Config) (err error) {
@@ -69,6 +85,8 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Scores[RuleLintersInstalled] = 100 * (1 - float64(len(notInstalledLinters)/len(desiredLinters)))
 		report.Details[RuleLintersInstalled] = "The following linters were not installed, so we could not analyse what they had to say about your project:\n\n" + markdowngen.List(asInterfaceList(notInstalledLinters))
 	}
+
+	// TODO: run all these linters in parallel
 
 	var multiErr *multierror.Error
 	subReports := []api.Report{}
