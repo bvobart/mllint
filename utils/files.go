@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -32,7 +33,7 @@ func FolderIsEmpty(filename string) (bool, error) {
 	defer file.Close()
 
 	_, err = file.Readdirnames(1)
-	if err == io.EOF {
+	if errors.Is(err, io.EOF) {
 		return true, nil
 	}
 	return false, err

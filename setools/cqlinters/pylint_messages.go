@@ -7,13 +7,13 @@ import (
 
 // PylintMessage represents a Pylint error / warning message (in JSON)
 type PylintMessage struct {
-	Path      string      `json:"path" yaml:"path"`
-	Line      int         `json:"line" yaml:"line"`
-	Column    int         `json:"column" yaml:"column"`
 	Type      MessageType `json:"type" yaml:"type"`
 	Symbol    string      `json:"symbol" yaml:"symbol"`
 	Message   string      `json:"message" yaml:"message"`
 	MessageID string      `json:"message-id" yaml:"symbolId"`
+	Path      string      `json:"path" yaml:"path"`
+	Line      int32       `json:"line" yaml:"line"`
+	Column    int16       `json:"column" yaml:"column"`
 }
 
 func (msg PylintMessage) String() string {

@@ -125,7 +125,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 
 	if outputToFile() {
 		if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
-			return fmt.Errorf("failed to write output file: %s", err)
+			return fmt.Errorf("failed to write output file: %w", err)
 		}
 		shush(func() { fmt.Println("Your report is complete, see", utils.AbsolutePath(outputFile)+"\n") })
 	} else {

@@ -1,0 +1,26 @@
+linters:
+  disable-all: true
+  enable:
+    # default:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck
+    # extra
+    - dogsled
+    - dupl
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - nolintlint
+
+linters-settings:
+  errcheck:
+    ignore: fmt:.*,github.com/fatih/color:.*

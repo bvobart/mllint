@@ -10,6 +10,7 @@ import (
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/exec"
+	"github.com/bvobart/mllint/utils/exec/mockexec"
 )
 
 func TestBlack(t *testing.T) {
@@ -18,9 +19,9 @@ func TestBlack(t *testing.T) {
 	require.Equal(t, "Black", l.String())
 	require.Equal(t, "black", l.DependencyName())
 
-	exec.LookPath = func(file string) (string, error) { return "", errors.New("nope") }
+	exec.LookPath = mockexec.ExpectLookPath(t, "black").ToBeError()
 	require.False(t, l.IsInstalled())
-	exec.LookPath = func(file string) (string, error) { return "", nil }
+	exec.LookPath = mockexec.ExpectLookPath(t, "black").ToBeFound()
 	require.True(t, l.IsInstalled())
 	exec.LookPath = exec.DefaultLookPath
 

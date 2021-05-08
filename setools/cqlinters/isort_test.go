@@ -10,6 +10,7 @@ import (
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/exec"
+	"github.com/bvobart/mllint/utils/exec/mockexec"
 )
 
 func TestISort(t *testing.T) {
@@ -18,9 +19,9 @@ func TestISort(t *testing.T) {
 	require.Equal(t, "isort", l.String())
 	require.Equal(t, "isort", l.DependencyName())
 
-	exec.LookPath = func(file string) (string, error) { return "", errors.New("nope") }
+	exec.LookPath = mockexec.ExpectLookPath(t, "isort").ToBeError()
 	require.False(t, l.IsInstalled())
-	exec.LookPath = func(file string) (string, error) { return "", nil }
+	exec.LookPath = mockexec.ExpectLookPath(t, "isort").ToBeFound()
 	require.True(t, l.IsInstalled())
 	exec.LookPath = exec.DefaultLookPath
 
