@@ -8,22 +8,6 @@ import (
 	"github.com/bvobart/mllint/config"
 )
 
-const (
-	TypePylint api.CQLinterType = "pylint"
-	TypeMypy   api.CQLinterType = "mypy"
-	TypeBlack  api.CQLinterType = "black"
-	TypeISort  api.CQLinterType = "isort"
-	TypeBandit api.CQLinterType = "bandit"
-)
-
-var ByType = map[api.CQLinterType]api.CQLinter{
-	TypePylint: Pylint{},
-	TypeMypy:   Mypy{},
-	TypeBlack:  Black{},
-	// TypeISort:  ISort{},
-	// TypeBandit: Bandit{},
-}
-
 // Detect finds all CQLinters that are used within the project.
 func Detect(project api.Project) []api.CQLinter {
 	res := []api.CQLinter{}
@@ -68,7 +52,7 @@ func FromConfig(conf config.CodeQualityConfig) ([]api.CQLinter, error) {
 
 	var err error
 	if len(notFound) > 0 {
-		err = fmt.Errorf("could not parse these code quality linters from mllint's config: %+v", notFound)
+		err = fmt.Errorf("unknown code quality linters in mllint's config: %+v", notFound)
 	}
 	return linters, err
 }
