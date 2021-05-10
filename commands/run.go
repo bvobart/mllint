@@ -4,12 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"runtime"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/setools/cqlinters"
@@ -42,6 +45,7 @@ Set this to '-' (a single dash) in order to print the raw Markdown directly to t
 type runCommand struct {
 	ProjectR api.ProjectReport
 	Config   *config.Config
+	Runner   *MLLintRunner
 }
 
 func outputToStdout() bool {
@@ -50,6 +54,93 @@ func outputToStdout() bool {
 
 func outputToFile() bool {
 	return outputFile != "" && !outputToStdout()
+}
+
+type MLLintRunner struct {
+	queue chan lintJob
+	wg    sync.WaitGroup
+}
+
+type lintJob struct {
+	id      string
+	linter  api.Linter
+	project api.Project
+	result  chan LinterResult
+}
+
+type LinterResult struct {
+	api.Report
+	Err error
+}
+
+func NewRunner() *MLLintRunner {
+	return &MLLintRunner{
+		queue: make(chan lintJob, 20),
+		wg:    sync.WaitGroup{},
+	}
+}
+
+func (r *MLLintRunner) Start() {
+	go r.queueWorker()
+}
+
+func (r *MLLintRunner) AwaitAll() {
+	r.wg.Wait()
+}
+
+func (r *MLLintRunner) queueWorker() {
+	running := 0
+	parked := []lintJob{}
+	done := make(chan lintJob, runtime.NumCPU())
+
+	for {
+		select {
+		case job, open := <-r.queue:
+			if !open {
+				return
+			}
+
+			if running >= runtime.NumCPU() {
+				parked = append(parked, job)
+				color.Blue("Scheduled: %s", job.linter.Name())
+				break
+			}
+
+			color.Yellow("Running: %s", job.linter.Name())
+			running++
+			go r.runJob(job, done)
+
+		case job := <-done:
+			running--
+
+			if len(parked) > 0 {
+				var nextJob lintJob
+				nextJob, parked = parked[0], parked[1:]
+
+				color.Yellow("Running: %s", job.linter.Name())
+				running++
+				go r.runJob(nextJob, done)
+			}
+
+			color.Green("Done: %s", job.linter.Name())
+		}
+	}
+}
+
+func (r *MLLintRunner) runJob(job lintJob, done chan lintJob) {
+	report, err := job.linter.LintProject(job.project)
+	job.result <- LinterResult{Report: report, Err: err}
+
+	done <- job
+	r.wg.Done()
+}
+
+func (r *MLLintRunner) RunLinter(id string, linter api.Linter, project api.Project) lintJob {
+	result := make(chan LinterResult, 1)
+	job := lintJob{id, linter, project, result}
+	r.wg.Add(1)
+	r.queue <- job
+	return job
 }
 
 // Runs pre-analysis checks:
@@ -105,14 +196,29 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	// do all linting
-	rc.ProjectR.Reports = map[api.Category]api.Report{}
+	rc.Runner = NewRunner()
+	rc.Runner.Start()
+
+	jobs := make([]lintJob, len(linters.ByCategory))
 	for cat, linter := range linters.ByCategory {
-		report, err := linter.LintProject(rc.ProjectR.Project)
-		if err != nil {
-			rc.ProjectR.Errors = multierror.Append(rc.ProjectR.Errors, fmt.Errorf("**%s** - %w", linter.Name(), err))
+		job := rc.Runner.RunLinter(cat.Slug, linter, rc.ProjectR.Project)
+		jobs = append(jobs, job)
+	}
+
+	// TODO: get this shit working
+
+	rc.Runner.AwaitAll()
+
+	rc.ProjectR.Reports = map[api.Category]api.Report{}
+	for _, job := range jobs {
+		color.Yellow("Awaiting: %s", job.id)
+		result := <-job.result
+		if result.Err != nil {
+			rc.ProjectR.Errors = multierror.Append(rc.ProjectR.Errors, fmt.Errorf("**%s** - %w", job.linter.Name(), err))
 		}
 
-		rc.ProjectR.Reports[cat] = report
+		cat := categories.BySlug[job.id]
+		rc.ProjectR.Reports[cat] = result.Report
 	}
 
 	// convert project report to Markdown
