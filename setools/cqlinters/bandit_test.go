@@ -40,12 +40,12 @@ func TestBanditRun(t *testing.T) {
 
 	t.Run("NormalProject+String", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
 		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("bandit").CommandArgs("-f", "yaml", "-x", "test/.venv,test/venv", "-r", project.Dir).
+			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".venv,venv", "-r", project.Dir).
 			ToOutput([]byte(testBanditOutput), errors.New("bandit always exits with an error when there are messages"))
 
 		results, err := l.Run(project)
@@ -59,12 +59,12 @@ func TestBanditRun(t *testing.T) {
 
 	t.Run("Errors", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
 		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("bandit").CommandArgs("-f", "yaml", "-x", "test/.venv,test/venv", "-r", project.Dir).
+			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".venv,venv", "-r", project.Dir).
 			ToOutput([]byte(testBanditErrorOutput), errors.New("bandit always exits with an error when there are messages"))
 
 		results, err := l.Run(project)
@@ -82,7 +82,7 @@ func TestBanditMessageString(t *testing.T) {
 		CodeSnippet: `1 import subprocess\n2 import sys\n3 import os\n`,
 	}
 
-	expected := "`file1.py:1` - _(B404, severity: LOW, confidence: HIGH)_ Consider possible security implications associated with subprocess module. See [here](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess) for more info"
+	expected := "`file1.py:1` - _(B404, severity: LOW, confidence: HIGH)_ - Consider possible security implications associated with subprocess module. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess)"
 	require.Equal(t, expected, msg.String())
 }
 
@@ -308,28 +308,28 @@ results:
 var expectedBanditOutput = [4]cqlinters.BanditMessage{
 	{
 		TestID: "B404", TestName: "blacklist", Confidence: "HIGH", Severity: "LOW",
-		Filename: "./build/build/lib/mllint/cli.py", Line: 1,
+		Filename: "build/build/lib/mllint/cli.py", Line: 1,
 		Text:        "Consider possible security implications associated with subprocess module.",
 		MoreInfo:    "https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess",
 		CodeSnippet: `1 import subprocess\n2 import sys\n3 import os\n`,
 	},
 	{
 		TestID: "B603", TestName: "subprocess_without_shell_equals_true", Confidence: "HIGH", Severity: "LOW",
-		Filename: "./build/build/lib/mllint/cli.py", Line: 9,
+		Filename: "build/build/lib/mllint/cli.py", Line: 9,
 		Text:        "subprocess call - check for execution of untrusted input.",
 		MoreInfo:    "https://bandit.readthedocs.io/en/latest/plugins/b603_subprocess_without_shell_equals_true.html",
 		CodeSnippet: `8   os.chmod(mllint_exe, os.stat(mllint_exe).st_mode | 0o111) # Ensures mllint-exe is executable, equivalent to chmod +x\n9   return subprocess.run([mllint_exe] + sys.argv[1:]).returncode\n10 \n`,
 	},
 	{
 		TestID: "B404", TestName: "blacklist", Confidence: "HIGH", Severity: "LOW",
-		Filename: "./build/mllint/cli.py", Line: 1,
+		Filename: "build/mllint/cli.py", Line: 1,
 		Text:        "Consider possible security implications associated with subprocess module.",
 		MoreInfo:    "https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess",
 		CodeSnippet: `1 import subprocess\n2 import sys\n3 import os\n`,
 	},
 	{
 		TestID: "B603", TestName: "subprocess_without_shell_equals_true", Confidence: "HIGH", Severity: "LOW",
-		Filename: "./build/mllint/cli.py", Line: 10,
+		Filename: "build/mllint/cli.py", Line: 10,
 		Text:        "subprocess call - check for execution of untrusted input.",
 		MoreInfo:    "https://bandit.readthedocs.io/en/latest/plugins/b603_subprocess_without_shell_equals_true.html",
 		CodeSnippet: `9   os.chmod(mllint_exe, os.stat(mllint_exe).st_mode | 0o111) # Ensures mllint-exe is executable, equivalent to chmod +x\n10   return subprocess.run([mllint_exe] + sys.argv[1:], check=False).returncode\n11 \n`,

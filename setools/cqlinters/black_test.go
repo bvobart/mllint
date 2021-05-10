@@ -39,9 +39,9 @@ Oh no! 💥 💔 💥
 `
 
 var expectedBlackOutput = [3]string{
-	"utils/test-resources/python-files/some_other_script.py",
-	"utils/test-resources/python-files/subfolder/yet_another_script.py",
-	"utils/test-resources/python-files/some_script.py",
+	"`utils/test-resources/python-files/some_other_script.py`",
+	"`utils/test-resources/python-files/subfolder/yet_another_script.py`",
+	"`utils/test-resources/python-files/some_script.py`",
 }
 
 const testBlackSuccessOutput = `All done! ✨ 🍰 ✨
@@ -58,7 +58,7 @@ func TestBlackRun(t *testing.T) {
 
 	t.Run("NormalProject+String", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
@@ -76,7 +76,7 @@ func TestBlackRun(t *testing.T) {
 
 	t.Run("NoMessages", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 

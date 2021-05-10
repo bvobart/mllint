@@ -35,10 +35,10 @@ Found 4 errors in 1 file (checked 2 source files)
 const testMypySuccessOutput = "Success: no issues found in 1 source file"
 
 var expectedMypyMessageStrings = [4]string{
-	"src/evaluate.py:6: error: Cannot find implementation or library stub for module named 'sklearn.metrics'",
-	"src/evaluate.py:6: note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports",
-	"src/evaluate.py:6: error: Cannot find implementation or library stub for module named 'sklearn'",
-	`src/evaluate.py:37: error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")`,
+	"`src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn.metrics'",
+	"`src/evaluate.py:6` - Note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports",
+	"`src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn'",
+	"`src/evaluate.py:37` - Error: Incompatible types in assignment (expression has type \"TextIO\", variable has type \"BinaryIO\")",
 }
 
 func TestMypyRun(t *testing.T) {

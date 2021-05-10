@@ -73,7 +73,7 @@ func TestISortRun(t *testing.T) {
 
 	t.Run("NormalProject+String", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
@@ -90,7 +90,7 @@ func TestISortRun(t *testing.T) {
 
 	t.Run("SkippedFiles", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
@@ -103,7 +103,7 @@ func TestISortRun(t *testing.T) {
 
 	t.Run("EmptyOutput", func(t *testing.T) {
 		project := api.Project{
-			Dir:         "test",
+			Dir:         ".",
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
