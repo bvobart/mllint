@@ -2,12 +2,16 @@ package bandit
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
+
+// No Bandit messages = 100%, 1 Bandit message per 50 lines of code = 50%, 1 Bandit message per 25 lines of code = 0%
+const maxLoCperMsg = 25
 
 func NewLinter() api.Linter {
 	return &BanditLinter{}
@@ -37,7 +41,8 @@ func (l *BanditLinter) LintProject(project api.Project) (api.Report, error) {
 		return report, nil
 	}
 
-	if len(project.PythonFiles) == 0 {
+	loc := project.PythonFiles.CountLoC()
+	if loc == 0 {
 		report.Scores[RuleNoIssues] = 100
 		report.Details[RuleNoIssues] = "No Python files were found in the project's repository"
 	}
@@ -47,11 +52,11 @@ func (l *BanditLinter) LintProject(project api.Project) (api.Report, error) {
 		return report, fmt.Errorf("Bandit failed to run: %w", err)
 	}
 
+	// calculate score
+	report.Scores[RuleNoIssues] = 100 - 100*math.Min(1, float64(len(results)*maxLoCperMsg)/float64(loc))
 	if len(results) == 0 {
-		report.Scores[RuleNoIssues] = 100
 		report.Details[RuleNoIssues] = "Congratulations, Bandit is happy with your project!"
 	} else {
-		report.Scores[RuleNoIssues] = 0
 		report.Details[RuleNoIssues] = "Bandit reported **" + strconv.Itoa(len(results)) + "** issues with your project:\n\n" + markdowngen.List(asInterfaceList(results))
 	}
 

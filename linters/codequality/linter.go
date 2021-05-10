@@ -72,19 +72,18 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 	}
 
 	missingLinters := findMissing(desiredLinters, detectedLinters)
+	report.Details[RuleUseLinters] = detailsUseLinters(detectedLinters, missingLinters)
 	if len(missingLinters) == 0 {
 		report.Scores[RuleUseLinters] = 100
-		report.Details[RuleUseLinters] = "All linters detected!\n\n" + markdowngen.List(asInterfaceList(desiredLinters))
 	} else {
-		report.Scores[RuleUseLinters] = 100 * (1 - float64(len(missingLinters)/len(desiredLinters)))
-		report.Details[RuleUseLinters] = "Your project should employ the following linters to help you measure the quality of your code:\n\n" + markdowngen.List(asInterfaceList(missingLinters))
+		report.Scores[RuleUseLinters] = 100 * (1 - float64(len(missingLinters))/float64(len(desiredLinters)))
 	}
 
 	notInstalledLinters := findNotInstalled(desiredLinters)
 	if len(notInstalledLinters) == 0 {
 		report.Scores[RuleLintersInstalled] = 100
 	} else {
-		report.Scores[RuleLintersInstalled] = 100 * (1 - float64(len(notInstalledLinters)/len(desiredLinters)))
+		report.Scores[RuleLintersInstalled] = 100 * (1 - float64(len(notInstalledLinters))/float64(len(desiredLinters)))
 		report.Details[RuleLintersInstalled] = "The following linters were not installed, so we could not analyse what they had to say about your project:\n\n" + markdowngen.List(asInterfaceList(notInstalledLinters))
 	}
 

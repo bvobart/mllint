@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 var RuleUseLinters = api.Rule{
@@ -28,13 +29,38 @@ Linter | Why?
 **[isort](https://pypi.org/project/isort/)**   | Code style: automatically sorts and prettyprints imports.
 **[Bandit](https://pypi.org/project/bandit/)** | Security
 
-This rule will be satisfied, iff for each of these linters (customisable via config), 
-there is _either_ a configuration file in the repository, _or_ the linter is a dependency of the project.`,
+This rule will be satisfied, iff for each of these linters:
+- **Either** there is a configuration file for this linter in the project
+- **Or** the linter is a dependency of the project`,
 	Weight: 1,
 }
 
+func detailsUseLinters(detectedLinters []api.CQLinter, missingLinters []api.CQLinter) string {
+	if len(missingLinters) == 0 {
+		return fmt.Sprintf("Hooray, all linters detected:\n\n%s", markdowngen.List(asInterfaceList(detectedLinters)))
+	}
+
+	return fmt.Sprintf(`Linters detected:
+
+%s
+
+However, these linters were **missing** from your project:
+
+%s
+
+We recommend that you start using these linters in your project to help you measure and maintain the quality of your code.
+
+This rule will be satisfied, iff for each of these linters:
+- **Either** there is a configuration file for this linter in the project
+- **Or** the linter is a dependency of the project
+
+Specifically, we recommend adding each linter to the development dependencies of your dependency manager,
+e.g. using `+"`poetry add --dev %s` or `pipenv install --dev %s`"+`
+`, markdowngen.List(asInterfaceList(detectedLinters)), markdowngen.List(asInterfaceList(missingLinters)), missingLinters[0].DependencyName(), missingLinters[0].DependencyName())
+}
+
 var RuleLintersInstalled = api.Rule{
-	Name: "The code quality linters should be installed in the current environment",
+	Name: "All code quality linters should be installed in the current environment",
 	Slug: "linters-installed",
 	Details: fmt.Sprintf(`In order for mllint to be able to run the recommended code quality linters, they must be installed in the current environment,
 i.e. they must be on PATH. 
