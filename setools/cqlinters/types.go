@@ -15,5 +15,5 @@ var ByType = map[api.CQLinterType]api.CQLinter{
 	TypeMypy:   Mypy{},
 	TypeBlack:  Black{},
 	TypeISort:  ISort{},
-	// TypeBandit: Bandit{},
+	TypeBandit: Bandit{},
 }

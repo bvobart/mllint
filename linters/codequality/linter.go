@@ -6,6 +6,7 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
+	"github.com/bvobart/mllint/linters/codequality/bandit"
 	"github.com/bvobart/mllint/linters/codequality/black"
 	"github.com/bvobart/mllint/linters/codequality/isort"
 	"github.com/bvobart/mllint/linters/codequality/mypy"
@@ -24,6 +25,7 @@ var all = []pair{
 	{mypy.NewLinter(), cqlinters.TypeMypy},
 	{black.NewLinter(), cqlinters.TypeBlack},
 	{isort.NewLinter(), cqlinters.TypeISort},
+	{bandit.NewLinter(), cqlinters.TypeBandit},
 }
 
 func toMap(all []pair) map[api.CQLinterType]api.Linter {
