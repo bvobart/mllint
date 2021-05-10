@@ -44,3 +44,5 @@ but a more recommended way is to install them into a virtualenv, then activating
 Poetry and Pipenv do this automatically, simply install them as development dependencies (%s) and run e.g. %s to open a shell in which to run mllint.`, "`--dev`", "`poetry shell`"),
 	Weight: 1,
 }
+
+//https://github.com/PyCQA/bandit#per-project-command-line-args
