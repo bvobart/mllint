@@ -15,5 +15,5 @@ type BanditMessage struct {
 }
 
 func (msg BanditMessage) String() string {
-	return fmt.Sprint("`", msg.Filename, ":", msg.Line, "`", " - _(", msg.TestID, ", severity: ", msg.Severity, ", confidence: ", msg.Confidence, ")_ ", msg.Text, " See [here]("+msg.MoreInfo+") for more info")
+	return fmt.Sprint("`", msg.Filename, ":", msg.Line, "`", " - _(", msg.TestID, ", severity: ", msg.Severity, ", confidence: ", msg.Confidence, ")_ - ", msg.Text, " [More Info]("+msg.MoreInfo+")")
 }

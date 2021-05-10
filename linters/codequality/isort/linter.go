@@ -61,7 +61,7 @@ func (l *ISortLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleNoIssues] = "Congratulations, `isort` is happy with your project!"
 	} else {
 		report.Scores[RuleNoIssues] = 0
-		report.Details[RuleNoIssues] = "isort reported that it would fix **" + strconv.Itoa(len(results)) + "** files in your project:\n\n" + markdowngen.List(asInterfaceList(results)) +
+		report.Details[RuleNoIssues] = "isort reported **" + strconv.Itoa(len(results)) + "** files in your project that it would fix:\n\n" + markdowngen.List(asInterfaceList(results)) +
 			"\nisort can fix these issues automatically when you run `isort .` in your project."
 	}
 

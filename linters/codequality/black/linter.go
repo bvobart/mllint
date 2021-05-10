@@ -52,7 +52,7 @@ func (l *BlackLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleNoIssues] = "Congratulations, Black is happy with your project!"
 	} else {
 		report.Scores[RuleNoIssues] = 0
-		report.Details[RuleNoIssues] = "Black reported " + strconv.Itoa(len(results)) + " files in your project that it would reformat:\n\n" + markdowngen.List(asInterfaceList(results)) +
+		report.Details[RuleNoIssues] = "Black reported **" + strconv.Itoa(len(results)) + "** files in your project that it would reformat:\n\n" + markdowngen.List(asInterfaceList(results)) +
 			"\nBlack can fix these issues automatically when you run `black .` in your project."
 	}
 

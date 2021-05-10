@@ -51,19 +51,23 @@ func (p Black) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}
-	return decodeBlackOutput(string(output)), nil
+	return decodeBlackOutput(string(output), project.Dir), nil
 }
 
-func decodeBlackOutput(output string) []api.CQLinterResult {
+func decodeBlackOutput(output string, projectdir string) []api.CQLinterResult {
 	results := []api.CQLinterResult{}
 
 	prefix := "would reformat "
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		if strings.HasPrefix(line, prefix) {
-			results = append(results, stringer(strings.TrimPrefix(line, prefix)))
+			results = append(results, formatFilename(strings.TrimPrefix(line, prefix), projectdir))
 		}
 	}
 
 	return results
+}
+
+func formatFilename(filename string, projectdir string) stringer {
+	return stringer("`" + trimProjectDir(filename, projectdir) + "`")
 }

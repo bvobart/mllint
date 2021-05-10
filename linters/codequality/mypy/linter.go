@@ -57,7 +57,7 @@ func (l *MypyLinter) LintProject(project api.Project) (api.Report, error) {
 	if len(results) == 0 {
 		report.Details[RuleNoIssues] = "Congratulations, Mypy is happy with your project!"
 	} else {
-		report.Details[RuleNoIssues] = fmt.Sprintf("Mypy reported %d issues with your project:\n\n", len(results)) + markdowngen.List(asInterfaceList(results))
+		report.Details[RuleNoIssues] = fmt.Sprintf("Mypy reported **%d** issues with your project:\n\n", len(results)) + markdowngen.List(asInterfaceList(results))
 	}
 
 	return report, nil

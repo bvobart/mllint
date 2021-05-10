@@ -49,10 +49,10 @@ func (p Bandit) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}
-	return decodeBanditOutput(output)
+	return decodeBanditOutput(output, project.Dir)
 }
 
-func decodeBanditOutput(output []byte) ([]api.CQLinterResult, error) {
+func decodeBanditOutput(output []byte, projectdir string) ([]api.CQLinterResult, error) {
 	parsedOutput := banditYamlOutput{}
 	if err := yaml.Unmarshal(output, &parsedOutput); err != nil {
 		return nil, fmt.Errorf("failed to parse Bandit's YAML output: %w, output: \n\n```yaml\n%s```\n", err, string(output))
@@ -64,6 +64,7 @@ func decodeBanditOutput(output []byte) ([]api.CQLinterResult, error) {
 
 	results := make([]api.CQLinterResult, len(parsedOutput.Results))
 	for i, result := range parsedOutput.Results {
+		result.Filename = trimProjectDir(result.Filename, projectdir)
 		results[i] = result
 	}
 	return results, nil

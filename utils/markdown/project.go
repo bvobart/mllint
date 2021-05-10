@@ -70,7 +70,7 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 
 		// include any details for the rule if the linter decided to report any.
 		if linterDetails, ok := report.Details[*rule]; ok {
-			writeRuleDetails(&details, *rule, linterDetails)
+			writeRuleDetails(&details, *rule, score, linterDetails)
 		}
 	}
 
@@ -79,17 +79,14 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 }
 
 func writeRuleScore(output *strings.Builder, category api.Category, rule api.Rule, score float64) {
-	passed := "✅"
-	if score < 100 {
-		passed = "❌"
-	}
-
+	passed := getPassedEmoji(score)
 	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | `%s`\n", passed, score, rule.Weight, rule.Name, rule.FullSlug(category))
 	output.WriteString(line)
 }
 
-func writeRuleDetails(output *strings.Builder, rule api.Rule, details string) {
-	output.WriteString("#### " + rule.Name + "\n\n")
+func writeRuleDetails(output *strings.Builder, rule api.Rule, score float64, details string) {
+	passed := getPassedEmoji(score)
+	output.WriteString("#### Details — " + rule.Name + " — " + passed + "\n\n")
 	output.WriteString(details)
 	output.WriteString("\n\n")
 }
@@ -111,4 +108,11 @@ func writeProjectErrors(output *strings.Builder, multiErr *multierror.Error) {
 	}
 
 	output.WriteString(fmt.Sprint(multiErr))
+}
+
+func getPassedEmoji(score float64) string {
+	if score < 100 {
+		return "❌"
+	}
+	return "✅"
 }

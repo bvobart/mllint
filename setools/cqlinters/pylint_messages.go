@@ -25,7 +25,7 @@ func (msg PylintMessage) String() string {
 		message += strings.Join(lines[1:], "\n\t")
 		message += "\n\t```"
 	}
-	return fmt.Sprintf("`%s[%d,%d]` - _(%s)_ %s", msg.Path, msg.Line, msg.Column, msg.MessageID, message)
+	return fmt.Sprintf("`%s:%d,%d` - _(%s)_ %s", msg.Path, msg.Line, msg.Column, msg.MessageID, message)
 }
 
 // MessageType is the type of Pylint message that is emitted

@@ -60,17 +60,20 @@ func (p ISort) Run(project api.Project) ([]api.CQLinterResult, error) {
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}
-	return decodeISortOutput(string(output)), nil
+	return decodeISortOutput(string(output), project.Dir), nil
 }
 
-func decodeISortOutput(output string) []api.CQLinterResult {
+func decodeISortOutput(output string, projectdir string) []api.CQLinterResult {
 	results := []api.CQLinterResult{}
 
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		if strings.HasPrefix(line, "ERROR:") {
 			parts := strings.Split(line, " ")
-			problem := ISortProblem{Path: parts[1], Message: strings.Join(parts[2:], " ")}
+			problem := ISortProblem{
+				Path:    trimProjectDir(parts[1], projectdir),
+				Message: strings.Join(parts[2:], " "),
+			}
 			results = append(results, problem)
 		}
 	}

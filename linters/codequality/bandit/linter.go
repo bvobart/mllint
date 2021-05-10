@@ -52,7 +52,7 @@ func (l *BanditLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleNoIssues] = "Congratulations, Bandit is happy with your project!"
 	} else {
 		report.Scores[RuleNoIssues] = 0
-		report.Details[RuleNoIssues] = "Bandit reported " + strconv.Itoa(len(results)) + " issues with your project:\n\n" + markdowngen.List(asInterfaceList(results))
+		report.Details[RuleNoIssues] = "Bandit reported **" + strconv.Itoa(len(results)) + "** issues with your project:\n\n" + markdowngen.List(asInterfaceList(results))
 	}
 
 	return report, nil

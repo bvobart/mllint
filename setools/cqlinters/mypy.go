@@ -2,6 +2,7 @@ package cqlinters
 
 import (
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/bvobart/mllint/api"
@@ -54,11 +55,18 @@ func decodeMypyOutput(output []byte) []api.CQLinterResult {
 
 	res := make([]api.CQLinterResult, len(msgs))
 	for i, msg := range msgs {
-		res[i] = stringer(msg)
+		res[i] = parseMypyMessage(msg)
 	}
 	return res
 }
 
-type stringer string
-
-func (s stringer) String() string { return string(s) }
+func parseMypyMessage(text string) MypyMessage {
+	parts := strings.Split(text, ":")
+	line, _ := strconv.Atoi(parts[1])
+	return MypyMessage{
+		Filename: parts[0],
+		Line:     line,
+		Severity: strings.TrimSpace(parts[2]),
+		Message:  strings.TrimSpace(strings.Join(parts[3:], ":")),
+	}
+}
