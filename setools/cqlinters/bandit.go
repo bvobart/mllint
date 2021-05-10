@@ -55,7 +55,7 @@ func (p Bandit) Run(project api.Project) ([]api.CQLinterResult, error) {
 func decodeBanditOutput(output []byte) ([]api.CQLinterResult, error) {
 	parsedOutput := banditYamlOutput{}
 	if err := yaml.Unmarshal(output, &parsedOutput); err != nil {
-		return nil, fmt.Errorf("failed to parse Bandit's YAML output: %w", err)
+		return nil, fmt.Errorf("failed to parse Bandit's YAML output: %w, output: \n\n```yaml\n%s```\n", err, string(output))
 	}
 
 	if len(parsedOutput.Errors) > 0 {
