@@ -11,6 +11,7 @@ require (
 	github.com/google/go-cmp v0.5.5
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hhatto/gocloc v0.4.1
+	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d // indirect
 	github.com/pelletier/go-toml v1.9.0
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
