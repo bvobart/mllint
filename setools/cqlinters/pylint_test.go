@@ -76,9 +76,9 @@ const testPylintOutput = `
 `
 
 var expectedPylintMessageStrings = [4]string{
-	"`src/train.py[1,0]` - _(C0114)_ Missing module docstring ",
-	"`src/train.py[15,0]` - _(W0622)_ Redefining built-in 'input' ",
-	"`src/train_old.py[15,0]` - _(W0311)_ Bad indentation. Found 4 spaces, expected 2 ",
+	"`src/train.py[1,0]` - _(C0114)_ Missing module docstring",
+	"`src/train.py[15,0]` - _(W0622)_ Redefining built-in 'input'",
+	"`src/train_old.py[15,0]` - _(W0311)_ Bad indentation. Found 4 spaces, expected 2",
 	fmt.Sprintf(
 		`%s - _(R0801)_ Similar lines in 2 files
 	%spython
@@ -125,7 +125,7 @@ var expectedPylintMessageStrings = [4]string{
 	
 	with open(output, 'wb') as fd:
 	    pickle.dump(clf, fd)
-	%s `, "`src/train_old.py[1,0]`", "```", "```"),
+	%s`, "`src/train_old.py[1,0]`", "```", "```"),
 }
 
 func TestPylintRun(t *testing.T) {
@@ -133,7 +133,7 @@ func TestPylintRun(t *testing.T) {
 	t.Run("EmptyProject", func(t *testing.T) {
 		results, err := l.Run(api.Project{})
 		require.NoError(t, err)
-		require.Equal(t, results, []api.CQLinterResult{})
+		require.Equal(t, []api.CQLinterResult{}, results)
 	})
 
 	t.Run("NormalProject+String", func(t *testing.T) {

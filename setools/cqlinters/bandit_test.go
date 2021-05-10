@@ -44,7 +44,7 @@ func TestBanditRun(t *testing.T) {
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
-		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
+		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
 			CommandName("bandit").CommandArgs("-f", "yaml", "-x", "test/.venv,test/venv", "-r", project.Dir).
 			ToOutput([]byte(testBanditOutput), errors.New("bandit always exits with an error when there are messages"))
 
@@ -63,7 +63,7 @@ func TestBanditRun(t *testing.T) {
 			PythonFiles: utils.Filenames{"file1", "file2", "file3"},
 		}
 
-		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
+		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
 			CommandName("bandit").CommandArgs("-f", "yaml", "-x", "test/.venv,test/venv", "-r", project.Dir).
 			ToOutput([]byte(testBanditErrorOutput), errors.New("bandit always exits with an error when there are messages"))
 
@@ -71,6 +71,19 @@ func TestBanditRun(t *testing.T) {
 		require.Nil(t, results)
 		require.EqualError(t, err, "Bandit had errors: [Tbh I have no idea what this could be or this]")
 	})
+}
+
+func TestBanditMessageString(t *testing.T) {
+	msg := cqlinters.BanditMessage{
+		TestID: "B404", TestName: "blacklist", Confidence: "HIGH", Severity: "LOW",
+		Filename: "file1.py", Line: 1,
+		Text:        "Consider possible security implications associated with subprocess module.",
+		MoreInfo:    "https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess",
+		CodeSnippet: `1 import subprocess\n2 import sys\n3 import os\n`,
+	}
+
+	expected := "`file1.py:1` - _(B404, severity: LOW, confidence: HIGH)_ Consider possible security implications associated with subprocess module. See [here](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess) for more info"
+	require.Equal(t, expected, msg.String())
 }
 
 const testBanditOutput = `errors: []

@@ -45,7 +45,7 @@ func (p Bandit) Run(project api.Project) ([]api.CQLinterResult, error) {
 	// We need to explicitly ignore the project's venv and .venv folders since Bandit doesn't do that by default
 	// These folders also have to be referenced using their full path, see https://github.com/PyCQA/bandit/issues/488
 	excludeDirs := path.Join(project.Dir, ".venv") + "," + path.Join(project.Dir, "venv")
-	output, err := exec.CommandCombinedOutput(project.Dir, "bandit", "-f", "yaml", "-x", excludeDirs, "-r", project.Dir)
+	output, err := exec.CommandOutput(project.Dir, "bandit", "-f", "yaml", "-x", excludeDirs, "-r", project.Dir)
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}

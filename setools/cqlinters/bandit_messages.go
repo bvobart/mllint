@@ -1,5 +1,7 @@
 package cqlinters
 
+import "fmt"
+
 type BanditMessage struct {
 	TestID      string `yaml:"test_id"`
 	TestName    string `yaml:"test_name"`
@@ -13,5 +15,5 @@ type BanditMessage struct {
 }
 
 func (msg BanditMessage) String() string {
-	return "TODO: implement"
+	return fmt.Sprint("`", msg.Filename, ":", msg.Line, "`", " - _(", msg.TestID, ", severity: ", msg.Severity, ", confidence: ", msg.Confidence, ")_ ", msg.Text, " See [here]("+msg.MoreInfo+") for more info")
 }

@@ -39,7 +39,7 @@ func (p Black) IsConfigured(project api.Project) bool {
 }
 
 func (p Black) IsProperlyConfigured(project api.Project) bool {
-	return p.IsConfigured(project)
+	return true // Black doesn't really need configuration
 }
 
 func (p Black) Run(project api.Project) ([]api.CQLinterResult, error) {
