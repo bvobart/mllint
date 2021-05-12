@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"runtime"
-	"sync"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
@@ -13,6 +11,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/setools/cqlinters"
@@ -45,7 +44,7 @@ Set this to '-' (a single dash) in order to print the raw Markdown directly to t
 type runCommand struct {
 	ProjectR api.ProjectReport
 	Config   *config.Config
-	Runner   *MLLintRunner
+	Runner   *mllint.Runner
 }
 
 func outputToStdout() bool {
@@ -54,93 +53,6 @@ func outputToStdout() bool {
 
 func outputToFile() bool {
 	return outputFile != "" && !outputToStdout()
-}
-
-type MLLintRunner struct {
-	queue chan lintJob
-	wg    sync.WaitGroup
-}
-
-type lintJob struct {
-	id      string
-	linter  api.Linter
-	project api.Project
-	result  chan LinterResult
-}
-
-type LinterResult struct {
-	api.Report
-	Err error
-}
-
-func NewRunner() *MLLintRunner {
-	return &MLLintRunner{
-		queue: make(chan lintJob, 20),
-		wg:    sync.WaitGroup{},
-	}
-}
-
-func (r *MLLintRunner) Start() {
-	go r.queueWorker()
-}
-
-func (r *MLLintRunner) AwaitAll() {
-	r.wg.Wait()
-}
-
-func (r *MLLintRunner) queueWorker() {
-	running := 0
-	parked := []lintJob{}
-	done := make(chan lintJob, runtime.NumCPU())
-
-	for {
-		select {
-		case job, open := <-r.queue:
-			if !open {
-				return
-			}
-
-			if running >= runtime.NumCPU() {
-				parked = append(parked, job)
-				color.Blue("Scheduled: %s", job.linter.Name())
-				break
-			}
-
-			color.Yellow("Running: %s", job.linter.Name())
-			running++
-			go r.runJob(job, done)
-
-		case job := <-done:
-			running--
-
-			if len(parked) > 0 {
-				var nextJob lintJob
-				nextJob, parked = parked[0], parked[1:]
-
-				color.Yellow("Running: %s", job.linter.Name())
-				running++
-				go r.runJob(nextJob, done)
-			}
-
-			color.Green("Done: %s", job.linter.Name())
-		}
-	}
-}
-
-func (r *MLLintRunner) runJob(job lintJob, done chan lintJob) {
-	report, err := job.linter.LintProject(job.project)
-	job.result <- LinterResult{Report: report, Err: err}
-
-	done <- job
-	r.wg.Done()
-}
-
-func (r *MLLintRunner) RunLinter(id string, linter api.Linter, project api.Project) lintJob {
-	result := make(chan LinterResult, 1)
-	job := lintJob{id, linter, project, result}
-	r.wg.Add(1)
-	r.queue <- job
-	return job
 }
 
 // Runs pre-analysis checks:
@@ -195,31 +107,13 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to run pre-analysis checks: %w", err)
 	}
 
-	// do all linting
-	rc.Runner = NewRunner()
+	// start the runner and do all linting
+	rc.Runner = mllint.NewRunner()
 	rc.Runner.Start()
+	defer rc.Runner.Close()
 
-	jobs := make([]lintJob, len(linters.ByCategory))
-	for cat, linter := range linters.ByCategory {
-		job := rc.Runner.RunLinter(cat.Slug, linter, rc.ProjectR.Project)
-		jobs = append(jobs, job)
-	}
-
-	// TODO: get this shit working
-
-	rc.Runner.AwaitAll()
-
-	rc.ProjectR.Reports = map[api.Category]api.Report{}
-	for _, job := range jobs {
-		color.Yellow("Awaiting: %s", job.id)
-		result := <-job.result
-		if result.Err != nil {
-			rc.ProjectR.Errors = multierror.Append(rc.ProjectR.Errors, fmt.Errorf("**%s** - %w", job.linter.Name(), err))
-		}
-
-		cat := categories.BySlug[job.id]
-		rc.ProjectR.Reports[cat] = result.Report
-	}
+	tasks := scheduleLinters(rc.Runner, rc.ProjectR.Project, linters.ByCategory)
+	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(tasks...)
 
 	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
@@ -239,7 +133,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 	shush(func() { fmt.Println("---") })
 
-	rulesFailed := rc.countRulesFailed()
+	rulesFailed := countRulesFailed(rc.ProjectR.Reports)
 	if rulesDisabled > 0 {
 		printSkipped(rulesDisabled)
 	}
@@ -252,9 +146,40 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (rc *runCommand) countRulesFailed() int {
+func scheduleLinters(runner *mllint.Runner, project api.Project, linters map[api.Category]api.Linter) []*mllint.RunnerTask {
+	tasks := make([]*mllint.RunnerTask, 0, len(linters))
+	for cat, linter := range linters {
+		// use cat.Slug as ID so we can retrieve the category from categories.BySlug later, see collectReports(..)
+		task := runner.RunLinter(cat.Slug, linter, project)
+		tasks = append(tasks, task)
+	}
+	return tasks
+}
+
+func collectReports(tasks ...*mllint.RunnerTask) (reports map[api.Category]api.Report, err *multierror.Error) {
+	completedTasks := mllint.CollectTasks(tasks...)
+	reports = map[api.Category]api.Report{}
+
+	for {
+		task, open := <-completedTasks
+		if !open {
+			return reports, err
+		}
+
+		result := <-task.Result
+		if result.Err != nil {
+			err = multierror.Append(err, fmt.Errorf("**%s** - %w", task.Linter.Name(), result.Err))
+		}
+
+		// cat.Slug was used as task ID, see scheduleLinters(..)
+		cat := categories.BySlug[task.Id]
+		reports[cat] = result.Report
+	}
+}
+
+func countRulesFailed(reports map[api.Category]api.Report) int {
 	rulesFailed := 0
-	for _, report := range rc.ProjectR.Reports {
+	for _, report := range reports {
 		for rule, score := range report.Scores {
 			if !rule.Disabled && score < 100 {
 				rulesFailed++
