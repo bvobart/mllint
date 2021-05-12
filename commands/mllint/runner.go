@@ -97,6 +97,10 @@ func (r *Runner) runTask(task *RunnerTask) {
 	r.nRunning++
 
 	go func() {
+		if l, ok := task.Linter.(WithRunner); ok {
+			l.SetRunner(r)
+		}
+
 		report, err := task.Linter.LintProject(task.Project)
 		task.Result <- LinterResult{Report: report, Err: err}
 		r.done <- task

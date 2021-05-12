@@ -1,5 +1,16 @@
 package mllint
 
+func ForEachTask(tasks chan *RunnerTask, f func(task *RunnerTask, result LinterResult)) {
+	for {
+		task, open := <-tasks
+		if !open {
+			return
+		}
+
+		f(task, <-task.Result)
+	}
+}
+
 func CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
 	c := collector{
 		total:  len(tasks),

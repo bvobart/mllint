@@ -115,6 +115,10 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	tasks := scheduleLinters(rc.Runner, rc.ProjectR.Project, linters.ByCategory)
 	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(tasks...)
 
+	shush(func() { fmt.Println() })
+	shush(func() { color.Green("All done!") })
+	shush(func() { fmt.Print("---\n\n") })
+
 	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
 
@@ -156,17 +160,11 @@ func scheduleLinters(runner *mllint.Runner, project api.Project, linters map[api
 	return tasks
 }
 
-func collectReports(tasks ...*mllint.RunnerTask) (reports map[api.Category]api.Report, err *multierror.Error) {
-	completedTasks := mllint.CollectTasks(tasks...)
-	reports = map[api.Category]api.Report{}
+func collectReports(tasks ...*mllint.RunnerTask) (map[api.Category]api.Report, *multierror.Error) {
+	var err *multierror.Error
+	reports := map[api.Category]api.Report{}
 
-	for {
-		task, open := <-completedTasks
-		if !open {
-			return reports, err
-		}
-
-		result := <-task.Result
+	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
 		if result.Err != nil {
 			err = multierror.Append(err, fmt.Errorf("**%s** - %w", task.Linter.Name(), result.Err))
 		}
@@ -174,7 +172,9 @@ func collectReports(tasks ...*mllint.RunnerTask) (reports map[api.Category]api.R
 		// cat.Slug was used as task ID, see scheduleLinters(..)
 		cat := categories.BySlug[task.Id]
 		reports[cat] = result.Report
-	}
+	})
+
+	return reports, err
 }
 
 func countRulesFailed(reports map[api.Category]api.Report) int {

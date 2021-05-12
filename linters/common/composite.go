@@ -5,18 +5,21 @@ import (
 	"strings"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
+	"github.com/hashicorp/go-multierror"
 )
 
-func NewCompositeLinter(name string, linters ...api.Linter) api.ConfigurableLinter {
+func NewCompositeLinter(name string, linters ...api.Linter) mllint.ConfigurableLinterWithRunner {
 	rules, lintersByRule := collectRules(linters...)
-	return &CompositeLinter{name, linters, rules, lintersByRule}
+	return &CompositeLinter{name, linters, rules, nil, lintersByRule}
 }
 
 type CompositeLinter struct {
 	name    string
 	linters []api.Linter
 	rules   []*api.Rule
+	runner  *mllint.Runner
 	// maps the rules that the CompositeLinter returns to the underlying linter that checks it.
 	lintersByRule map[*api.Rule]api.Linter
 }
@@ -27,6 +30,10 @@ func (l *CompositeLinter) Name() string {
 
 func (l *CompositeLinter) Rules() []*api.Rule {
 	return l.rules
+}
+
+func (l *CompositeLinter) SetRunner(r *mllint.Runner) {
+	l.runner = r
 }
 
 func (l *CompositeLinter) DisableRule(rule *api.Rule) {
@@ -68,19 +75,24 @@ func (l *CompositeLinter) Configure(conf *config.Config) error {
 func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
 	finalReport := api.NewReport()
 
-	for _, linter := range l.linters {
-		report, err := linter.LintProject(project)
-		if err != nil {
-			return api.Report{}, fmt.Errorf("linting error in linter '%s': %w", linter.Name(), err)
+	tasks := make([]*mllint.RunnerTask, len(l.linters))
+	for i, linter := range l.linters {
+		tasks[i] = l.runner.RunLinter(fmt.Sprint(i), linter, project)
+	}
+
+	var err *multierror.Error
+	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+		if result.Err != nil {
+			err = multierror.Append(err, fmt.Errorf("linting error in linter '%s': %w", task.Linter.Name(), result.Err))
 		}
 
-		for rule, score := range report.Scores {
-			finalReport.Scores[compositeRule(rule, linter.Name())] = score
+		for rule, score := range result.Report.Scores {
+			finalReport.Scores[compositeRule(rule, task.Linter.Name())] = score
 		}
-		for rule, details := range report.Details {
-			finalReport.Details[compositeRule(rule, linter.Name())] = details
+		for rule, details := range result.Report.Details {
+			finalReport.Details[compositeRule(rule, task.Linter.Name())] = details
 		}
-	}
+	})
 
 	return finalReport, nil
 }
