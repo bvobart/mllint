@@ -86,8 +86,8 @@ func (p *LiveRunnerProgress) printWorker() {
 }
 
 func (p *LiveRunnerProgress) onTaskRunning(task *RunnerTask) {
+	p.taskIndexes[task.Id] = len(p.tasks)
 	p.tasks = append(p.tasks, taskStatus{task, statusRunning})
-	p.taskIndexes[task.Id] = len(p.tasks) - 1
 
 	p.printTasks()
 }
