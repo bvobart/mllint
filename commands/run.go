@@ -115,10 +115,6 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	tasks := scheduleLinters(rc.Runner, rc.ProjectR.Project, linters.ByCategory)
 	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(tasks...)
 
-	shush(func() { fmt.Println() })
-	shush(func() { color.Green("All done!") })
-	shush(func() { fmt.Print("---\n\n") })
-
 	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
 

@@ -32,7 +32,7 @@ func TestMLLintRunner(t *testing.T) {
 	// create amount of tests equal to `cpufactor` times the amount of available CPU threads
 	cpufactor := 10
 	numTests := cpufactor * runtime.NumCPU()
-	maxScheduleTime := time.Duration(numTests) * (25 * time.Microsecond)     // scheduling a linter job should be really quick
+	maxScheduleTime := time.Duration(numTests) * (50 * time.Microsecond)     // scheduling a linter job should be really quick
 	maxCompletionTime := time.Duration(cpufactor) * (102 * time.Millisecond) // 100 ms per task divided over runtime.NumCPU() threads, 2ms max scheduling overhead
 	fmt.Println("Running ", numTests, " test linters with the mllint Runner")
 	fmt.Println("- Max allowed schedule time:  ", maxScheduleTime)
@@ -58,9 +58,7 @@ func TestMLLintRunner(t *testing.T) {
 		tasks = append(tasks, tester.createTestLinterTask(runner, test))
 	}
 
-	fmt.Println("------", time.Since(startTime))
 	require.WithinDuration(t, startTime, time.Now(), maxScheduleTime)
-	runner.PrintRunning()
 
 	completedIds := []string{}
 	tasksCompleted := mllint.CollectTasks(tasks...)
