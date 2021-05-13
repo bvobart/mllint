@@ -106,12 +106,6 @@ func (p *LiveRunnerProgress) onTaskDone(task *RunnerTask) {
 }
 
 func (p *LiveRunnerProgress) printTasks() {
-	if len(p.tasks) == 0 {
-		color.New(color.Bold).Fprintln(p.w, "Waiting for tasks...")
-		p.w.Flush()
-		return
-	}
-
 	allDone := true
 	for _, task := range p.tasks {
 		if task.Status != statusDone {

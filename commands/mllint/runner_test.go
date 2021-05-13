@@ -94,14 +94,14 @@ func (t testCtl) createTestLinterTask(runner *mllint.Runner, test testLinter) *m
 	project := api.Project{Dir: fmt.Sprint("TestDir", test.id)}
 
 	linter := mock_api.NewMockLinter(t.ctrl)
-	linter.EXPECT().Name().AnyTimes().Return(fmt.Sprint("TestLinter", test.id))
+	linter.EXPECT().Name().Times(1).Return(test.id)
 	linter.EXPECT().LintProject(project).Times(1).DoAndReturn(func(project api.Project) (api.Report, error) {
 		// sleep for 100 ms to simulate doing some actual linting
 		time.Sleep(time.Millisecond * 100)
 		return test.report, test.err
 	})
 
-	task := runner.RunLinter(fmt.Sprint(test.id), linter, project)
+	task := runner.RunLinter(fmt.Sprint(test.id), linter, project, mllint.DisplayName(fmt.Sprint("TestLinter", test.id)))
 	require.NotNil(t.t, task)
 	require.Equal(t.t, fmt.Sprint(test.id), task.Id)
 	require.Equal(t.t, linter, task.Linter)
