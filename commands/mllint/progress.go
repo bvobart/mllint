@@ -27,9 +27,9 @@ type taskStatus struct {
 
 func (s taskStatus) PrintStatus(writer io.Writer) {
 	if s.Status == statusRunning {
-		color.New(color.FgYellow).Fprintln(writer, s.Status, s.Linter.Name())
+		color.New(color.FgYellow).Fprintln(writer, s.Status, s.displayName)
 	}
 	if s.Status == statusDone {
-		color.New(color.FgGreen).Fprintln(writer, s.Status, s.Linter.Name())
+		color.New(color.FgGreen).Fprintln(writer, s.Status, s.displayName)
 	}
 }

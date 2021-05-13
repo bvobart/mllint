@@ -104,7 +104,8 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 			continue
 		}
 
-		tasks = append(tasks, l.runner.RunLinter(desiredLinter.String(), mlLinter, project))
+		displayName := "Code Quality - " + mlLinter.Name()
+		tasks = append(tasks, l.runner.RunLinter(desiredLinter.String(), mlLinter, project, mllint.DisplayName(displayName)))
 	}
 
 	var multiErr *multierror.Error

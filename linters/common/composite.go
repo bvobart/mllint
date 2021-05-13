@@ -77,7 +77,8 @@ func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
 
 	tasks := make([]*mllint.RunnerTask, len(l.linters))
 	for i, linter := range l.linters {
-		tasks[i] = l.runner.RunLinter(fmt.Sprint(i), linter, project)
+		displayName := l.name + " - " + linter.Name()
+		tasks[i] = l.runner.RunLinter(fmt.Sprint(i), linter, project, mllint.DisplayName(displayName))
 	}
 
 	var err *multierror.Error

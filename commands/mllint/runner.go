@@ -56,16 +56,26 @@ type Runner struct {
 
 // RunnerTask represents a task to run a linter on a project that was created by a call to runner.RunLinter(...)
 type RunnerTask struct {
-	Id      string
-	Linter  api.Linter
-	Project api.Project
-	Result  chan LinterResult
+	Id          string
+	Linter      api.Linter
+	Project     api.Project
+	Result      chan LinterResult
+	displayName string
 }
 
 // LinterResult represents the two-valued return type of a Linter, containing a report and an error.
 type LinterResult struct {
 	api.Report
 	Err error
+}
+
+// TaskOption is an option for a task created by RunLinter, e.g. setting a custom display name.
+type TaskOption func(task *RunnerTask)
+
+func DisplayName(name string) TaskOption {
+	return func(task *RunnerTask) {
+		task.displayName = name
+	}
 }
 
 // Start starts the runner by running a queue worker go-routine in the background that will await tasks and run them as they come in.
@@ -89,9 +99,12 @@ func (r *Runner) Close() {
 //
 // Once the task completes, the linter's report and error will be sent to the task's `Result` channel,
 // i.e. use `<-task.Result` to await the linter's result.
-func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project) *RunnerTask {
+func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project, options ...TaskOption) *RunnerTask {
 	result := make(chan LinterResult, 1)
-	task := RunnerTask{id, linter, project, result}
+	task := RunnerTask{id, linter, project, result, linter.Name()}
+	for _, optionFunc := range options {
+		optionFunc(&task)
+	}
 
 	if r == nil {
 		report, err := linter.LintProject(project)

@@ -29,5 +29,5 @@ func parseProjectDir(args []string) (string, error) {
 }
 
 func formatInlineCode(text string) string {
-	return color.New(color.Italic, color.FgYellow).Sprint(text)
+	return color.New(color.Reset, color.Italic, color.FgYellow).Sprint(text)
 }
