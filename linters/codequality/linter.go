@@ -5,6 +5,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters/codequality/bandit"
 	"github.com/bvobart/mllint/linters/codequality/black"
@@ -44,6 +45,7 @@ func NewLinter() api.ConfigurableLinter {
 
 type CQLinter struct {
 	Linters []api.CQLinter
+	runner  *mllint.Runner
 }
 
 func (l *CQLinter) Name() string {
@@ -56,6 +58,10 @@ func (l *CQLinter) Rules() []*api.Rule {
 		rules = append(rules, l.Linter.Rules()...)
 	}
 	return rules
+}
+
+func (l *CQLinter) SetRunner(r *mllint.Runner) {
+	l.runner = r
 }
 
 func (l *CQLinter) Configure(conf *config.Config) (err error) {
@@ -87,10 +93,7 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 		report.Details[RuleLintersInstalled] = "The following linters were not installed, so we could not analyse what they had to say about your project:\n\n" + markdowngen.List(asInterfaceList(notInstalledLinters))
 	}
 
-	// TODO: run all these linters in parallel
-
-	var multiErr *multierror.Error
-	subReports := []api.Report{}
+	tasks := []*mllint.RunnerTask{}
 	for _, desiredLinter := range desiredLinters {
 		if !desiredLinter.IsInstalled() {
 			continue
@@ -101,13 +104,19 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 			continue
 		}
 
-		subReport, err := mlLinter.LintProject(project)
-		if err != nil {
-			multiErr = multierror.Append(multiErr, err)
+		displayName := "Code Quality - " + mlLinter.Name()
+		tasks = append(tasks, l.runner.RunLinter(desiredLinter.String(), mlLinter, project, mllint.DisplayName(displayName)))
+	}
+
+	var multiErr *multierror.Error
+	subReports := []api.Report{}
+	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+		if result.Err != nil {
+			multiErr = multierror.Append(multiErr, result.Err)
 		}
 
-		subReports = append(subReports, subReport)
-	}
+		subReports = append(subReports, result.Report)
+	})
 
 	return api.MergeReports(report, subReports...), multiErr.ErrorOrNil()
 }

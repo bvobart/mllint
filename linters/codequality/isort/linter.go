@@ -16,7 +16,7 @@ func NewLinter() api.Linter {
 type ISortLinter struct{}
 
 func (l *ISortLinter) Name() string {
-	return "`isort`"
+	return "isort"
 }
 
 func (l *ISortLinter) Rules() []*api.Rule {

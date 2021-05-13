@@ -33,6 +33,8 @@ func NewRootCommand() *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Set this to true to minimise printing to the bare minimum.")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", `Export the report generated for your project to a Markdown file at the given location.
 Set this to '-' (a single dash) in order to print the raw Markdown directly to the console.`)
+	cmd.Flags().BoolVarP(&force, "force", "f", false, "Use this flag to remove the output file provided with '--output' in case that already exists.")
+	cmd.Flags().BoolVar(&progressPlain, "progress-plain", false, "Use this flag to print linting progress plainly, without rewriting terminal output. Enabled automatically in non-interactive terminals.")
 
 	cmd.AddCommand(NewRunCommand())
 	cmd.AddCommand(NewListCommand())
