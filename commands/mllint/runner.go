@@ -80,14 +80,22 @@ func (r *Runner) Close() {
 	close(r.queue)
 }
 
-// RunLinter creates a task to run an api.Linter on a project. This method does not block.
+// RunLinter creates a task to run an api.Linter on a project.This method does not block.
 // The task will be executed in parallel with other tasks by the runner.
+// If the runner is `nil`, then the linter will be executed directly on the current thread, returning its result the usual way.
 //
 // Once the task completes, the linter's report and error will be sent to the task's `Result` channel,
 // i.e. use `<-task.Result` to await the linter's result.
 func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project) *RunnerTask {
 	result := make(chan LinterResult, 1)
 	task := RunnerTask{id, linter, project, result}
+
+	if r == nil {
+		report, err := linter.LintProject(project)
+		task.Result <- LinterResult{report, err}
+		return &task
+	}
+
 	r.queue <- &task
 	return &task
 }

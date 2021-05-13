@@ -94,7 +94,7 @@ func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
 		}
 	})
 
-	return finalReport, nil
+	return finalReport, err.ErrorOrNil()
 }
 
 func compositeRule(rule api.Rule, linterName string) api.Rule {

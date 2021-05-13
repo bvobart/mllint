@@ -32,10 +32,8 @@ func TestMLLintRunner(t *testing.T) {
 	// create amount of tests equal to `cpufactor` times the amount of available CPU threads
 	cpufactor := 10
 	numTests := cpufactor * runtime.NumCPU()
-	maxScheduleTime := time.Duration(numTests) * (50 * time.Microsecond)     // scheduling a linter job should be really quick
 	maxCompletionTime := time.Duration(cpufactor) * (102 * time.Millisecond) // 100 ms per task divided over runtime.NumCPU() threads, 2ms max scheduling overhead
 	fmt.Println("Running ", numTests, " test linters with the mllint Runner")
-	fmt.Println("- Max allowed schedule time:  ", maxScheduleTime)
 	fmt.Println("- Max allowed completion time:", maxCompletionTime)
 	fmt.Println()
 
@@ -58,8 +56,6 @@ func TestMLLintRunner(t *testing.T) {
 		tasks = append(tasks, tester.createTestLinterTask(runner, test))
 	}
 
-	require.WithinDuration(t, startTime, time.Now(), maxScheduleTime)
-
 	completedIds := []string{}
 	tasksCompleted := mllint.CollectTasks(tasks...)
 	for {
@@ -75,7 +71,7 @@ func TestMLLintRunner(t *testing.T) {
 	require.ElementsMatch(t, ids, completedIds)
 
 	fmt.Println("------", time.Since(startTime))
-	require.WithinDuration(t, startTime, time.Now(), maxCompletionTime)
+	require.WithinDuration(t, time.Now(), startTime, maxCompletionTime)
 }
 
 type testCtl struct {
