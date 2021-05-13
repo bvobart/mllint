@@ -32,7 +32,7 @@ func TestMLLintRunner(t *testing.T) {
 	// create amount of tests equal to `cpufactor` times the amount of available CPU threads
 	cpufactor := 10
 	numTests := cpufactor * runtime.NumCPU()
-	maxCompletionTime := time.Duration(cpufactor) * (102 * time.Millisecond) // 100 ms per task divided over runtime.NumCPU() threads, 2ms max scheduling overhead
+	maxCompletionTime := time.Duration(cpufactor) * (104 * time.Millisecond) // 100 ms per task divided over runtime.NumCPU() threads, 4ms max scheduling overhead
 	fmt.Println("Running ", numTests, " test linters with the mllint Runner")
 	fmt.Println("- Max allowed completion time:", maxCompletionTime)
 	fmt.Println()
@@ -41,12 +41,12 @@ func TestMLLintRunner(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	tester := testCtl{t, ctrl}
-	startTime := time.Now()
 
 	// create and start the runner
 	runner := mllint.NewRunner()
 	runner.Start()
-	defer runner.Close()
+
+	startTime := time.Now()
 
 	// schedule all the test linters
 	ids := make([]string, 0, len(tests))
@@ -56,22 +56,26 @@ func TestMLLintRunner(t *testing.T) {
 		tasks = append(tasks, tester.createTestLinterTask(runner, test))
 	}
 
+	// await all tasks as they complete and collect their IDs
 	completedIds := []string{}
-	tasksCompleted := mllint.CollectTasks(tasks...)
-	for {
-		task, open := <-tasksCompleted
-		if !open {
-			break
-		}
-
-		tester.awaitTestLinterTask(tests[task.Id], task)
+	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+		tester.checkTestLinterTaskResult(tests[task.Id], task, result)
 		completedIds = append(completedIds, task.Id)
-	}
+	})
 
+	endTime := time.Now()
+
+	runner.Close() // close here because we want to print normally afterwards.
+	closeTime := time.Now()
+
+	fmt.Println("Time to Completion:   ", endTime.Sub(startTime), " max:", maxCompletionTime)
+	fmt.Println("Time to runner Close: ", closeTime.Sub(endTime))
+	fmt.Println("-----------------------------------")
+	fmt.Println("Total:                ", time.Since(startTime))
+	fmt.Println()
+
+	require.WithinDuration(t, endTime, startTime, maxCompletionTime)
 	require.ElementsMatch(t, ids, completedIds)
-
-	fmt.Println("------", time.Since(startTime))
-	require.WithinDuration(t, time.Now(), startTime, maxCompletionTime)
 }
 
 type testCtl struct {
@@ -105,8 +109,7 @@ func (t testCtl) createTestLinterTask(runner *mllint.Runner, test testLinter) *m
 	return task
 }
 
-func (t testCtl) awaitTestLinterTask(test testLinter, task *mllint.RunnerTask) {
-	result := <-task.Result
+func (t testCtl) checkTestLinterTaskResult(test testLinter, task *mllint.RunnerTask, result mllint.LinterResult) {
 	require.Equal(t.t, result.Report, test.report)
 	require.Equal(t.t, result.Err, test.err)
 }

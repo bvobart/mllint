@@ -1,9 +1,7 @@
 package mllint
 
 import (
-	"fmt"
 	"runtime"
-	"sync"
 
 	"github.com/bvobart/mllint/api"
 )
@@ -16,7 +14,8 @@ func NewRunner() *Runner {
 		queue:    make(chan *RunnerTask, queueSize),
 		done:     make(chan *RunnerTask, runtime.NumCPU()),
 		progress: NewRunnerProgress(),
-		running:  sync.Map{},
+		closed:   make(chan struct{}),
+		nRunning: 0,
 	}
 }
 
@@ -47,7 +46,7 @@ type Runner struct {
 	queue    chan *RunnerTask
 	done     chan *RunnerTask
 	progress *RunnerProgress
-	running  sync.Map
+	closed   chan struct{}
 	nRunning int32
 }
 
@@ -72,12 +71,12 @@ func (r *Runner) Start() {
 	go r.queueWorker()
 }
 
-// Close stops the runner by closing its queue channel. Calls to `runner.RunLinter()` after `Close()` will panic.
-// While running, yet uncompleted tasks may still complete, note that neither this method nor the queue worker
-// will wait for them to be done. Parked tasks will not be run.
+// Close stops the runner by closing its queue channel. Calls to `runner.RunLinter()` after Close will panic.
+// Close blocks until all tasks added to its queue by `runner.RunLinter()` have completed,
+// and all progress output has finished printing to the terminal.
 func (r *Runner) Close() {
-	r.progress.Stop()
 	close(r.queue)
+	<-r.closed
 }
 
 // RunLinter creates a task to run an api.Linter on a project.This method does not block.
@@ -104,43 +103,59 @@ func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project) *R
 // Run in a new go-routine using `go r.queueWorker()`
 func (r *Runner) queueWorker() {
 	parked := []*RunnerTask{}
+	closed := false
 
 	for {
 		select {
+		// when new task is scheduled...
 		case task, open := <-r.queue:
-			if !open {
-				fmt.Println("Closing")
+			// if channel just closed and no tasks are running, signal that we're finished and exit
+			if !open && r.nRunning == 0 {
+				r.progress.AllTasksDone()
+				close(r.closed)
 				return
 			}
+			// if channel just closed, but there are still tasks running, signal to the next case that there will be no new tasks.
+			if !open {
+				closed = true
+				break
+			}
 
+			// if we're already running the maximum number of tasks, park it
 			if r.nRunning >= int32(runtime.NumCPU()) {
 				parked = append(parked, task)
 				break
 			}
 
+			// otherwise just run the task
 			r.runTask(task)
 
+		// when a task completes...
 		case task := <-r.done:
 			r.nRunning--
-			r.running.Delete(task.Id)
-			r.progress.Done(task)
-			r.progress.Update(&r.running, r.nRunning)
+			r.progress.CompletedTask(task)
 
-			if len(parked) == 0 {
-				break
+			// if the queue is closed and no other tasks are running, then signal that we're finished and exit
+			if closed && r.nRunning == 0 {
+				r.progress.AllTasksDone()
+				close(r.closed)
+				return
 			}
 
-			var next *RunnerTask
-			next, parked = parked[0], parked[1:]
-			r.runTask(next)
+			// else, if there are parked tasks, run one of them.
+			if len(parked) > 0 {
+				var next *RunnerTask
+				next, parked = parked[0], parked[1:]
+				r.runTask(next)
+			}
 		}
 	}
 }
 
+// actually start running the task in a new go-routine
 func (r *Runner) runTask(task *RunnerTask) {
-	r.running.Store(task.Id, task)
 	r.nRunning++
-	r.progress.Update(&r.running, r.nRunning)
+	r.progress.RunningTask(task)
 
 	go func() {
 		if l, ok := task.Linter.(WithRunner); ok {
