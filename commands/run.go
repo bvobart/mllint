@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
@@ -23,7 +24,12 @@ import (
 var ErrNotAFolder = errors.New("not a folder")
 var ErrOutputFileAlreadyExists = errors.New("output file already exists")
 
-var outputFile string
+// Flags
+var (
+	outputFile    string
+	progressPlain bool
+	force         bool
+)
 
 func NewRunCommand() *cobra.Command {
 	runner := runCommand{}
@@ -37,7 +43,9 @@ func NewRunCommand() *cobra.Command {
 		SilenceUsage:  true,
 	}
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", `Export the report generated for your project to a Markdown file at the given location.
-Set this to '-' (a single dash) in order to print the raw Markdown directly to the console.`)
+Set this to '-' (a single dash) in order to print the raw Markdown directly to the console (implies '-q').`)
+	cmd.Flags().BoolVarP(&force, "force", "f", false, "Use this flag to remove the output file provided with '--output' in case that already exists.")
+	cmd.Flags().BoolVar(&progressPlain, "progress-plain", false, "Use this flag to print linting progress plainly, without rewriting terminal output. Overrides '-q'. Enabled automatically in non-interactive terminals (except when using '-q').")
 	return cmd
 }
 
@@ -74,7 +82,12 @@ func (rc *runCommand) runPreAnalysisChecks() error {
 
 func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	if outputToFile() && utils.FileExists(outputFile) {
-		return fmt.Errorf("%w: %s", ErrOutputFileAlreadyExists, utils.AbsolutePath(outputFile))
+		if !force {
+			return fmt.Errorf("%w: %s", ErrOutputFileAlreadyExists, formatInlineCode(utils.AbsolutePath(outputFile)))
+		}
+		if err := os.Remove(outputFile); err != nil {
+			return fmt.Errorf("tried to remove %s, but got error: %w", utils.AbsolutePath(outputFile), err)
+		}
 	}
 	if outputToStdout() {
 		quiet = true
@@ -108,15 +121,17 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	// start the runner and do all linting
-	rc.Runner = mllint.NewRunner()
+	progress := createRunnerProgress()
+	rc.Runner = mllint.NewRunner(progress)
 	rc.Runner.Start()
-	defer rc.Runner.Close()
 
 	tasks := scheduleLinters(rc.Runner, rc.ProjectR.Project, linters.ByCategory)
 	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(tasks...)
 
 	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
+
+	rc.Runner.Close()
 
 	if outputToStdout() {
 		fmt.Println(output)
@@ -127,10 +142,12 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 		if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
 			return fmt.Errorf("failed to write output file: %w", err)
 		}
-		shush(func() { fmt.Println("Your report is complete, see", utils.AbsolutePath(outputFile)+"\n") })
+		shush(func() { fmt.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
+		shush(func() { fmt.Println() })
 	} else {
 		fmt.Println(markdown.Render(output))
 	}
+
 	shush(func() { fmt.Println("---") })
 
 	rulesFailed := countRulesFailed(rc.ProjectR.Reports)
@@ -144,6 +161,19 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func createRunnerProgress() mllint.RunnerProgress {
+	if progressPlain {
+		return mllint.NewBasicRunnerProgress()
+	}
+	if quiet {
+		return nil
+	}
+	if utils.IsInteractive() {
+		return mllint.NewLiveRunnerProgress()
+	}
+	return mllint.NewBasicRunnerProgress()
 }
 
 func scheduleLinters(runner *mllint.Runner, project api.Project, linters map[api.Category]api.Linter) []*mllint.RunnerTask {
@@ -205,7 +235,7 @@ func printFailed(rulesFailed int) {
 
 	shush(func() { color.Red("Your project is still lacking in quality and could do with some improvements.") })
 	msg := "Use %s " + color.RedString("with each rule's slug to learn more about what you can do to get the rules to pass and improve the quality of your ML project.")
-	shush(func() { color.Red(msg, color.YellowString("mllint describe")) })
+	shush(func() { color.Red(msg, formatInlineCode("mllint describe")) })
 	shush(func() { fmt.Println() })
 }
 

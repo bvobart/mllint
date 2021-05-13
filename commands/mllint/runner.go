@@ -1,6 +1,7 @@
 package mllint
 
 import (
+	"io"
 	"runtime"
 
 	"github.com/bvobart/mllint/api"
@@ -9,11 +10,14 @@ import (
 const queueSize = 20 // arbitrarily chosen
 
 // NewRunner initialises an *mllint.Runner
-func NewRunner() *Runner {
+func NewRunner(progress RunnerProgress) *Runner {
+	if progress == nil {
+		progress = &BasicRunnerProgress{Out: io.Discard}
+	}
 	return &Runner{
 		queue:    make(chan *RunnerTask, queueSize),
 		done:     make(chan *RunnerTask, runtime.NumCPU()),
-		progress: NewRunnerProgress(),
+		progress: progress,
 		closed:   make(chan struct{}),
 		nRunning: 0,
 	}
@@ -45,7 +49,7 @@ func NewRunner() *Runner {
 type Runner struct {
 	queue    chan *RunnerTask
 	done     chan *RunnerTask
-	progress *RunnerProgress
+	progress RunnerProgress
 	closed   chan struct{}
 	nRunning int32
 }

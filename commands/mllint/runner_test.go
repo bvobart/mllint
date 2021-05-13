@@ -14,7 +14,7 @@ import (
 )
 
 func TestNewRunner(t *testing.T) {
-	r := mllint.NewRunner()
+	r := mllint.NewRunner(nil)
 	require.NotNil(t, r)
 }
 
@@ -43,7 +43,8 @@ func TestMLLintRunner(t *testing.T) {
 	tester := testCtl{t, ctrl}
 
 	// create and start the runner
-	runner := mllint.NewRunner()
+	progress := mllint.NewBasicRunnerProgress()
+	runner := mllint.NewRunner(progress)
 	runner.Start()
 
 	startTime := time.Now()

@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/bvobart/mllint/utils"
+	"github.com/fatih/color"
 )
 
 // returns the current dir if args is empty, or the absolute path to the folder pointed to by args[0]
@@ -25,4 +26,8 @@ func parseProjectDir(args []string) (string, error) {
 	}
 
 	return projectdir, nil
+}
+
+func formatInlineCode(text string) string {
+	return color.New(color.Italic, color.FgYellow).Sprint(text)
 }
