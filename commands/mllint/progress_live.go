@@ -2,6 +2,7 @@ package mllint
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -14,14 +15,13 @@ import (
 type LiveRunnerProgress struct {
 	w *uilive.Writer
 
-	running chan *RunnerTask
-	done    chan *RunnerTask
-
+	print   chan struct{}
 	stopped chan struct{}
 
-	// The following properties may only be edited inside p.printWorker()
+	// The following properties are protected by this mutex
+	mu sync.RWMutex
 
-	// list of all tasks that have been run / scheduled
+	// list of all tasks that have been run / scheduled with their status (running or done)
 	tasks []taskStatus
 	// maps the tasks' IDs to their index in `tasks`, since iterating over a map in Go does not happen in order of insertion and I don't want to do an O(n) search through `tasks` when updating a task's status.
 	taskIndexes map[string]int
@@ -32,9 +32,9 @@ func NewLiveRunnerProgress() RunnerProgress {
 	writer.RefreshInterval = time.Hour
 	return &LiveRunnerProgress{
 		w:           writer,
-		running:     make(chan *RunnerTask, queueSize),
-		done:        make(chan *RunnerTask, queueSize),
+		print:       make(chan struct{}, queueSize),
 		stopped:     make(chan struct{}),
+		mu:          sync.RWMutex{},
 		tasks:       []taskStatus{},
 		taskIndexes: make(map[string]int),
 	}
@@ -48,53 +48,23 @@ func (p *LiveRunnerProgress) Start() {
 
 // RunningTask is the way for the `mllint.Runner` to signal that it has started running a task.
 func (p *LiveRunnerProgress) RunningTask(task *RunnerTask) {
-	p.running <- task
+	p.mu.Lock()
+
+	p.taskIndexes[task.Id] = len(p.tasks)
+	p.tasks = append(p.tasks, taskStatus{task, statusRunning})
+
+	p.mu.Unlock()
+
+	p.print <- struct{}{}
 }
 
 // CompletedTask is the way for the `mllint.Runner` to signal that it has completed running a task.
 func (p *LiveRunnerProgress) CompletedTask(task *RunnerTask) {
-	p.done <- task
-}
+	p.mu.Lock()
 
-// AllTasksDone is the way for the `mllint.Runner` to signal that it has finished running all tasks,
-// and that it won't call p.CompletedTask anymore (if it does, it panics because `p.done` is closed).
-// This method will wait until the printWorker has finished printing and has shutdown.
-func (p *LiveRunnerProgress) AllTasksDone() {
-	close(p.done)
-	<-p.stopped
-}
-
-func (p *LiveRunnerProgress) printWorker() {
-	for {
-		select {
-		case task, open := <-p.running:
-			if !open {
-				break
-			}
-
-			p.onTaskRunning(task)
-		case task, open := <-p.done:
-			if !open {
-				p.w.Stop()
-				close(p.stopped)
-				return
-			}
-
-			p.onTaskDone(task)
-		}
-	}
-}
-
-func (p *LiveRunnerProgress) onTaskRunning(task *RunnerTask) {
-	p.taskIndexes[task.Id] = len(p.tasks)
-	p.tasks = append(p.tasks, taskStatus{task, statusRunning})
-
-	p.printTasks()
-}
-
-func (p *LiveRunnerProgress) onTaskDone(task *RunnerTask) {
 	index, found := p.taskIndexes[task.Id]
 	if !found {
+		p.mu.Unlock()
 		return
 	}
 
@@ -102,10 +72,36 @@ func (p *LiveRunnerProgress) onTaskDone(task *RunnerTask) {
 	status.Status = statusDone
 	p.tasks[index] = status
 
-	p.printTasks()
+	p.mu.Unlock()
+
+	p.print <- struct{}{}
+}
+
+// AllTasksDone is the way for the `mllint.Runner` to signal that it has finished running all tasks,
+// and that it won't call p.CompletedTask anymore (if it does, it panics because `p.done` is closed).
+// This method will wait until the printWorker has finished printing and has shutdown.
+func (p *LiveRunnerProgress) AllTasksDone() {
+	close(p.print)
+	<-p.stopped
+}
+
+// waits for signals on p.print to print the current list of tasks.
+func (p *LiveRunnerProgress) printWorker() {
+	for {
+		_, open := <-p.print
+		if !open {
+			p.w.Stop()
+			close(p.stopped)
+			return
+		}
+
+		p.printTasks()
+	}
 }
 
 func (p *LiveRunnerProgress) printTasks() {
+	p.mu.RLock()
+
 	allDone := true
 	for _, task := range p.tasks {
 		if task.Status != statusDone {
@@ -115,6 +111,8 @@ func (p *LiveRunnerProgress) printTasks() {
 		writer := p.w.Newline()
 		task.PrintStatus(writer)
 	}
+
+	p.mu.RUnlock()
 
 	if allDone {
 		fmt.Fprintln(p.w.Newline())
