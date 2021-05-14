@@ -1,9 +1,9 @@
 # ML Project Report
 Project | Details
 --------|--------
-Path    | `/path/to/mllint-test-project`
+Path    | `/home/bart/tudelft/thesis/mllint-test-project`
 Config  | `pyproject.toml`
-Date    | Mon, 10 May 2021 23:19:48 +0200 
+Date    | Fri, 14 May 2021 13:52:37 +0200 
 Number of Python files | 5
 Lines of Python code | 204
 
@@ -18,10 +18,11 @@ Passed | Score | Weight | Rule | Slug
 ✅ | 100.0% | 1 | Code: Project uses Git | `version-control/code/git`
 ✅ | 100.0% | 1 | Code: Project should not use Git to track large files | `version-control/code/git-no-big-files`
 ✅ | 100.0% | 1 | Data: Project uses Data Version Control (DVC) | `version-control/data/dvc`
-❌ | 0.0% | 1 | Data: DVC is installed | `version-control/data/dvc-is-installed`
+✅ | 100.0% | 1 | Data: DVC is installed | `version-control/data/dvc-is-installed`
 ✅ | 100.0% | 1 | Data: Folder '.dvc' should be committed to Git | `version-control/data/commit-dvc-folder`
-❌ | 0.0% | 1 | Data: DVC should have at least one remote data storage configured | `version-control/data/dvc-has-remote`
-❌ | 0.0% | 1 | Data: DVC should be tracking at least one data file | `version-control/data/dvc-has-files`
+✅ | 100.0% | 1 | Data: DVC should have at least one remote data storage configured | `version-control/data/dvc-has-remote`
+✅ | 100.0% | 1 | Data: DVC should be tracking at least one data file | `version-control/data/dvc-has-files`
+✅ | 100.0% | 1 | Data: File 'dvc.lock' should be committed to Git | `version-control/data/commit-dvc-lock`
 
 ### Dependency Management (`dependency-management`)
 
@@ -36,7 +37,7 @@ Passed | Score | Weight | Rule | Slug
 :-----:|------:|-------:|------|-----
 ❌ | 40.0% | 1 | Project should use code quality linters | `code-quality/use-linters`
 ✅ | 100.0% | 1 | All code quality linters should be installed in the current environment | `code-quality/linters-installed`
-❌ | 0.0% | 1 | Pylint reports no issues with this project | `code-quality/pylint/no-issues`
+❌ | 2.0% | 1 | Pylint reports no issues with this project | `code-quality/pylint/no-issues`
 ❌ | 0.0% | 1 | Pylint is configured for this project | `code-quality/pylint/is-configured`
 ❌ | 11.8% | 1 | Mypy reports no issues with this project | `code-quality/mypy/no-issues`
 ❌ | 0.0% | 1 | Black reports no issues with this project | `code-quality/black/no-issues`
@@ -48,8 +49,8 @@ Passed | Score | Weight | Rule | Slug
 
 Linters detected:
 
-- Pylint
 - Black
+- Pylint
 
 
 However, these linters were **missing** from your project:
@@ -71,15 +72,10 @@ e.g. using `poetry add --dev mypy` or `pipenv install --dev mypy`
 
 #### Details — Pylint reports no issues with this project — ❌
 
-Pylint reported **27** issues with your project:
+Pylint reported **20** issues with your project:
 
 - `src/evaluate.py:1,0` - _(C0114)_ Missing module docstring
-- `src/evaluate.py:6,0` - _(E0401)_ Unable to import 'sklearn.metrics'
 - `src/featurization.py:1,0` - _(C0114)_ Missing module docstring
-- `src/featurization.py:3,0` - _(E0401)_ Unable to import 'pandas'
-- `src/featurization.py:6,0` - _(E0401)_ Unable to import 'scipy.sparse'
-- `src/featurization.py:9,0` - _(E0401)_ Unable to import 'sklearn.feature_extraction.text'
-- `src/featurization.py:10,0` - _(E0401)_ Unable to import 'sklearn.feature_extraction.text'
 - `src/featurization.py:32,0` - _(C0116)_ Missing function or method docstring
 - `src/featurization.py:33,4` - _(C0103)_ Variable name "df" doesn't conform to snake_case naming style
 - `src/featurization.py:44,0` - _(C0103)_ Argument name "df" doesn't conform to snake_case naming style
@@ -96,9 +92,7 @@ Pylint reported **27** issues with your project:
 - `src/prepare.py:41,15` - _(W0703)_ Catching too general exception Exception
 - `src/train.py:1,0` - _(C0114)_ Missing module docstring
 - `src/train.py:15,0` - _(W0622)_ Redefining built-in 'input'
-- `src/train.py:6,0` - _(E0401)_ Unable to import 'sklearn.ensemble'
 - `src/train_old.py:19,0` - _(W0622)_ Redefining built-in 'input'
-- `src/train_old.py:10,0` - _(E0401)_ Unable to import 'sklearn.ensemble'
 - `src/train_old.py:1,0` - _(R0801)_ Similar lines in 2 files
 	```python
 	==train:0
@@ -175,9 +169,9 @@ Mypy reported **18** issues with your project:
 
 Black reported **5** files in your project that it would reformat:
 
+- `src/evaluate.py`
 - `src/train_old.py`
 - `src/train.py`
-- `src/evaluate.py`
 - `src/prepare.py`
 - `src/featurization.py`
 

@@ -14,63 +14,76 @@
   <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mllint"></a>
 </p>
 
-`mllint` is a command-line utility to evaluate the quality of Machine Learning (ML) projects by means of static analysis of the project's repository. It measures the project's adherence to ML best practices, as collected and deduced from [SE4ML](https://se-ml.github.io/) and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml).
+`mllint` is a command-line utility to evaluate the technical quality of Machine Learning (ML) and Artificial Intelligence (AI) projects written in Python by analysing the project's source code, data and configuration of supporting tools. `mllint` aims to ...
+
+- ... help data scientists and ML engineers in creating and maintaining production-grade ML and AI projects.
+- ... help ML practitioners inexperienced with Software Engineering (SE) techniques explore and make effective use of battle-hardended SE for ML tools in the Python ecosystem.
+- ... help ML project managers assess the quality of their ML and AI projects and receive recommendations on what aspects of their projects they should focus on improving.
+
+`mllint` does this by measuring the project's adherence to ML best practices, as collected and deduced from [SE4ML](https://se-ml.github.io/) and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml). Note that these best practices are rather high-level, while `mllint` aims to give practical, down-to-earth advice to its users. `mllint` may therefore be somewhat opinionated, as it tries to advocate specific tools to best fit these best practices. However, `mllint` aims to only recommend open-source tooling and publically verifiable practices. Feedback is of course always welcome!
+
+`mllint` is created during my MSc thesis in Computer Science at the Software Engineering Research Group ([SERG](https://se.ewi.tudelft.nl/)) at [TU Delft](https://tudelft.nl/) and [ING](https://www.ing.com/)'s [AI for FinTech Research Lab](https://se.ewi.tudelft.nl/ai4fintech/) on the topic of _Code Quality and Software Engineering for Machine Learning projects_
+
+<p align="center"><img src="./docs/example-run.svg"></p>
+
+> See [docs/example-report.md](docs/example-report.md) to view the report generated for this example project.
 
 ---
 
-## Installing `mllint`
+## Installation
 
-`mllint` is compiled for Linux, MacOS and Windows, both 64 and 32 bit x86 (except MacOS), as well as 64-bit ARM on Linux and MacOS (Apple M1).
+`mllint` is compiled for Linux, MacOS and Windows, both 64 and 32 bit x86 (MacOS 64-bit only), as well as 64-bit ARM on Linux and MacOS (Apple M1).
 
 `mllint` is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
 ```sh
 pip install mllint
 ```
 
-## Running `mllint`
+## Usage
 
-To run `mllint` in its default configuration, use one of the following commands:
+To run `mllint` on the project in the current folder, simply run:
 ```sh
-# Run `mllint` on the project in the current folder
 mllint
-
-# Run `mllint` on the project in projects/my-ml-project
-mllint projects/my-ml-project
 ```
 
-Of course, feel free to explore `mllint help` for more information about its commands.
+To run `mllint` on a project in another folder, simply run:
+```sh
+mllint path/to/my-ml-project
+```
 
 `mllint` will analyse your project and create a Markdown-formatted report of its analysis. By default, this will be pretty printed to your terminal. 
 
-If you instead prefer to export the raw Markdown text to a file, use the `--output` or `-o` flag and provide a filename. Using `-` as the filename prints the raw Markdown directly to your terminal.
+If you instead prefer to export the raw Markdown text to a file, use the `--output` or `-o` flag and provide a filename. `mllint` does not overwrite the destination file if it already exists, unless `--force` or `-f` is used. For example:
 ```sh
-# Prints the Markdown-formatted report of your project to 'report.md'
 mllint --output report.md
+```
 
-# Prints the raw Markdown report to your terminal
+Using `-` (a dash) as the filename prints the raw Markdown directly to your terminal:
+```sh
 mllint -o -
 ```
 
 See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
 
+Of course, feel free to explore `mllint help` for more information about its commands and to discover additional flags that can be used.
 
-### Linters and rules
+### Linters, Categories and Rules
 
-To list all available or all enabled linting rules, use one of the following commands:
+`mllint` analyses your project by evaluating several categories of linting rules. Each category, as well as each rule, has a 'slug', i.e., a lowercased piece of text with dashes or slashes for spaces, e.g., `code-quality/pylint/no-issues`. This slug identifies a rule and is often (if not always) displayed next to the category or rule that it references.
+
+To list all available (implemented) categories and linting rules, run:
 ```sh
-# List all available (implemented) linting rules
 mllint list all
-
-# List only the enabled rules for the project in the current folder.
-mllint list enabled
-
-# or for a project in projects/my-ml-project
-mllint list enabled projects/my-ml-project
 ```
 
-To learn more about a certain rule or category, use `mllint describe` along with the slug of the category or rule. The slug is the lowercased, dashed text that is often or always displayed next to the category or rule. This is the same slug as you use to enable or disable rules.
+To list all enabled linting rules, run (optionally providing the path to the project's folder):
+```sh
+mllint list enabled
+```
 
-As an example:
+By default, all of `mllint`'s rules are enabled. See [Configuration](#configuration) to learn how to selectively disable certain rules.
+
+To learn more about a certain rule or category, use `mllint describe` along with the slug of the category or rule:
 ```sh
 # Describe the Version Control category. This will also list the rules that it checks.
 mllint describe version-control
@@ -83,9 +96,24 @@ mllint describe version-control/data/dvc
 
 ## Configuration
 
-#### YAML
+`mllint` can be configured either using a `.mllint.yml` file or through the project's `pyproject.toml`. This allows you to selectively disable specific linting rules or categories by means of their slug, as well as configure specific settings for various linting rules. See below for examples of such configuration files.
 
-`mllint` can be configured using a `.mllint.yml` file that should be placed at the root of the project directory. This is a YAML file in which you can configure specific settings for various linting rules, as well as disable specific rules or even entire categories if you wish.
+To print `mllint`'s current configuration in YAML format, run (optionally providing the path to the project's folder):
+```sh
+mllint config
+```
+
+To print `mllint`'s default configuration in YAML format, run (unless there is a folder called `default` in the current directory):
+```sh
+mllint config default
+```
+
+To create a `.mllint.yml` file from `mllint`'s default configuration, run:
+```sh
+mllint config default -q > .mllint.yml
+```
+
+#### YAML
 
 An example `.mllint.yml` that disables some rules looks as follows:
 
@@ -98,7 +126,9 @@ rules:
 
 #### TOML
 
-Alternatively, if no `.mllint.yml` exists, `mllint` searches the `pyproject.toml` file in the root of the project for a `[tool.mllint]` section. TOML has a slightly different syntax, but the structure is otherwise the same as the config in the YAML file. The example below is identical to the YAML example above.
+If no `.mllint.yml` is found, `mllint` searches the project's `pyproject.toml` for a `[tool.mllint]` section. TOML has a slightly different syntax, but the structure is otherwise the same as the config in the YAML file. 
+
+An example `pyproject.toml` configuration of `mllint` is as follows. Note that it is identical to the YAML example above.
 
 ```toml
 [tool.mllint]
@@ -108,23 +138,10 @@ disabled = ["version-control/code/git", "dependency-management/single"]
 
 ---
 
-Here are some useful commands related to configuration:
-```sh
-# Print the configuration of the project in the current folder
-mllint config
-
-# Print the configuration of the project in projects/my-ml-project
-mllint config projects/my-ml-project
-
-# Print the default configuration (unless there's a folder called 'default' in the current dir)
-mllint config default
-
-# Create a valid `.mllint.yml` file with the default configuration
-mllint config default -q > .mllint.yml
-```
-
----
-
 ## Getting Started (development)
 
-Clone this repository and run `go run .` in the root of this repository.
+While `mllint` is a tool for the Python ML ecosystem and distributed through PyPI, it is actually written in Go, compiled to a static binary and published as platform-specific Python wheels. 
+
+To run `mllint` from source, install the latest version of Go for your operating system, then clone this repository and run `go run .` in the root of this repository. Use `go test ./...` or execute `test.sh` to run all of `mllint`'s tests.
+
+To test compiling and packaging `mllint` into a Python wheel for your current platform, run `test.package.sh`.
