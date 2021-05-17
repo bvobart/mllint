@@ -2,11 +2,14 @@ package dependencymgmt
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/setools/depmanagers"
+	"github.com/bvobart/mllint/utils/markdowngen"
+	"github.com/juliangruber/go-intersect"
 )
 
 func NewLinter() api.Linter {
@@ -22,18 +25,26 @@ func (l *DependenciesLinter) Name() string {
 }
 
 func (l *DependenciesLinter) Rules() []*api.Rule {
-	return []*api.Rule{&RuleUse, &RuleSingle} // TODO: add the rest
+	return []*api.Rule{&RuleUse, &RuleSingle, &RuleUseDev}
 }
 
 func (l *DependenciesLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 	managers := project.DepManagers
 
+	l.ScoreRuleUse(&report, managers)
+	l.ScoreRuleSingle(&report, managers)
+	l.ScoreRuleUseDev(&report, managers.Main())
+
+	return report, nil
+}
+
+func (l *DependenciesLinter) ScoreRuleUse(report *api.Report, managers api.DependencyManagerList) {
 	if len(managers) == 0 {
 		report.Scores[RuleUse] = 0
-		report.Scores[RuleSingle] = 0
-		return report, nil
+		return
 	}
+
 	switch {
 	case managers.ContainsType(depmanagers.TypePipenv) || managers.ContainsType(depmanagers.TypePoetry):
 		report.Scores[RuleUse] = 100
@@ -47,10 +58,17 @@ func (l *DependenciesLinter) LintProject(project api.Project) (api.Report, error
 		report.Scores[RuleUse] = 0
 		report.Details[RuleUse] = fmt.Sprintf("Your project is somehow using a dependency manager that mllint recognises, but cannot score: %s.\n\nPlease create an issue on mllint's GitHub :)", types(managers))
 	}
+}
+
+func (l *DependenciesLinter) ScoreRuleSingle(report *api.Report, managers api.DependencyManagerList) {
+	if len(managers) == 0 {
+		report.Scores[RuleSingle] = 0
+		return
+	}
 
 	if len(managers) == 1 {
 		report.Scores[RuleSingle] = 100
-		return report, nil
+		return
 	}
 
 	report.Scores[RuleSingle] = 0
@@ -71,9 +89,49 @@ func (l *DependenciesLinter) LintProject(project api.Project) (api.Report, error
 	default:
 		details.WriteString("Pick the one most suited for you, your project and your team, then stick with it.")
 	}
-	report.Details[RuleSingle] = details.String()
 
-	return report, nil
+	report.Details[RuleSingle] = details.String()
+}
+
+func (l *DependenciesLinter) ScoreRuleUseDev(report *api.Report, manager api.DependencyManager) {
+	if manager == nil {
+		return
+	}
+
+	if manager.Type() == depmanagers.TypeRequirementsTxt || manager.Type() == depmanagers.TypeSetupPy {
+		report.Scores[RuleUseDev] = 0
+		report.Details[RuleUseDev] = "Your project's main dependency manager is a `" + manager.Type().String() + "` file, which doesn't distinguish between regular dependencies and development dependencies."
+		return
+	}
+
+	deps := manager.Dependencies()
+	shouldBeDevDeps, ok := intersect.Hash(deps, ShouldBeDevDependencies).([]interface{})
+	if !ok {
+		shouldBeDevDeps = []interface{}{}
+	}
+
+	missingDevDeps := []interface{}{}
+	for _, d := range shouldBeDevDeps {
+		if dep := d.(string); !manager.HasDevDependency(dep) {
+			missingDevDeps = append(missingDevDeps, dep)
+		}
+	}
+
+	if len(missingDevDeps) == 0 {
+		report.Scores[RuleUseDev] = 100
+		return
+	}
+
+	// 1 misplaced dependency: 50%, 2 or more misplaced dependencies: 0%
+	report.Scores[RuleUseDev] = math.Max(float64(100-50*len(missingDevDeps)), 0)
+	report.Details[RuleUseDev] = fmt.Sprint(manager.Type().String(), ` is tracking the following dependencies as regular dependencies, but they should actually be development dependencies.
+
+Please move the following dependencies `, instructionsHowToMovePkgs[manager.Type()], "\n\n", markdowngen.List(missingDevDeps))
+}
+
+var instructionsHowToMovePkgs = map[api.DependencyManagerType]string{
+	depmanagers.TypePoetry: "from the `dependencies` section to the `dev-dependencies` section in your `pyproject.toml`, then run `poetry lock` to update your lock file.",
+	depmanagers.TypePipenv: "from the `packages` section to the `dev-packages` section in your `Pipfile`, then run `pipenv lock` to update your lock file.",
 }
 
 func types(managers []api.DependencyManager) []api.DependencyManagerType {

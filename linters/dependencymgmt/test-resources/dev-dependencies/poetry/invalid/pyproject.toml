@@ -10,6 +10,8 @@ pandas = "^1.2.3"
 pyaml = "^20.4.0"
 scikit-learn = "^0.24.1"
 scipy = "^1.6.1"
+pytest = "*"
+tox = "*"
 
 [tool.poetry.dev-dependencies]
 mllint = "^0.5.1"

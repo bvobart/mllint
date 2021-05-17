@@ -9,6 +9,7 @@ import (
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
 	"github.com/bvobart/mllint/setools/depmanagers"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 var linter = dependencymgmt.NewLinter()
@@ -89,6 +90,9 @@ func TestLintProject(t *testing.T) {
 			require.EqualValues(t, 100, report.Scores[dependencymgmt.RuleUse])
 			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleSingle])
 		}},
+		{Name: "Invalid/DevDeps/Poetry", Dir: "test-resources/dev-dependencies/poetry", Expect: func(report api.Report, err error) {
+			require.NoError(t, err)
+		}},
 	}
 
 	for _, tt := range tests {
@@ -99,6 +103,58 @@ func TestLintProject(t *testing.T) {
 			project.DepManagers = depmanagers.Detect(project)
 			report, err := linter.LintProject(project)
 			test.Expect(report, err)
+		})
+	}
+}
+
+type ruleUseDevTest struct {
+	Name        string
+	Dir         string
+	Expect      func(report api.Report)
+	ManagerType api.DependencyManagerType
+}
+
+func TestRuleUseDev(t *testing.T) {
+	tests := []ruleUseDevTest{
+		{Name: "Poetry/Correct", Dir: "test-resources/dev-dependencies/poetry/correct", ManagerType: depmanagers.TypePoetry, Expect: func(report api.Report) {
+			require.EqualValues(t, 100, report.Scores[dependencymgmt.RuleUseDev])
+		}},
+		{Name: "Poetry/Invalid", Dir: "test-resources/dev-dependencies/poetry/invalid", ManagerType: depmanagers.TypePoetry, Expect: func(report api.Report) {
+			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"tox", "pytest"}))
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], "`pyproject.toml`")
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], "`poetry lock`")
+		}},
+		{Name: "Pipenv/Correct", Dir: "test-resources/dev-dependencies/pipenv/correct", ManagerType: depmanagers.TypePipenv, Expect: func(report api.Report) {
+			require.EqualValues(t, 100, report.Scores[dependencymgmt.RuleUseDev])
+		}},
+		{Name: "Pipenv/Invalid", Dir: "test-resources/dev-dependencies/pipenv/invalid", ManagerType: depmanagers.TypePipenv, Expect: func(report api.Report) {
+			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"mypy", "isort", "dvc"}))
+		}},
+		{Name: "RequirementsTxt", Dir: "test-resources/dev-dependencies/requirementstxt", ManagerType: depmanagers.TypeRequirementsTxt, Expect: func(report api.Report) {
+			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
+			require.Equal(t, "Your project's main dependency manager is a `requirements.txt` file, which doesn't distinguish between regular dependencies and development dependencies.", report.Details[dependencymgmt.RuleUseDev])
+		}},
+		{Name: "SetupPy", Dir: "test-resources/dev-dependencies/setuppy", ManagerType: depmanagers.TypeSetupPy, Expect: func(report api.Report) {
+			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
+			require.Equal(t, "Your project's main dependency manager is a `setup.py` file, which doesn't distinguish between regular dependencies and development dependencies.", report.Details[dependencymgmt.RuleUseDev])
+		}},
+	}
+
+	for _, tt := range tests {
+		test := tt
+		t.Run(test.Name, func(t *testing.T) {
+			t.Parallel()
+			project := api.Project{Dir: test.Dir}
+
+			manager, err := test.ManagerType.Detect(project)
+			require.NoError(t, err)
+
+			report := api.NewReport()
+			linter := dependencymgmt.NewLinter().(*dependencymgmt.DependenciesLinter)
+			linter.ScoreRuleUseDev(&report, manager)
+			test.Expect(report)
 		})
 	}
 }

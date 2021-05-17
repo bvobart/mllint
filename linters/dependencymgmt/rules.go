@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 // RuleUse is a linting rule to check whether the project is using a proper dependency management solution.
@@ -88,3 +89,26 @@ var DetailsRequirementsTxtPipenv = fmt.Sprintf("Since you are using Pipenv, the 
 var DetailsRequirementsTxtPoetry = fmt.Sprintf("Since you are using Poetry, the %s file in your project is redundant. Migrate any dependencies left in there to Pipenv and remove it.", "`requirements.txt`")
 var DetailsPipenvSetupPy = fmt.Sprintf("Consider using Poetry instead of Pipenv. Poetry is very similar to Pipenv, but also supports building and publishing Python packages, which is what I presume you're using %s for now.", "`setup.py`")
 var DetailsPoetrySetupPy = fmt.Sprintf("The %s in your project is redundant and should be removed, as you can also use Poetry to build your project into a Python package using %s, see the [Poetry Docs](https://python-poetry.org/docs/libraries/#packaging) to learn more.", "`setup.py`", "`poetry build`")
+
+var RuleUseDev = api.Rule{
+	Slug: "use-dev",
+	Name: "Project places its development dependencies in dev-dependencies.",
+	Details: `Development dependencies are dependencies of your project that are only necessary for development purposes, but are not required for your software to actually run.
+Examples of this are code quality linters, unit testing frameworks and other project analysis tools, including ` + "`mllint`" + `.
+
+This rule is only checked when your project uses Poetry or Pipenv, since these support having development dependencies.
+
+When ` + "`mllint`" + ` detects one of the following dependencies in your project, but it is not in your development dependencies,
+then it will fail this rule.
+
+` + markdowngen.List(printDependencies(ShouldBeDevDependencies)),
+	Weight: 1,
+}
+
+func printDependencies(deps []string) []interface{} {
+	res := make([]interface{}, len(deps))
+	for i, dep := range deps {
+		res[i] = fmt.Sprint("`", dep, "`")
+	}
+	return res
+}

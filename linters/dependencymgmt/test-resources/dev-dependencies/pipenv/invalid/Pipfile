@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==0.12.1"
+numpy = "*"
+mypy = "*"
+dvc = "*"
+isort = "*"
+
+[dev-packages]
+pytest = "*"
+pylint = "*"
+tox = "*"
+black = "*"
+bandit = "*"
+
+[requires]
+python_version = "3.6"
