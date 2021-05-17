@@ -1,12 +1,10 @@
 package cqlinters
 
 import (
-	"path"
 	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/setools/depmanagers"
-	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/exec"
 )
 
@@ -30,12 +28,12 @@ func (p Black) IsInstalled() bool {
 }
 
 func (p Black) IsConfigured(project api.Project) bool {
-	if !utils.FileExists(path.Join(project.Dir, "pyproject.toml")) {
+	pyprojectToml, err := depmanagers.ReadPyProjectTOML(project.Dir)
+	if err != nil {
 		return false
 	}
 
-	poetry := depmanagers.TypePoetry.For(project).(depmanagers.Poetry)
-	return poetry.Config().Has("tool.black")
+	return pyprojectToml.Tool.Black != nil
 }
 
 func (p Black) IsProperlyConfigured(project api.Project) bool {

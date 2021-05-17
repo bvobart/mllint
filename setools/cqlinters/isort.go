@@ -34,18 +34,16 @@ func (p ISort) IsConfigured(project api.Project) bool {
 		return true
 	}
 
-	if utils.FileExists(path.Join(project.Dir, "pyproject.toml")) {
-		poetry := depmanagers.TypePoetry.For(project).(depmanagers.Poetry)
-		return poetry.Config().Has("tool.isort")
+	if pyprojectToml, err := depmanagers.ReadPyProjectTOML(project.Dir); err == nil {
+		return pyprojectToml.Tool.ISort != nil
 	}
 
 	return false
 }
 
 func (p ISort) IsProperlyConfigured(project api.Project) bool {
-	if utils.FileExists(path.Join(project.Dir, "pyproject.toml")) {
-		poetry := depmanagers.TypePoetry.For(project).(depmanagers.Poetry)
-		return poetry.Config().Get("tool.isort.profile") == "black"
+	if pyprojectToml, err := depmanagers.ReadPyProjectTOML(project.Dir); err == nil {
+		return pyprojectToml.Tool.ISort != nil && pyprojectToml.Tool.ISort.Get("profile") == "black"
 	}
 
 	return false

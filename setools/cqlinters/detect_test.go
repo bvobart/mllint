@@ -31,8 +31,9 @@ func TestFromConfigNotFound(t *testing.T) {
 
 func TestDetect(t *testing.T) {
 	project := api.Project{Dir: "test-resources"}
-	require.True(t, depmanagers.TypePoetry.Detect(project))
-	project.DepManagers = []api.DependencyManager{depmanagers.TypePoetry.For(project)}
+	poetry, err := depmanagers.TypePoetry.Detect(project)
+	require.NoError(t, err)
+	project.DepManagers = []api.DependencyManager{poetry}
 
 	linters := cqlinters.Detect(project)
 	require.Len(t, linters, 5)
