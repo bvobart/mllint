@@ -19,7 +19,7 @@ func TestName(t *testing.T) {
 }
 
 func TestRules(t *testing.T) {
-	require.Equal(t, []*api.Rule{&dependencymgmt.RuleUse, &dependencymgmt.RuleSingle}, linter.Rules())
+	require.Equal(t, []*api.Rule{&dependencymgmt.RuleUse, &dependencymgmt.RuleSingle, &dependencymgmt.RuleUseDev}, linter.Rules())
 }
 
 type linterTest struct {
