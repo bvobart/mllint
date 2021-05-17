@@ -92,7 +92,7 @@ var DetailsPoetrySetupPy = fmt.Sprintf("The %s in your project is redundant and 
 
 var RuleUseDev = api.Rule{
 	Slug: "use-dev",
-	Name: "Project places its development dependencies in dev-dependencies.",
+	Name: "Project places its development dependencies in dev-dependencies",
 	Details: `Development dependencies are dependencies of your project that are only necessary for development purposes, but are not required for your software to actually run.
 Examples of this are code quality linters, unit testing frameworks and other project analysis tools, including ` + "`mllint`" + `.
 
