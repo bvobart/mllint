@@ -12,6 +12,6 @@ func TestDetect(t *testing.T) {
 	project := api.Project{Dir: "test-resources"}
 	managers := depmanagers.Detect(project)
 
-	require.Len(t, managers, 3)
-	require.True(t, managers.ContainsAllTypes(depmanagers.TypePipenv, depmanagers.TypePoetry, depmanagers.TypeRequirementsTxt))
+	require.Len(t, managers, 4)
+	require.True(t, managers.ContainsAllTypes(depmanagers.TypePipenv, depmanagers.TypePoetry, depmanagers.TypeRequirementsTxt, depmanagers.TypeSetupPy))
 }

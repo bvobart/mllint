@@ -1,9 +1,12 @@
 package depmanagers
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"regexp"
+	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/utils"
@@ -17,16 +20,12 @@ func (p typeRequirementsTxt) String() string {
 	return string(p)
 }
 
-func (p typeRequirementsTxt) Detect(project api.Project) bool {
-	return utils.FileExists(path.Join(project.Dir, "requirements.txt"))
-}
-
-func (p typeRequirementsTxt) For(project api.Project) api.DependencyManager {
+func (p typeRequirementsTxt) Detect(project api.Project) (api.DependencyManager, error) {
 	contents, err := ioutil.ReadFile(path.Join(project.Dir, "requirements.txt"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return RequirementsTxt{Project: project, reqFile: string(contents)}
+	return RequirementsTxt{Project: project, reqFile: string(contents)}, nil
 }
 
 //---------------------------------------------------------------------------------------
@@ -52,6 +51,10 @@ func (p RequirementsTxt) HasDevDependency(dependency string) bool {
 	return false
 }
 
+func (p RequirementsTxt) Dependencies() []string {
+	return strings.Split(p.reqFile, "\n")
+}
+
 //---------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------
 
@@ -61,12 +64,12 @@ func (p typeSetupPy) String() string {
 	return string(p)
 }
 
-func (p typeSetupPy) Detect(project api.Project) bool {
-	return utils.FileExists(path.Join(project.Dir, "setup.py"))
-}
-
-func (p typeSetupPy) For(project api.Project) api.DependencyManager {
-	return SetupPy{Project: project}
+func (p typeSetupPy) Detect(project api.Project) (api.DependencyManager, error) {
+	file := path.Join(project.Dir, "setup.py")
+	if !utils.FileExists(file) {
+		return nil, fmt.Errorf("%w: %s", os.ErrNotExist, file)
+	}
+	return SetupPy{Project: project}, nil
 }
 
 //---------------------------------------------------------------------------------------
@@ -87,6 +90,10 @@ func (p SetupPy) HasDependency(dependency string) bool {
 func (p SetupPy) HasDevDependency(dependency string) bool {
 	// setup.py is a dynamic script, so this is too difficult to determine.
 	return false
+}
+
+func (p SetupPy) Dependencies() []string {
+	return []string{}
 }
 
 //---------------------------------------------------------------------------------------

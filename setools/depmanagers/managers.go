@@ -25,8 +25,8 @@ func Detect(project api.Project) api.DependencyManagerList {
 	managers := api.DependencyManagerList{}
 
 	for _, managerType := range all {
-		if managerType.Detect(project) {
-			managers = append(managers, managerType.For(project))
+		if manager, err := managerType.Detect(project); err == nil {
+			managers = append(managers, manager)
 		}
 	}
 

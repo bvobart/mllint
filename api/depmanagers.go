@@ -5,16 +5,17 @@ import "fmt"
 type DependencyManagerType interface {
 	fmt.Stringer
 
-	// Detect whether a project is using this type of dependency manager.
+	// Detect whether a project is using this type of dependency manager and return the dependency manager instantiated for this project if it is detected,
+	// or an error if it is not detected.
+	//
 	// Generally, this is done by detecting whether the manager's configuration file exists.
-	Detect(project Project) bool
-
-	// For instantiates an DependencyManager instance for that project. This will parse the manager's configuration file.
-	// Note that this may panic if Detect has not previously been called.
-	For(project Project) DependencyManager
+	Detect(project Project) (DependencyManager, error)
 }
 
 type DependencyManager interface {
+	// Dependencies returns a list of the names of all Python dependencies that this manager is tracking.
+	Dependencies() []string
+
 	// HasDependency should return true if this dependency manager is tracking this dependency.
 	// This means it can either be in the regular dependencies, or dev dependencies.
 	HasDependency(dependency string) bool

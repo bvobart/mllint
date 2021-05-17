@@ -1,16 +1,14 @@
 package depmanagers
 
 import (
-	"path"
-
-	"github.com/fatih/color"
-	"github.com/pelletier/go-toml"
+	"fmt"
 
 	"github.com/bvobart/mllint/api"
-	"github.com/bvobart/mllint/utils"
 )
 
 //---------------------------------------------------------------------------------------
+
+const poetryBuildBackend = "poetry.core.masonry.api"
 
 type typePoetry string
 
@@ -18,36 +16,23 @@ func (p typePoetry) String() string {
 	return string(p)
 }
 
-func (p typePoetry) Detect(project api.Project) bool {
-	poetryFile := path.Join(project.Dir, "pyproject.toml")
-	if !utils.FileExists(poetryFile) {
-		return false
-	}
-
-	contents, err := toml.LoadFile(poetryFile)
+func (p typePoetry) Detect(project api.Project) (api.DependencyManager, error) {
+	pyprojectToml, err := ReadPyProjectTOML(project.Dir)
 	if err != nil {
-		color.Red("Error: Poetry.Detect - failed to read %s: %s", poetryFile, err.Error())
-		return false
+		return nil, err
 	}
 
-	backend := contents.Get("build-system.build-backend").(string)
-	return backend == "poetry.core.masonry.api"
-}
-
-func (p typePoetry) For(project api.Project) api.DependencyManager {
-	poetryFile := path.Join(project.Dir, "pyproject.toml")
-	tomlConf, err := toml.LoadFile(poetryFile)
-	if err != nil {
-		panic(err)
+	if pyprojectToml.BuildSystem.BuildBackend != poetryBuildBackend {
+		return nil, fmt.Errorf("expecting build-system.build-backend to be '%s', but was: '%s'", poetryBuildBackend, pyprojectToml.BuildSystem.BuildBackend)
 	}
-	return Poetry{Project: project, config: tomlConf}
+
+	return Poetry{Config: pyprojectToml.Tool.Poetry}, nil
 }
 
 //---------------------------------------------------------------------------------------
 
 type Poetry struct {
-	Project api.Project
-	config  *toml.Tree
+	Config *PoetryConfig
 }
 
 func (p Poetry) Type() api.DependencyManagerType {
@@ -55,15 +40,22 @@ func (p Poetry) Type() api.DependencyManagerType {
 }
 
 func (p Poetry) HasDependency(dependency string) bool {
-	return p.config.Has("tool.poetry.dependencies."+dependency) || p.HasDevDependency(dependency)
+	return p.Config != nil && p.Config.Dependencies != nil && p.Config.Dependencies.Has(dependency) || p.HasDevDependency(dependency)
 }
 
 func (p Poetry) HasDevDependency(dependency string) bool {
-	return p.config.Has("tool.poetry.dev-dependencies." + dependency)
+	return p.Config != nil && p.Config.Dependencies != nil && p.Config.DevDependencies.Has(dependency)
 }
 
-func (p Poetry) Config() *toml.Tree {
-	return p.config
+func (p Poetry) Dependencies() []string {
+	deps := []string{}
+	if p.Config != nil && p.Config.Dependencies != nil {
+		deps = append(deps, p.Config.Dependencies.Keys()...)
+	}
+	if p.Config != nil && p.Config.DevDependencies != nil {
+		deps = append(deps, p.Config.DevDependencies.Keys()...)
+	}
+	return deps
 }
 
 //---------------------------------------------------------------------------------------
