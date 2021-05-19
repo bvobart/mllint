@@ -18,6 +18,18 @@ func TestNewRunner(t *testing.T) {
 	require.NotNil(t, r)
 }
 
+func TestCollectTasksEmptyList(t *testing.T) {
+	tasks := []*mllint.RunnerTask{}
+	funnel := mllint.CollectTasks(tasks...)
+	select {
+	case task, open := <-funnel:
+		require.False(t, open)
+		require.Nil(t, task)
+	default:
+		t.Fatalf("expected a closed channel after running CollectTasks with empty list of tasks, but apparently it was open")
+	}
+}
+
 // create a bunch of tests with linters that will simply return api.NewReport() and nil
 func createTests(numTests int) map[string]testLinter {
 	tests := make(map[string]testLinter, numTests)

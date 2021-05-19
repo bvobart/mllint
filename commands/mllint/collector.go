@@ -12,6 +12,12 @@ func ForEachTask(tasks chan *RunnerTask, f func(task *RunnerTask, result LinterR
 }
 
 func CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
+	if len(tasks) == 0 {
+		funnel := make(chan *RunnerTask)
+		close(funnel)
+		return funnel
+	}
+
 	c := collector{
 		total:  len(tasks),
 		done:   make(chan struct{}),
