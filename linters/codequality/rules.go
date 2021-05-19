@@ -40,6 +40,23 @@ func detailsUseLinters(detectedLinters []api.CQLinter, missingLinters []api.CQLi
 		return fmt.Sprintf("Hooray, all linters detected:\n\n%s", markdowngen.List(asInterfaceList(detectedLinters)))
 	}
 
+	extraDetails := fmt.Sprintf(`This rule will be satisfied, iff for each of these linters:
+- **Either** there is a configuration file for this linter in the project
+- **Or** the linter is a dependency of the project
+
+Specifically, we recommend adding each linter to the development dependencies of your dependency manager,
+e.g. using `+"`poetry add --dev %s` or `pipenv install --dev %s`\n", missingLinters[0].DependencyName(), missingLinters[0].DependencyName())
+
+	if len(detectedLinters) == 0 {
+		return fmt.Sprintf(`Oh my, no code quality linters were detected in your project!
+
+We recommend that you start using the following linters in your project to help you measure and maintain the quality of your code:
+
+%s
+
+%s`, markdowngen.List(asInterfaceList(missingLinters)), extraDetails)
+	}
+
 	return fmt.Sprintf(`Linters detected:
 
 %s
@@ -50,13 +67,7 @@ However, these linters were **missing** from your project:
 
 We recommend that you start using these linters in your project to help you measure and maintain the quality of your code.
 
-This rule will be satisfied, iff for each of these linters:
-- **Either** there is a configuration file for this linter in the project
-- **Or** the linter is a dependency of the project
-
-Specifically, we recommend adding each linter to the development dependencies of your dependency manager,
-e.g. using `+"`poetry add --dev %s` or `pipenv install --dev %s`"+`
-`, markdowngen.List(asInterfaceList(detectedLinters)), markdowngen.List(asInterfaceList(missingLinters)), missingLinters[0].DependencyName(), missingLinters[0].DependencyName())
+%s`, markdowngen.List(asInterfaceList(detectedLinters)), markdowngen.List(asInterfaceList(missingLinters)), extraDetails)
 }
 
 var RuleLintersInstalled = api.Rule{
