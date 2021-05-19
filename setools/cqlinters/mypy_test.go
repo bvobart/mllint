@@ -25,20 +25,19 @@ func TestMypy(t *testing.T) {
 	exec.LookPath = exec.DefaultLookPath
 }
 
-const testMypyOutput = `src/evaluate.py:6: error: Cannot find implementation or library stub for module named 'sklearn.metrics'
-src/evaluate.py:6: note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
-src/evaluate.py:6: error: Cannot find implementation or library stub for module named 'sklearn'
-src/evaluate.py:37: error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
-Found 4 errors in 1 file (checked 2 source files)
+const testMypyOutput = `src/evaluate.py:6:1: error: Cannot find implementation or library stub for module named 'sklearn.metrics'
+src/evaluate.py:6:1: note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
+src/evaluate.py:6:1: error: Cannot find implementation or library stub for module named 'sklearn'
+src/evaluate.py:37:42: error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
 `
 
-const testMypySuccessOutput = "Success: no issues found in 1 source file"
+const testMypySuccessOutput = "\n"
 
 var expectedMypyMessageStrings = [4]string{
-	"`src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn.metrics'",
-	"`src/evaluate.py:6` - Note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports",
-	"`src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn'",
-	"`src/evaluate.py:37` - Error: Incompatible types in assignment (expression has type \"TextIO\", variable has type \"BinaryIO\")",
+	"`src/evaluate.py:6,1` - Error: Cannot find implementation or library stub for module named 'sklearn.metrics'",
+	"`src/evaluate.py:6,1` - Note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports",
+	"`src/evaluate.py:6,1` - Error: Cannot find implementation or library stub for module named 'sklearn'",
+	"`src/evaluate.py:37,42` - Error: Incompatible types in assignment (expression has type \"TextIO\", variable has type \"BinaryIO\")",
 }
 
 func TestMypyRun(t *testing.T) {
@@ -58,7 +57,7 @@ func TestMypyRun(t *testing.T) {
 		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "mypy", name)
-			require.Equal(t, []string{project.Dir}, args)
+			require.Equal(t, []string{project.Dir, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
 			return []byte(testMypyOutput), errors.New("mypy always exits with an error when there are messages")
 		}
 
@@ -79,7 +78,7 @@ func TestMypyRun(t *testing.T) {
 		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "mypy", name)
-			require.Equal(t, []string{project.Dir}, args)
+			require.Equal(t, []string{project.Dir, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
 			return []byte(testMypySuccessOutput), nil
 		}
 

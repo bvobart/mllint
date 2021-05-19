@@ -10,8 +10,9 @@ type MypyMessage struct {
 	Message  string
 	Filename string
 	Line     int
+	Column   int
 }
 
 func (msg MypyMessage) String() string {
-	return fmt.Sprint("`", msg.Filename, ":", msg.Line, "` - ", strings.Title(msg.Severity), ": ", msg.Message)
+	return fmt.Sprint("`", msg.Filename, ":", msg.Line, ",", msg.Column, "` - ", strings.Title(msg.Severity), ": ", msg.Message)
 }
