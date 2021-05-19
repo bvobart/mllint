@@ -16,7 +16,7 @@
 
 `mllint` is a command-line utility to evaluate the technical quality of Machine Learning (ML) and Artificial Intelligence (AI) projects written in Python by analysing the project's source code, data and configuration of supporting tools. `mllint` aims to ...
 
-- ... help data scientists and ML engineers in creating and maintaining production-grade ML and AI projects.
+- ... help data scientists and ML engineers in creating and maintaining production-grade ML and AI projects, both on their own personal computers as well as on CI.
 - ... help ML practitioners inexperienced with Software Engineering (SE) techniques explore and make effective use of battle-hardended SE for ML tools in the Python ecosystem.
 - ... help ML project managers assess the quality of their ML and AI projects and receive recommendations on what aspects of their projects they should focus on improving.
 
@@ -34,12 +34,24 @@
 
 `mllint` is compiled for Linux, MacOS and Windows, both 64 and 32 bit x86 (MacOS 64-bit only), as well as 64-bit ARM on Linux and MacOS (Apple M1).
 
-`mllint` is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed using `pip`:
+`mllint` is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed globally or in your current environment using `pip`:
 ```sh
 pip install mllint
 ```
 
+Alternatively, to add `mllint` to an existing project, if your project uses Poetry for its dependencies:
+```sh
+poetry add --dev mllint
+```
+
+Or if your project uses Pipenv:
+```sh
+pipenv install --dev mllint
+```
+
 ## Usage
+
+`mllint` is designed to be used both on your personal computer as well as on CI systems. So, open a terminal in your project folder and run one of the following commands, or add it to your project's CI script.
 
 To run `mllint` on the project in the current folder, simply run:
 ```sh
@@ -53,7 +65,7 @@ mllint path/to/my-ml-project
 
 `mllint` will analyse your project and create a Markdown-formatted report of its analysis. By default, this will be pretty printed to your terminal. 
 
-If you instead prefer to export the raw Markdown text to a file, use the `--output` or `-o` flag and provide a filename. `mllint` does not overwrite the destination file if it already exists, unless `--force` or `-f` is used. For example:
+If you instead prefer to export the raw Markdown text to a file, which may be particularly useful when running on CI, the `--output` or `-o` flag and provide a filename. `mllint` does not overwrite the destination file if it already exists, unless `--force` or `-f` is used. For example:
 ```sh
 mllint --output report.md
 ```
@@ -62,6 +74,8 @@ Using `-` (a dash) as the filename prints the raw Markdown directly to your term
 ```sh
 mllint -o -
 ```
+
+In CI scripts, such raw markdown output (whether as a file or printed to the standard output) can be used to e.g. make comments on pull/merge requests or create Wiki pages on your repository.
 
 See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
 
