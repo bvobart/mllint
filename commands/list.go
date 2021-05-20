@@ -6,7 +6,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/linters"
 )
 
@@ -73,42 +72,4 @@ func listEnabled(_ *cobra.Command, args []string) error {
 
 	shush(func() { fmt.Println("---") })
 	return nil
-}
-
-func prettyPrintLinters(linters map[api.Category]api.Linter) {
-	if len(linters) == 0 {
-		color.Red("Oh no! Your mllint configuration has disabled ALL rules!")
-		fmt.Println()
-	}
-
-	for cat, linter := range linters {
-		prettyPrintCategory(cat)
-		prettyPrintLinterRules(cat, linter)
-		fmt.Println()
-	}
-}
-
-func prettyPrintCategory(cat api.Category) {
-	color.New(color.Bold).Print(cat.Name, " ")
-	color.New(color.Faint).Printf("(%s)\n", cat.Slug)
-}
-
-func prettyPrintLinterRules(cat api.Category, linter api.Linter) {
-	if linter == nil {
-		fmt.Println("[]")
-		return
-	}
-
-	rules := linter.Rules()
-	if len(rules) == 0 {
-		fmt.Println("[]")
-		return
-	}
-
-	faint := color.New(color.Faint)
-	for _, rule := range rules {
-		if !rule.Disabled {
-			fmt.Println("-", color.BlueString(rule.Name), faint.Sprintf("(%s)", rule.Slug))
-		}
-	}
 }

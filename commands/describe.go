@@ -42,61 +42,45 @@ func describe(cmd *cobra.Command, args []string) error {
 			color.Red("No rule or category found that matched: %s", color.Set(color.Reset).Sprint(slug))
 		}
 
-		fmt.Println("---")
+		color.Green(markdown.Render("---"))
 	}
 	return nil
 }
 
 func describeCategory(cat api.Category) {
 	prettyPrintCategory(cat)
-	color.Set(color.Faint).Println("Category")
-	color.Unset()
-
+	color.New(color.Faint).Println("Category")
 	fmt.Println()
 	fmt.Println(markdown.Render(cat.Description))
 
-	color.Set(color.Bold).Println("Rules")
-	color.Unset()
+	color.New(color.Bold).Println("Rules")
 	linter := linters.ByCategory[cat]
-	prettyPrintLinterRules(cat, linter)
+	prettyPrintLinter(linter)
 
 	fmt.Println()
 }
 
 func describeRules(rules []*api.Rule) {
 	for i, rule := range rules {
-		if i > 0 {
-			fmt.Println()
-		}
-
 		describeRule(*rule)
 
 		if i < len(rules)-1 {
-			fmt.Println("---")
+			color.Green(markdown.Render("---"))
 		}
 	}
 }
 
 func describeRule(rule api.Rule) {
-	// TODO: just create Markdown output and pretty-print that.
-	bold := color.New(color.Bold)
-	faint := color.New(color.Faint)
-
-	bold.Print(rule.Name, " ")
-	faint.Println(rule.Slug)
-	faint.Println("Rule")
-	faint.Printf("Weight: %.0f\n", rule.Weight)
-
-	fmt.Println()
-	fmt.Println(markdown.Render(rule.Details))
+	// TODO: be able to print Markdown output when using -o
+	prettyPrintRule(rule)
 }
 
 func collectAllSlugs() []string {
 	slugs := []string{}
-	for cat, linter := range linters.ByCategory {
+	for _, linter := range linters.ByCategory {
 		rules := linter.Rules()
 		for _, rule := range rules {
-			slugs = append(slugs, cat.Slug+"/"+rule.Slug)
+			slugs = append(slugs, rule.Slug)
 		}
 	}
 	return slugs
