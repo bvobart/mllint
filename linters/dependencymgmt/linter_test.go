@@ -121,7 +121,7 @@ func TestRuleUseDev(t *testing.T) {
 		}},
 		{Name: "Poetry/Invalid", Dir: "test-resources/dev-dependencies/poetry/invalid", ManagerType: depmanagers.TypePoetry, Expect: func(report api.Report) {
 			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
-			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"tox", "pytest"}))
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"pytest", "tox"}))
 			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], "`pyproject.toml`")
 			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], "`poetry lock`")
 		}},
@@ -130,7 +130,7 @@ func TestRuleUseDev(t *testing.T) {
 		}},
 		{Name: "Pipenv/Invalid", Dir: "test-resources/dev-dependencies/pipenv/invalid", ManagerType: depmanagers.TypePipenv, Expect: func(report api.Report) {
 			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
-			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"mypy", "isort", "dvc"}))
+			require.Contains(t, report.Details[dependencymgmt.RuleUseDev], markdowngen.List([]interface{}{"dvc", "isort", "mypy"}))
 		}},
 		{Name: "RequirementsTxt", Dir: "test-resources/dev-dependencies/requirementstxt", ManagerType: depmanagers.TypeRequirementsTxt, Expect: func(report api.Report) {
 			require.EqualValues(t, 0, report.Scores[dependencymgmt.RuleUseDev])
