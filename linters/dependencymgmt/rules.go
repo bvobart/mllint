@@ -86,7 +86,7 @@ Please see the description of rule %s for more information.`, "`dependency-manag
 // Details to be appended when RuleSingle detects certain combinations of dependency managers
 var DetailsRequirementsTxtSetupPy = fmt.Sprintf("Consider using Poetry to replace both your %s and %s", "`requirements.txt`", "`setup.py`")
 var DetailsRequirementsTxtPipenv = fmt.Sprintf("Since you are using Pipenv, the %s file in your project is redundant. Migrate any dependencies left in there to Pipenv and remove it.", "`requirements.txt`")
-var DetailsRequirementsTxtPoetry = fmt.Sprintf("Since you are using Poetry, the %s file in your project is redundant. Migrate any dependencies left in there to Pipenv and remove it.", "`requirements.txt`")
+var DetailsRequirementsTxtPoetry = fmt.Sprintf("Since you are using Poetry, the %s file in your project is redundant. Migrate any dependencies left in there to Poetry and remove it.", "`requirements.txt`")
 var DetailsPipenvSetupPy = fmt.Sprintf("Consider using Poetry instead of Pipenv. Poetry is very similar to Pipenv, but also supports building and publishing Python packages, which is what I presume you're using %s for now.", "`setup.py`")
 var DetailsPoetrySetupPy = fmt.Sprintf("The %s in your project is redundant and should be removed, as you can also use Poetry to build your project into a Python package using %s, see the [Poetry Docs](https://python-poetry.org/docs/libraries/#packaging) to learn more.", "`setup.py`", "`poetry build`")
 

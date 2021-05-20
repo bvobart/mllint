@@ -74,7 +74,7 @@ func (l *DependenciesLinter) ScoreRuleSingle(report *api.Report, managers api.De
 	report.Scores[RuleSingle] = 0
 
 	details := strings.Builder{}
-	details.WriteString(fmt.Sprintf("Your project was found to be using dependency managers: %+v\n\n", types(managers)))
+	details.WriteString(fmt.Sprintf("Your project was found to be using multiple dependency managers: %+v\n\n", types(managers)))
 	switch {
 	case managers.ContainsAllTypes(depmanagers.TypeRequirementsTxt, depmanagers.TypeSetupPy):
 		details.WriteString(DetailsRequirementsTxtSetupPy)
