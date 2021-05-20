@@ -100,24 +100,31 @@ func (p *LiveRunnerProgress) printWorker() {
 }
 
 func (p *LiveRunnerProgress) printTasks() {
-	p.mu.RLock()
+	firstLine := p.w.Newline()
 
-	allDone := true
+	p.mu.RLock() // lock
+
+	nDone := 0
+	nTotal := len(p.tasks)
 	for _, task := range p.tasks {
-		if task.Status != statusDone {
-			allDone = false
+		if task.Status == statusDone {
+			nDone++
 		}
 
 		writer := p.w.Newline()
 		task.PrintStatus(writer)
 	}
 
-	p.mu.RUnlock()
+	p.mu.RUnlock() // unlock
 
-	if allDone {
+	if nDone == nTotal {
 		fmt.Fprintln(p.w.Newline())
 		color.New(color.Bold, color.FgGreen).Fprintln(p.w.Newline(), "✔️ All done!")
 		fmt.Fprint(p.w.Newline(), "\n---\n\n")
+	} else {
+		fmt.Fprintln(p.w.Newline())
+		color.New(color.Bold).Fprintf(firstLine, "Analysing project... (%d/%d)\n", nDone, nTotal)
+		fmt.Fprintln(p.w.Newline())
 	}
 
 	p.w.Flush()
