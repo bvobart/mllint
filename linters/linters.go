@@ -90,27 +90,26 @@ func DisableCategory(cat api.Category) int {
 // DisableRule disables a rule on the linter by means of the rule's slug.
 // The slug used here should be the same as one of the `linter.Rules()[i].Slug`
 func DisableRule(linter api.Linter, slug string) int {
+	nDisabled := 0
 	for _, rule := range linter.Rules() {
-		if rule.Slug == slug {
+		if strings.HasPrefix(rule.Slug, slug) {
 			if compLinter, ok := linter.(*common.CompositeLinter); ok {
 				compLinter.DisableRule(rule)
-				return 1
 			}
 
 			rule.Disable()
-			return 1
+			nDisabled++
 		}
 	}
-	return 0
+	return nDisabled
 }
 
 func GetCategory(slug string) (api.Category, bool) {
-	slashIndex := strings.Index(slug, "/")
-	if slashIndex == -1 {
-		return api.Category{}, false
+	if slashIndex := strings.Index(slug, "/"); slashIndex != -1 {
+		slug = slug[:slashIndex]
 	}
 
-	cat, ok := categories.BySlug[slug[:slashIndex]]
+	cat, ok := categories.BySlug[slug]
 	return cat, ok
 }
 
@@ -133,4 +132,31 @@ func GetRule(slug string) (api.Rule, bool) {
 	}
 
 	return api.Rule{}, false
+}
+
+// FindRules finds all rules that match (start with) the given slug.
+// E.g. version-control/data will return all the rules corresponding to data version control.
+func FindRules(slug string) []*api.Rule {
+	cat, ok := GetCategory(slug)
+	if !ok {
+		return []*api.Rule{}
+	}
+
+	linter, ok := ByCategory[cat]
+	if !ok {
+		return []*api.Rule{}
+	}
+
+	if slug == cat.Slug || slug == cat.Slug+"/" {
+		return linter.Rules()
+	}
+
+	foundRules := []*api.Rule{}
+	ruleSlug := strings.TrimPrefix(slug, cat.Slug+"/")
+	for _, rule := range linter.Rules() {
+		if strings.HasPrefix(rule.Slug, ruleSlug) {
+			foundRules = append(foundRules, rule)
+		}
+	}
+	return foundRules
 }

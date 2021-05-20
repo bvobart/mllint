@@ -97,6 +97,11 @@ func TestConfigureAllError(t *testing.T) {
 	require.ErrorIs(t, err, testErr)
 }
 
+func TestDisableNotExactlyMatchingCategory(t *testing.T) {
+	linters.ByCategory = make(map[api.Category]api.Linter)
+	require.Equal(t, 0, linters.Disable("version-control/"))
+}
+
 func TestDisableRuleNormalLinter(t *testing.T) {
 	mockctl := gomock.NewController(t)
 	mockLinter := mock_api.NewMockLinter(mockctl)
@@ -136,6 +141,25 @@ func TestDisableRuleCompositeLinter(t *testing.T) {
 	require.True(t, mockRules[1].Disabled)
 	require.True(t, mockRules[2].Disabled)
 	require.False(t, mockRules[3].Disabled)
+}
+
+func TestDisableRulePartialSlug(t *testing.T) {
+	mockctl := gomock.NewController(t)
+	mockLinter := mock_api.NewMockLinter(mockctl)
+	mockRules := []*api.Rule{
+		{Slug: "test-rule-1"},
+		{Slug: "test-rule-2"},
+		{Slug: "test-except-3"},
+		{Slug: "test-rule-4"},
+	}
+	mockLinter.EXPECT().Rules().Times(1).Return(mockRules)
+
+	require.Equal(t, 3, linters.DisableRule(mockLinter, "test-rule"))
+
+	require.True(t, mockRules[0].Disabled)
+	require.True(t, mockRules[1].Disabled)
+	require.False(t, mockRules[2].Disabled)
+	require.True(t, mockRules[3].Disabled)
 }
 
 func TestGetRule(t *testing.T) {
@@ -185,5 +209,53 @@ func TestGetRule(t *testing.T) {
 		rule, ok = linters.GetRule("code-quality/test-rule-4")
 		require.True(t, ok)
 		require.Equal(t, *rules2[1], rule)
+	})
+}
+
+func TestFindRules(t *testing.T) {
+	rules1 := []*api.Rule{
+		{Name: "Test Rule 1", Slug: "test-rule-1"},
+		{Name: "Test Rule 2", Slug: "test-rule-2"},
+	}
+	rules2 := []*api.Rule{
+		{Name: "Test Rule 3", Slug: "test-rule-3"},
+		{Name: "Test Rule 4", Slug: "test-rule-4"},
+		{Name: "Actual Rule 5", Slug: "actual-rule-5"},
+	}
+
+	mockctl := gomock.NewController(t)
+	mockLinter1 := mock_api.NewMockLinter(mockctl)
+	mockLinter2 := mock_api.NewMockLinter(mockctl)
+	mockLinter1.EXPECT().Rules().AnyTimes().Return(rules1)
+	mockLinter2.EXPECT().Rules().AnyTimes().Return(rules2)
+
+	linters.ByCategory = map[api.Category]api.Linter{
+		categories.VersionControl: mockLinter1,
+		categories.CodeQuality:    mockLinter2,
+	}
+
+	t.Run("NoCategory", func(t *testing.T) {
+		rules := linters.FindRules("this-doesn't-work")
+		require.Equal(t, []*api.Rule{}, rules)
+	})
+
+	t.Run("UnimplementedCategory", func(t *testing.T) {
+		rules := linters.FindRules("data-quality")
+		require.Equal(t, []*api.Rule{}, rules)
+	})
+
+	t.Run("EntireCategory", func(t *testing.T) {
+		rules := linters.FindRules("version-control")
+		require.Equal(t, rules1, rules)
+	})
+
+	t.Run("ExactMatch", func(t *testing.T) {
+		rules := linters.FindRules("version-control/test-rule-1")
+		require.Equal(t, []*api.Rule{rules1[0]}, rules)
+	})
+
+	t.Run("MatchMultiple", func(t *testing.T) {
+		rules := linters.FindRules("code-quality/test")
+		require.Equal(t, rules2[:2], rules)
 	})
 }

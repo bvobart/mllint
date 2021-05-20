@@ -36,8 +36,8 @@ func describe(cmd *cobra.Command, args []string) error {
 
 		if cat, ok := categories.BySlug[slug]; ok {
 			describeCategory(cat)
-		} else if rule, ok := linters.GetRule(slug); ok {
-			describeRule(rule)
+		} else if rules := linters.FindRules(slug); len(rules) > 0 {
+			describeRules(rules)
 		} else {
 			color.Red("No rule or category found that matched: %s", color.Set(color.Reset).Sprint(slug))
 		}
@@ -63,6 +63,20 @@ func describeCategory(cat api.Category) {
 	fmt.Println()
 }
 
+func describeRules(rules []*api.Rule) {
+	for i, rule := range rules {
+		if i > 0 {
+			fmt.Println()
+		}
+
+		describeRule(*rule)
+
+		if i < len(rules)-1 {
+			fmt.Println("---")
+		}
+	}
+}
+
 func describeRule(rule api.Rule) {
 	color.Set(color.Bold).Print(rule.Name)
 	color.Unset()
@@ -74,7 +88,6 @@ func describeRule(rule api.Rule) {
 
 	fmt.Println()
 	fmt.Println(markdown.Render(rule.Details))
-	fmt.Println()
 }
 
 func collectAllSlugs() []string {
