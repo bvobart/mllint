@@ -38,6 +38,10 @@ func (list DependencyManagerList) Main() DependencyManager {
 }
 
 func (list DependencyManagerList) Contains(target DependencyManager) bool {
+	if target == nil {
+		return false
+	}
+
 	for _, item := range list {
 		if item == target {
 			return true
@@ -47,6 +51,10 @@ func (list DependencyManagerList) Contains(target DependencyManager) bool {
 }
 
 func (list DependencyManagerList) ContainsType(target DependencyManagerType) bool {
+	if target == nil {
+		return false
+	}
+
 	for _, item := range list {
 		if item.Type() == target {
 			return true
