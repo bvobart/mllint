@@ -66,7 +66,7 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 		if !ok || rule.Disabled {
 			continue
 		}
-		writeRuleScore(output, category, *rule, score)
+		writeRuleScore(output, *rule, score)
 
 		// include any details for the rule if the linter decided to report any.
 		if linterDetails, ok := report.Details[*rule]; ok {
@@ -78,9 +78,9 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 	output.WriteString(details.String())
 }
 
-func writeRuleScore(output *strings.Builder, category api.Category, rule api.Rule, score float64) {
+func writeRuleScore(output *strings.Builder, rule api.Rule, score float64) {
 	passed := getPassedEmoji(score)
-	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | `%s`\n", passed, score, rule.Weight, rule.Name, rule.FullSlug(category))
+	line := fmt.Sprintf("%s | %.1f%% | %.0f | %s | `%s`\n", passed, score, rule.Weight, rule.Name, rule.Slug)
 	output.WriteString(line)
 }
 

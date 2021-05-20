@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/commands/mllint"
@@ -11,8 +10,11 @@ import (
 )
 
 func NewCompositeLinter(name string, linters ...api.Linter) mllint.ConfigurableLinterWithRunner {
-	rules, lintersByRule := collectRules(linters...)
-	return &CompositeLinter{name, linters, rules, nil, lintersByRule}
+	rules := []*api.Rule{}
+	for _, linter := range linters {
+		rules = append(rules, linter.Rules()...)
+	}
+	return &CompositeLinter{name, linters, rules, nil}
 }
 
 type CompositeLinter struct {
@@ -20,8 +22,6 @@ type CompositeLinter struct {
 	linters []api.Linter
 	rules   []*api.Rule
 	runner  *mllint.Runner
-	// maps the rules that the CompositeLinter returns to the underlying linter that checks it.
-	lintersByRule map[*api.Rule]api.Linter
 }
 
 func (l *CompositeLinter) Name() string {
@@ -34,30 +34,6 @@ func (l *CompositeLinter) Rules() []*api.Rule {
 
 func (l *CompositeLinter) SetRunner(r *mllint.Runner) {
 	l.runner = r
-}
-
-func (l *CompositeLinter) DisableRule(rule *api.Rule) {
-	linter, ok := l.lintersByRule[rule]
-	if !ok {
-		return
-	}
-
-	rule.Disable()
-
-	slashIndex := strings.Index(rule.Slug, "/")
-	originalSlug := rule.Slug[slashIndex+1:]
-
-	for _, originalRule := range linter.Rules() {
-		if originalSlug == originalRule.Slug {
-			if compLinter, ok := linter.(*CompositeLinter); ok {
-				compLinter.DisableRule(originalRule)
-				return
-			}
-
-			originalRule.Disable()
-			return
-		}
-	}
 }
 
 func (l *CompositeLinter) Configure(conf *config.Config) error {
@@ -73,8 +49,6 @@ func (l *CompositeLinter) Configure(conf *config.Config) error {
 }
 
 func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
-	finalReport := api.NewReport()
-
 	tasks := make([]*mllint.RunnerTask, len(l.linters))
 	for i, linter := range l.linters {
 		displayName := l.name + " - " + linter.Name()
@@ -82,41 +56,14 @@ func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
 	}
 
 	var err *multierror.Error
+	reports := make([]api.Report, 0, len(tasks))
 	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
 		if result.Err != nil {
 			err = multierror.Append(err, fmt.Errorf("linting error in linter '%s': %w", task.Linter.Name(), result.Err))
 		}
 
-		for rule, score := range result.Report.Scores {
-			finalReport.Scores[compositeRule(rule, task.Linter.Name())] = score
-		}
-		for rule, details := range result.Report.Details {
-			finalReport.Details[compositeRule(rule, task.Linter.Name())] = details
-		}
+		reports = append(reports, result.Report)
 	})
 
-	return finalReport, err.ErrorOrNil()
-}
-
-func compositeRule(rule api.Rule, linterName string) api.Rule {
-	rule.Name = linterName + ": " + rule.Name
-	rule.Slug = api.Slug(linterName) + "/" + rule.Slug
-	return rule
-}
-
-func collectRules(linters ...api.Linter) (rules []*api.Rule, lintersByRule map[*api.Rule]api.Linter) {
-	rules = []*api.Rule{}
-	lintersByRule = map[*api.Rule]api.Linter{}
-
-	for _, linter := range linters {
-		linterName := linter.Name()
-		for _, rule := range linter.Rules() {
-			r := compositeRule(*rule, linterName)
-
-			rules = append(rules, &r)
-			lintersByRule[&r] = linter
-		}
-	}
-
-	return rules, lintersByRule
+	return api.MergeReports(api.NewReport(), reports...), err.ErrorOrNil()
 }

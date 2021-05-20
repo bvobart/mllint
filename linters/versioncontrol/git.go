@@ -18,11 +18,8 @@ type GitLinter struct {
 	MaxFileSize uint64
 }
 
-// Name returns "Code". That might be strange since the struct is called the GitLinter,
-// but it is really linter whether / how the project is version controlling code,
-// for which obviously by far most popular solution nowadays is Git.
 func (l *GitLinter) Name() string {
-	return "Code"
+	return "Git"
 }
 
 func (l *GitLinter) Rules() []*api.Rule {

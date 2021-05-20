@@ -81,42 +81,7 @@ func TestCompositeLinterRules(t *testing.T) {
 	)
 
 	rules := linter.Rules()
-
-	// check whether each returned rule's name has the sub-linter's name as prefix
-	require.True(t, strings.HasPrefix(rules[0].Name, "Linter 1: "))
-	require.True(t, strings.HasPrefix(rules[1].Name, "Linter 1: "))
-	require.True(t, strings.HasPrefix(rules[2].Name, "Linter 2: "))
-	require.True(t, strings.HasPrefix(rules[3].Name, "Linter 2: "))
-
-	// check whether the original rules don't have this name prefix
-	require.False(t, strings.HasPrefix(testRule1.Name, "Linter 1: "))
-	require.False(t, strings.HasPrefix(testRule2.Name, "Linter 1: "))
-	require.False(t, strings.HasPrefix(testRule3.Name, "Linter 2: "))
-	require.False(t, strings.HasPrefix(testRule4.Name, "Linter 2: "))
-
-	// check whether each returned rule's slug has the sub-linter's slug as prefix
-	require.True(t, strings.HasPrefix(rules[0].Slug, "linter-1/"))
-	require.True(t, strings.HasPrefix(rules[1].Slug, "linter-1/"))
-	require.True(t, strings.HasPrefix(rules[2].Slug, "linter-2/"))
-	require.True(t, strings.HasPrefix(rules[3].Slug, "linter-2/"))
-
-	// check whether the original rules don't have this slug prefix
-	require.False(t, strings.HasPrefix(testRule1.Slug, "linter-1/"))
-	require.False(t, strings.HasPrefix(testRule2.Slug, "linter-1/"))
-	require.False(t, strings.HasPrefix(testRule3.Slug, "linter-2/"))
-	require.False(t, strings.HasPrefix(testRule4.Slug, "linter-2/"))
-
-	// check whether each returned rule's full name is equal to name prefix + original name
-	require.Equal(t, "Linter 1: "+testRule1.Name, rules[0].Name)
-	require.Equal(t, "Linter 1: "+testRule2.Name, rules[1].Name)
-	require.Equal(t, "Linter 2: "+testRule3.Name, rules[2].Name)
-	require.Equal(t, "Linter 2: "+testRule4.Name, rules[3].Name)
-
-	// check whether each returned rule's slug is equal to name prefix + original slug
-	require.Equal(t, "linter-1/"+testRule1.Slug, rules[0].Slug)
-	require.Equal(t, "linter-1/"+testRule2.Slug, rules[1].Slug)
-	require.Equal(t, "linter-2/"+testRule3.Slug, rules[2].Slug)
-	require.Equal(t, "linter-2/"+testRule4.Slug, rules[3].Slug)
+	require.Equal(t, []*api.Rule{&testRule1, &testRule2, &testRule3, &testRule4}, rules)
 }
 
 func TestCompositeLinterSameRulePointers(t *testing.T) {
@@ -133,55 +98,6 @@ func TestCompositeLinterSameRulePointers(t *testing.T) {
 		rule2 := rules2[i]
 		require.True(t, rule1 == rule2) // checks pointer equality
 	}
-}
-
-func TestCompositeLinterDisableRule(t *testing.T) {
-	linter := common.NewCompositeLinter(name,
-		&testLinter{name: "Linter 1", rules: []*api.Rule{&testRule1, &testRule2}},
-		&testLinter{name: "Linter 2", rules: []*api.Rule{&testRule3, &testRule4}},
-	)
-	rules := linter.Rules()
-	indexRuleToDisable := 2              // i.e. testRule3
-	require.False(t, testRule3.Disabled) // pre-condition
-
-	compLinter := linter.(*common.CompositeLinter)
-	compLinter.DisableRule(rules[indexRuleToDisable])
-
-	require.True(t, rules[indexRuleToDisable].Disabled)
-	require.True(t, testRule3.Disabled)
-
-	testRule3.Enable() // cleanup
-}
-
-func TestCompositeLinterNestedDisableRule(t *testing.T) {
-	linter := common.NewCompositeLinter(name, common.NewCompositeLinter("Nested",
-		&testLinter{name: "Linter 1", rules: []*api.Rule{&testRule1, &testRule2}},
-		&testLinter{name: "Linter 2", rules: []*api.Rule{&testRule3, &testRule4}},
-	))
-	rules := linter.Rules()
-	indexRuleToDisable := 2              // i.e. testRule3
-	require.False(t, testRule3.Disabled) // pre-condition
-
-	compLinter := linter.(*common.CompositeLinter)
-	compLinter.DisableRule(rules[indexRuleToDisable])
-
-	require.True(t, rules[indexRuleToDisable].Disabled)
-	require.True(t, testRule3.Disabled)
-
-	testRule3.Enable() // cleanup
-}
-
-func TestCompositeLinterDontDisableUnrelatedRule(t *testing.T) {
-	linter := common.NewCompositeLinter(name,
-		&testLinter{name: "Linter 1", rules: []*api.Rule{&testRule1, &testRule2}},
-		&testLinter{name: "Linter 2", rules: []*api.Rule{&testRule4}},
-	)
-	require.False(t, testRule3.Disabled) // pre-condition
-
-	compLinter := linter.(*common.CompositeLinter)
-	compLinter.DisableRule(&testRule3)
-
-	require.False(t, testRule3.Disabled) // post-condition: no change.
 }
 
 func TestCompositeLinterConfigure(t *testing.T) {
@@ -235,6 +151,7 @@ func TestCompositeLinterLintProject(t *testing.T) {
 	linter2 := &testLinter{name: "linter2", rules: []*api.Rule{&testRule3, &testRule4}, report: report2}
 
 	compLinter := common.NewCompositeLinter(name, linter1, linter2)
+	compLinter.SetRunner(nil)
 
 	// When: compLinter.LintProject is called
 	project := api.Project{Dir: "test"}

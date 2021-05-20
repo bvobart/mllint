@@ -15,7 +15,7 @@ import (
 type DVCLinter struct{}
 
 func (l *DVCLinter) Name() string {
-	return "Data"
+	return "DVC"
 }
 
 func (l *DVCLinter) Rules() []*api.Rule {

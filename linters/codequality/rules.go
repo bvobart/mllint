@@ -9,7 +9,7 @@ import (
 
 var RuleUseLinters = api.Rule{
 	Name: "Project should use code quality linters",
-	Slug: "use-linters",
+	Slug: "code-quality/use-linters",
 	Details: `If you have ever seen your code get squiggly coloured underlining while you are writing it,
 then you'll be familiar with linting. Linting (or 'static code analysis' as it is more formally called)
 is the process of parsing and analysing source code without running it, in an attempt to find common programming issues.
@@ -72,7 +72,7 @@ We recommend that you start using these linters in your project to help you meas
 
 var RuleLintersInstalled = api.Rule{
 	Name: "All code quality linters should be installed in the current environment",
-	Slug: "linters-installed",
+	Slug: "code-quality/linters-installed",
 	Details: fmt.Sprintf(`In order for mllint to be able to run the recommended code quality linters, they must be installed in the current environment,
 i.e. they must be on PATH. 
 

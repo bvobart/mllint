@@ -9,10 +9,12 @@ import (
 	"github.com/bvobart/mllint/categories"
 )
 
-func TestAPIMethods(t *testing.T) {
+func TestCategoryString(t *testing.T) {
 	cat := categories.Testing
 	require.Equal(t, cat.Name, cat.String())
+}
 
+func TestRuleEnableDisable(t *testing.T) {
 	rule := api.Rule{
 		Slug:     "test-rule",
 		Name:     "Test Rule",
@@ -24,8 +26,6 @@ func TestAPIMethods(t *testing.T) {
 	require.True(t, rule.Disabled)
 	rule.Enable()
 	require.False(t, rule.Disabled)
-
-	require.Equal(t, cat.Slug+"/"+rule.Slug, rule.FullSlug(cat))
 }
 
 func TestNewReport(t *testing.T) {

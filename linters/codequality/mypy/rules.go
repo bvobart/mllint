@@ -7,7 +7,7 @@ import (
 )
 
 var RuleNoIssues = api.Rule{
-	Slug: "mypy/no-issues",
+	Slug: "code-quality/mypy/no-issues",
 	Name: "Mypy reports no issues with this project",
 	Details: fmt.Sprintf(`> [Mypy](http://mypy-lang.org/) is an optional static type checker for Python that aims to combine the benefits of dynamic (or "duck") typing and static typing. Mypy combines the expressive power and convenience of Python with a powerful type system and compile-time type checking.
 

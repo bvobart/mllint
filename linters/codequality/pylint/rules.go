@@ -7,7 +7,7 @@ import (
 )
 
 var RuleNoIssues = api.Rule{
-	Slug: "pylint/no-issues",
+	Slug: "code-quality/pylint/no-issues",
 	Name: "Pylint reports no issues with this project",
 	Details: fmt.Sprintf(`[Pylint](https://pypi.org/project/pylint/) is a static analysis tool for finding generic programming errors.
 This rule checks whether Pylint returns any errors when running it on all Python files in this project.
@@ -25,7 +25,7 @@ Note that the measured amount of lines of code includes any non-hidden Python fi
 }
 
 var RuleIsConfigured = api.Rule{
-	Slug: "pylint/is-configured",
+	Slug: "code-quality/pylint/is-configured",
 	Name: "Pylint is configured for this project",
 	Details: `[Pylint](https://pypi.org/project/pylint/) has a good default configuration,
 though there are likely to be rules that you may want to enable, disable or customise for your project.

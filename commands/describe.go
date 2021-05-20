@@ -78,13 +78,14 @@ func describeRules(rules []*api.Rule) {
 }
 
 func describeRule(rule api.Rule) {
-	color.Set(color.Bold).Print(rule.Name)
-	color.Unset()
-	fmt.Print(" ")
-	cfmt := color.Set(color.Faint)
-	cfmt.Printf("(%s)\nRule\n", rule.Slug)
-	cfmt.Printf("Weight: %.0f\n", rule.Weight)
-	color.Unset()
+	// TODO: just create Markdown output and pretty-print that.
+	bold := color.New(color.Bold)
+	faint := color.New(color.Faint)
+
+	bold.Print(rule.Name, " ")
+	faint.Println(rule.Slug)
+	faint.Println("Rule")
+	faint.Printf("Weight: %.0f\n", rule.Weight)
 
 	fmt.Println()
 	fmt.Println(markdown.Render(rule.Details))

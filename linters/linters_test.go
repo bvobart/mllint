@@ -17,7 +17,7 @@ import (
 
 func TestDisableIgnore(t *testing.T) {
 	linters.ByCategory = map[api.Category]api.Linter{}
-	linters.Disable("something")
+	require.Equal(t, 0, linters.Disable("something"))
 }
 
 func TestDisableAllCategories(t *testing.T) {
@@ -106,27 +106,29 @@ func TestDisableRuleNormalLinter(t *testing.T) {
 	mockctl := gomock.NewController(t)
 	mockLinter := mock_api.NewMockLinter(mockctl)
 	mockRules := []*api.Rule{
-		{Slug: "test-rule-1"},
-		{Slug: "test-rule-2"},
-		{Slug: "test-rule-3"},
+		{Slug: "cat/test-rule-1"},
+		{Slug: "cat/test-rule-2"},
+		{Slug: "cat/test-rule-3"},
 	}
 	mockLinter.EXPECT().Rules().Times(1).Return(mockRules)
 
-	require.Equal(t, 1, linters.DisableRule(mockLinter, "test-rule-2"))
+	require.Equal(t, 1, linters.DisableRule(mockLinter, "cat/test-rule-2"))
 	require.False(t, mockRules[0].Disabled)
 	require.True(t, mockRules[1].Disabled)
 	require.False(t, mockRules[2].Disabled)
 }
 
 func TestDisableRuleCompositeLinter(t *testing.T) {
+	// TODO: fix this and implementation of CompositeLinter to not concat rule names / slugs
+
 	mockctl := gomock.NewController(t)
 	mockLinter1 := mock_api.NewMockLinter(mockctl)
 	mockLinter2 := mock_api.NewMockLinter(mockctl)
 	mockRules := []*api.Rule{
-		{Slug: "test-rule-1"},
-		{Slug: "test-rule-2"},
-		{Slug: "test-rule-1"},
-		{Slug: "test-rule-2"},
+		{Slug: "mock-1/test-rule-1"},
+		{Slug: "mock-1/test-rule-2"},
+		{Slug: "mock-2/test-rule-1"},
+		{Slug: "mock-2/test-rule-2"},
 	}
 	mockLinter1.EXPECT().Name().Times(1).Return("Mock 1")
 	mockLinter2.EXPECT().Name().Times(1).Return("Mock 2")
@@ -147,14 +149,14 @@ func TestDisableRulePartialSlug(t *testing.T) {
 	mockctl := gomock.NewController(t)
 	mockLinter := mock_api.NewMockLinter(mockctl)
 	mockRules := []*api.Rule{
-		{Slug: "test-rule-1"},
-		{Slug: "test-rule-2"},
-		{Slug: "test-except-3"},
-		{Slug: "test-rule-4"},
+		{Slug: "cat/test-rule-1"},
+		{Slug: "cat/test-rule-2"},
+		{Slug: "cat/test-except-3"},
+		{Slug: "cat/test-rule-4"},
 	}
 	mockLinter.EXPECT().Rules().Times(1).Return(mockRules)
 
-	require.Equal(t, 3, linters.DisableRule(mockLinter, "test-rule"))
+	require.Equal(t, 3, linters.DisableRule(mockLinter, "cat/test-rule"))
 
 	require.True(t, mockRules[0].Disabled)
 	require.True(t, mockRules[1].Disabled)
@@ -164,12 +166,12 @@ func TestDisableRulePartialSlug(t *testing.T) {
 
 func TestGetRule(t *testing.T) {
 	rules1 := []*api.Rule{
-		{Name: "Test Rule 1", Slug: "test-rule-1"},
-		{Name: "Test Rule 2", Slug: "test-rule-2"},
+		{Name: "Test Rule 1", Slug: "version-control/test-rule-1"},
+		{Name: "Test Rule 2", Slug: "version-control/test-rule-2"},
 	}
 	rules2 := []*api.Rule{
-		{Name: "Test Rule 3", Slug: "test-rule-3"},
-		{Name: "Test Rule 4", Slug: "test-rule-4"},
+		{Name: "Test Rule 3", Slug: "code-quality/test-rule-3"},
+		{Name: "Test Rule 4", Slug: "code-quality/test-rule-4"},
 	}
 
 	mockctl := gomock.NewController(t)
@@ -184,50 +186,45 @@ func TestGetRule(t *testing.T) {
 	}
 
 	t.Run("NoCategory", func(t *testing.T) {
-		rule, ok := linters.GetRule("basic-rulename")
-		require.False(t, ok)
-		require.Equal(t, api.Rule{}, rule)
+		rule := linters.GetRule("basic-rulename")
+		require.Nil(t, rule)
 	})
 
 	t.Run("UnimplementedCategory", func(t *testing.T) {
-		rule, ok := linters.GetRule("data-quality/some-rule")
-		require.False(t, ok)
-		require.Equal(t, api.Rule{}, rule)
+		rule := linters.GetRule("data-quality/some-rule")
+		require.Nil(t, rule)
 	})
 
 	t.Run("CategoryKnownButNoRule", func(t *testing.T) {
-		rule, ok := linters.GetRule("version-control/some-rule")
-		require.False(t, ok)
-		require.Equal(t, api.Rule{}, rule)
+		rule := linters.GetRule("version-control/some-rule")
+		require.Nil(t, rule)
 	})
 
 	t.Run("ExistingRules", func(t *testing.T) {
-		rule, ok := linters.GetRule("version-control/test-rule-1")
-		require.True(t, ok)
-		require.Equal(t, *rules1[0], rule)
+		rule := linters.GetRule("version-control/test-rule-1")
+		require.Equal(t, rules1[0], rule)
 
-		rule, ok = linters.GetRule("code-quality/test-rule-4")
-		require.True(t, ok)
-		require.Equal(t, *rules2[1], rule)
+		rule = linters.GetRule("code-quality/test-rule-4")
+		require.Equal(t, rules2[1], rule)
 	})
 }
 
 func TestFindRules(t *testing.T) {
 	rules1 := []*api.Rule{
-		{Name: "Test Rule 1", Slug: "test-rule-1"},
-		{Name: "Test Rule 2", Slug: "test-rule-2"},
+		{Name: "Test Rule 1", Slug: "version-control/test-rule-1"},
+		{Name: "Test Rule 2", Slug: "version-control/test-rule-2"},
 	}
 	rules2 := []*api.Rule{
-		{Name: "Test Rule 3", Slug: "test-rule-3"},
-		{Name: "Test Rule 4", Slug: "test-rule-4"},
-		{Name: "Actual Rule 5", Slug: "actual-rule-5"},
+		{Name: "Test Rule 3", Slug: "code-quality/test-rule-3"},
+		{Name: "Test Rule 4", Slug: "code-quality/test-rule-4"},
+		{Name: "Actual Rule 5", Slug: "code-quality/actual-rule-5"},
 	}
 
 	mockctl := gomock.NewController(t)
 	mockLinter1 := mock_api.NewMockLinter(mockctl)
 	mockLinter2 := mock_api.NewMockLinter(mockctl)
-	mockLinter1.EXPECT().Rules().AnyTimes().Return(rules1)
-	mockLinter2.EXPECT().Rules().AnyTimes().Return(rules2)
+	mockLinter1.EXPECT().Rules().Times(2).Return(rules1)
+	mockLinter2.EXPECT().Rules().Times(1).Return(rules2)
 
 	linters.ByCategory = map[api.Category]api.Linter{
 		categories.VersionControl: mockLinter1,

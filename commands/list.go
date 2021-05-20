@@ -89,11 +89,8 @@ func prettyPrintLinters(linters map[api.Category]api.Linter) {
 }
 
 func prettyPrintCategory(cat api.Category) {
-	color.Set(color.Bold).Print(cat.Name)
-	color.Unset()
-	fmt.Print(" ")
-	color.Set(color.Faint).Printf("(%s)\n", cat.Slug)
-	color.Unset()
+	color.New(color.Bold).Print(cat.Name, " ")
+	color.New(color.Faint).Printf("(%s)\n", cat.Slug)
 }
 
 func prettyPrintLinterRules(cat api.Category, linter api.Linter) {
@@ -108,11 +105,10 @@ func prettyPrintLinterRules(cat api.Category, linter api.Linter) {
 		return
 	}
 
+	faint := color.New(color.Faint)
 	for _, rule := range rules {
 		if !rule.Disabled {
-			coloredSlug := color.Set(color.Faint).Sprintf("(%s/%s)", cat.Slug, rule.Slug)
-			color.Unset()
-			fmt.Println("-", color.BlueString(rule.Name), coloredSlug)
+			fmt.Println("-", color.BlueString(rule.Name), faint.Sprintf("(%s)", rule.Slug))
 		}
 	}
 }
