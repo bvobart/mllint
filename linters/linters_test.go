@@ -119,8 +119,6 @@ func TestDisableRuleNormalLinter(t *testing.T) {
 }
 
 func TestDisableRuleCompositeLinter(t *testing.T) {
-	// TODO: fix this and implementation of CompositeLinter to not concat rule names / slugs
-
 	mockctl := gomock.NewController(t)
 	mockLinter1 := mock_api.NewMockLinter(mockctl)
 	mockLinter2 := mock_api.NewMockLinter(mockctl)
@@ -130,10 +128,8 @@ func TestDisableRuleCompositeLinter(t *testing.T) {
 		{Slug: "mock-2/test-rule-1"},
 		{Slug: "mock-2/test-rule-2"},
 	}
-	mockLinter1.EXPECT().Name().Times(1).Return("Mock 1")
-	mockLinter2.EXPECT().Name().Times(1).Return("Mock 2")
-	mockLinter1.EXPECT().Rules().Times(2).Return(mockRules[:2])
-	mockLinter2.EXPECT().Rules().Times(2).Return(mockRules[2:])
+	mockLinter1.EXPECT().Rules().Times(1).Return(mockRules[:2])
+	mockLinter2.EXPECT().Rules().Times(1).Return(mockRules[2:])
 
 	compLinter := common.NewCompositeLinter("Testing", mockLinter1, mockLinter2)
 	require.Equal(t, 1, linters.DisableRule(compLinter, "mock-1/test-rule-2"))
