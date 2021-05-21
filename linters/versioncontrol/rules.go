@@ -31,8 +31,7 @@ Large files should instead be version controlled as Data, e.g. using Git LFS or 
 See the ` + "`version-control/data/` rules of `mllint`" + ` for more info about version controlling data.
 	
 To fix this rule, it is not enough to just remove these large files from your local filesystem, as the files will still exist inside your Git history.
-Instead, see [this StackOverflow answer](https://stackoverflow.com/a/46615578/8059181) to learn how to also remove these files from your project's Git history.
-`,
+Instead, see [this StackOverflow answer](https://stackoverflow.com/a/46615578/8059181) to learn how to also remove these files from your project's Git history.`,
 	Weight: 1,
 }
 
@@ -63,8 +62,7 @@ To learn more about DVC and how to use it, feel free to check out DVC's document
 Or if you prefer learning from watching videos, DVC has a YouTube channel with several short, useful and informative videos.
 - YouTube Channel: [DVCorg](https://www.youtube.com/channel/UC37rp97Go-xIX3aNFVHhXfQ)
 - YouTube Video: [Version Control for Data Science Explained in 5 Minutes](https://www.youtube.com/watch?v=UbL7VUpv1Bs)
-- YouTube Playlist: [DVC Basics](https://www.youtube.com/playlist?list=PL7WG7YrwYcnDb0qdPl9-KEStsL-3oaEjg)
-`, "`poetry add --dev dvc`", "`dvc init`"),
+- YouTube Playlist: [DVC Basics](https://www.youtube.com/playlist?list=PL7WG7YrwYcnDb0qdPl9-KEStsL-3oaEjg)`, "`poetry add --dev dvc`", "`dvc init`"),
 	Weight: 1,
 }
 
@@ -89,8 +87,8 @@ Learn more about the .dvc directory [here](https://dvc.org/doc/user-guide/projec
 
 If you're seeing this in a report, then your project's Git repository is not tracking the '.dvc' folder.
 To fix this, you may use the following commands:
-%s
-`, "```console\ngit add .dvc\ngit commit -m 'Adds .dvc folder for Data Version Control'\ngit push\n```"),
+
+%s`, "```console\ngit add .dvc\ngit commit -m 'Adds .dvc folder for Data Version Control'\ngit push\n```"),
 	Weight: 1,
 }
 
@@ -104,8 +102,8 @@ recommended to commit your `+"`dvc.lock`"+` to your project's Git repository. Le
 
 If you're seeing this in a report, then your project contains a `+"`dvc.lock`"+` file, but it has not been added to Git.
 To add and commit `+"`dvc.lock`"+` to Git, you may use the following commands:
-%s
-`, "```console\ngit add dvc.lock\ngit commit -m 'Adds dvc.lock file'\ngit push\n```"),
+
+%s`, "```console\ngit add dvc.lock\ngit commit -m 'Adds dvc.lock file'\ngit push\n```"),
 	Weight: 1,
 }
 
@@ -119,8 +117,7 @@ Learn more about DVC remotes [here](https://dvc.org/doc/command-reference/remote
 check the documetation for [adding remotes](https://dvc.org/doc/command-reference/remote/add) and add it as your default remote 
 to DVC using 
 
-%s.
-`, "```console\ndvc remote add -d <name> <url>\n```\n"),
+%s`, "```console\ndvc remote add -d <name> <url>\n```"),
 	Weight: 1,
 }
 
@@ -134,7 +131,6 @@ or the [%s](https://dvc.org/doc/command-reference/add) command.
 
 Then, add your datasets and models to DVC by running the command %s
 
-_Tip: Under the hood, mllint uses the command %s in order to see which files DVC is tracking._
-`, "`dvc add`", "`dvc add <files>`", "`dvc list . -R --dvc-only`"),
+_Tip: Under the hood, mllint uses the command %s in order to see which files DVC is tracking._`, "`dvc add`", "`dvc add <files>`", "`dvc list . -R --dvc-only`"),
 	Weight: 1,
 }

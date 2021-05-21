@@ -44,7 +44,6 @@ func prettyPrintLinters(linters map[api.Category]api.Linter) {
 
 	for cat, linter := range linters {
 		prettyPrintCategory(cat)
-		fmt.Println()
 		prettyPrintLinter(linter)
 		fmt.Println()
 	}

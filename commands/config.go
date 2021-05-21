@@ -23,8 +23,8 @@ This can be either:
   - %s  Uses the TOML syntax configuration in the [tool.mllint] section. Has the same structure as the YAML
   - the default configuration if none of the files above was found.
 
-Specifying --quiet or -q will cause this command to purely print the current or default config, allowing for e.g. 'mllint config -q > .mllint.yml'`,
-			color.YellowString(string(config.YAMLFile)), color.YellowString(string(config.TOMLFile))),
+Specifying %s or %s will cause this command to purely print the current or default config, allowing for e.g. %s`,
+			formatInlineCode(string(config.YAMLFile)), formatInlineCode(string(config.TOMLFile)), formatInlineCode("--quiet"), formatInlineCode("-q"), formatInlineCode("mllint config -q > .mllint.yml")),
 		RunE: runConfig,
 		Args: cobra.MaximumNArgs(1),
 	}

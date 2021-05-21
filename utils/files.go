@@ -62,9 +62,13 @@ func OpenFile(folder string, pattern string) (*os.File, error) {
 	}
 }
 
-// AbsolutePath returns the absolute path to the given file,
-// assuming that it is a file path relative to the current working directory
+// AbsolutePath returns the absolute path to the given file.
+// If the filename is not already an absolute path, then we assume that it is a file path relative to the current working directory
 func AbsolutePath(filename string) string {
+	if path.IsAbs(filename) {
+		return filename
+	}
+
 	cwd, _ := os.Getwd()
 	return path.Join(cwd, filename)
 }

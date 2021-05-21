@@ -89,6 +89,8 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestAbsolutePath(t *testing.T) {
+	require.Equal(t, "/dev/null", utils.AbsolutePath("/dev/null"))
+
 	cwd, err := os.Getwd()
 	require.NoError(t, err)
 	require.Equal(t, path.Join(cwd, "test-resources"), utils.AbsolutePath("test-resources"))
