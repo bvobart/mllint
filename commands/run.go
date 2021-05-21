@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
@@ -24,13 +23,6 @@ import (
 var ErrNotAFolder = errors.New("not a folder")
 var ErrOutputFileAlreadyExists = errors.New("output file already exists")
 
-// Flags
-var (
-	outputFile    string
-	progressPlain bool
-	force         bool
-)
-
 func NewRunCommand() *cobra.Command {
 	runner := runCommand{}
 	cmd := &cobra.Command{
@@ -42,10 +34,9 @@ func NewRunCommand() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	cmd.Flags().StringVarP(&outputFile, "output", "o", "", `Export the report generated for your project to a Markdown file at the given location.
-Set this to '-' (a single dash) in order to print the raw Markdown directly to the console (implies '-q').`)
-	cmd.Flags().BoolVarP(&force, "force", "f", false, "Use this flag to remove the output file provided with '--output' in case that already exists.")
-	cmd.Flags().BoolVar(&progressPlain, "progress-plain", false, "Use this flag to print linting progress plainly, without rewriting terminal output. Overrides '-q'. Enabled automatically in non-interactive terminals (except when using '-q').")
+	SetOutputFlag(cmd)
+	SetForceFlag(cmd)
+	SetProgressPlainFlag(cmd)
 	return cmd
 }
 
@@ -53,14 +44,6 @@ type runCommand struct {
 	ProjectR api.ProjectReport
 	Config   *config.Config
 	Runner   *mllint.Runner
-}
-
-func outputToStdout() bool {
-	return outputFile == "-"
-}
-
-func outputToFile() bool {
-	return outputFile != "" && !outputToStdout()
 }
 
 // Runs pre-analysis checks:
@@ -81,19 +64,11 @@ func (rc *runCommand) runPreAnalysisChecks() error {
 }
 
 func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
-	if outputToFile() && utils.FileExists(outputFile) {
-		if !force {
-			return fmt.Errorf("%w: %s", ErrOutputFileAlreadyExists, formatInlineCode(utils.AbsolutePath(outputFile)))
-		}
-		if err := os.Remove(outputFile); err != nil {
-			return fmt.Errorf("tried to remove %s, but got error: %w", utils.AbsolutePath(outputFile), err)
-		}
-	}
-	if outputToStdout() {
-		quiet = true
+	err := checkOutputFlag()
+	if err != nil {
+		return err
 	}
 
-	var err error
 	rc.ProjectR = api.ProjectReport{}
 	rc.ProjectR.Dir, err = parseProjectDir(args)
 	if err != nil {
@@ -105,6 +80,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	rc.ProjectR.Config = *rc.Config
 	shush(func() { fmt.Print("---\n\n") })
 
 	// disable any rules from config

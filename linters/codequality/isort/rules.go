@@ -7,7 +7,7 @@ import (
 )
 
 var RuleNoIssues = api.Rule{
-	Slug: "isort/no-issues",
+	Slug: "code-quality/isort/no-issues",
 	Name: "isort reports no issues with this project",
 	Details: fmt.Sprintf(`> [%s](https://github.com/PyCQA/isort) is a Python utility / library to sort imports alphabetically, and automatically separated into sections and by type. It provides a command line utility, Python library and plugins for various editors to quickly sort all your imports.
 
@@ -16,7 +16,7 @@ This rule checks whether %s finds any files it would fix in your project.`, "`is
 }
 
 var RuleIsConfigured = api.Rule{
-	Slug: "isort/is-configured",
+	Slug: "code-quality/isort/is-configured",
 	Name: "isort is properly configured",
 	Details: fmt.Sprintf(`[%s](https://github.com/PyCQA/isort) can be configured using several configuration files,
 of which `+"`.isort.cfg` and `pyproject.toml` are preferred, according to `isort`'s documentation."+`

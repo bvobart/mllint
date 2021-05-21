@@ -9,7 +9,7 @@ import (
 
 // RuleUse is a linting rule to check whether the project is using a proper dependency management solution.
 var RuleUse = api.Rule{
-	Slug: "use",
+	Slug: "dependency-management/use",
 	Name: "Project properly keeps track of its dependencies",
 	Details: fmt.Sprintf(`Most, if not all, ML projects either implicitly or explicitly depend on external packages
 such as %s.
@@ -71,7 +71,7 @@ Specifically, we recommend Poetry as it also supports building Python packages, 
 
 // RuleSingle is a linting rule to check whether the project is only using a single dependency manager instead of multiple.
 var RuleSingle = api.Rule{
-	Slug: "single",
+	Slug: "dependency-management/single",
 	Name: "Project should only use one dependency manager",
 	Details: fmt.Sprintf(`In most cases, using multiple different dependency managers only creates confusion in your team regarding 
 which manager to install, which to use for installing the project's dependencies, and in what order.
@@ -91,7 +91,7 @@ var DetailsPipenvSetupPy = fmt.Sprintf("Consider using Poetry instead of Pipenv.
 var DetailsPoetrySetupPy = fmt.Sprintf("The %s in your project is redundant and should be removed, as you can also use Poetry to build your project into a Python package using %s, see the [Poetry Docs](https://python-poetry.org/docs/libraries/#packaging) to learn more.", "`setup.py`", "`poetry build`")
 
 var RuleUseDev = api.Rule{
-	Slug: "use-dev",
+	Slug: "dependency-management/use-dev",
 	Name: "Project places its development dependencies in dev-dependencies",
 	Details: `Development dependencies are dependencies of your project that are only necessary for development purposes, but are not required for your software to actually run.
 Examples of this are code quality linters, unit testing frameworks and other project analysis tools, including ` + "`mllint`" + `.

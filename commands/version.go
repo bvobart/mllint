@@ -19,7 +19,8 @@ func NewVersionCommand() *cobra.Command {
 		Long:  "Prints the version of mllint",
 		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("mllint version: %s\n", version)
-			fmt.Printf("commit: %s (date: %s)\n", commit, date)
+			fmt.Printf("commit: %s\n", commit)
+			fmt.Printf("date: %s\n", date)
 		},
 		Args: cobra.ArbitraryArgs,
 	}

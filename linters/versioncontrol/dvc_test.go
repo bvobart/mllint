@@ -16,7 +16,7 @@ import (
 
 func TestDVCName(t *testing.T) {
 	linter := &versioncontrol.DVCLinter{}
-	require.Equal(t, "Data", linter.Name())
+	require.Equal(t, "DVC", linter.Name())
 }
 
 func TestDVCRules(t *testing.T) {

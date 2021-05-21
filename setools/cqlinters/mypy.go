@@ -66,24 +66,33 @@ func decodeMypyOutput(output []byte) ([]api.CQLinterResult, error) {
 
 func parseMypyMessage(text string) (*MypyMessage, error) {
 	parts := strings.Split(text, ":")
-	if len(parts) < 5 {
-		return nil, fmt.Errorf("malformed Mypy message: expecting 5 parts separated by colons, but found %d", len(parts))
+
+	if len(parts) >= 3 && len(parts) < 5 {
+		return &MypyMessage{
+			Filename: parts[0],
+			Severity: strings.TrimSpace(parts[1]),
+			Message:  strings.TrimSpace(strings.Join(parts[2:], ":")),
+		}, nil
 	}
 
-	line, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing '%s' as line number: %w", parts[1], err)
-	}
-	column, err := strconv.Atoi(parts[2])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing '%s' as column number: %w", parts[2], err)
+	if len(parts) >= 5 {
+		line, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return nil, fmt.Errorf("error parsing '%s' as line number: %w", parts[1], err)
+		}
+		column, err := strconv.Atoi(parts[2])
+		if err != nil {
+			return nil, fmt.Errorf("error parsing '%s' as column number: %w", parts[2], err)
+		}
+
+		return &MypyMessage{
+			Filename: parts[0],
+			Line:     line,
+			Column:   column,
+			Severity: strings.TrimSpace(parts[3]),
+			Message:  strings.TrimSpace(strings.Join(parts[4:], ":")),
+		}, nil
 	}
 
-	return &MypyMessage{
-		Filename: parts[0],
-		Line:     line,
-		Column:   column,
-		Severity: strings.TrimSpace(parts[3]),
-		Message:  strings.TrimSpace(strings.Join(parts[4:], ":")),
-	}, nil
+	return nil, fmt.Errorf("malformed Mypy message: expecting at least 3 or 5 parts separated by colons, but found %d", len(parts))
 }

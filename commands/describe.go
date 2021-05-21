@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -9,93 +11,123 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
+	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 func NewDescribeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "describe RULE...",
-		Short: "Describe an mllint category or rule by its slug.",
-		Long: `Describe an mllint category or rule by its slug.
-The slug is the lowercased, dashed reference string that every category and rule have. mllint often displays these together.
-To list all rules and their slugs, use 'mllint list all'`,
+		Short: "Describe an " + formatInlineCode("mllint") + "category or rule by its slug.",
+		Long: fmt.Sprintf(`Describe an %s category or rule by its slug.
+The slug is the lowercased, dashed reference string that every category and rule have. %s often displays these together.
+
+To list all rules and their respective slugs, use %s`, formatInlineCode("mllint"), formatInlineCode("mllint"), formatInlineCode("mllint list all")),
 		RunE:          describe,
 		Args:          cobra.MinimumNArgs(1),
 		ValidArgs:     collectAllSlugs(),
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
+	SetOutputFlag(cmd)
+	SetForceFlag(cmd)
 	return cmd
 }
 
 func describe(cmd *cobra.Command, args []string) error {
+	if err := checkOutputFlag(); err != nil {
+		return err
+	}
+
+	output := strings.Builder{}
 	for i, slug := range args {
 		if i > 0 {
-			fmt.Println()
+			output.WriteString("\n")
 		}
 
 		if cat, ok := categories.BySlug[slug]; ok {
-			describeCategory(cat)
+			output.WriteString(describeCategory(cat))
 		} else if rules := linters.FindRules(slug); len(rules) > 0 {
-			describeRules(rules)
+			output.WriteString(describeRules(rules))
 		} else {
-			color.Red("No rule or category found that matched: %s", color.Set(color.Reset).Sprint(slug))
+			output.WriteString(color.RedString("No rule or category found that matched: %s\n", color.Set(color.Reset).Sprint(slug)))
 		}
 
-		fmt.Println("---")
+		if outputToFile() || outputToStdout() {
+			if i < len(args)-1 {
+				output.WriteString("\n---\n")
+			}
+		} else {
+			color.Green(markdown.Render("---"))
+		}
 	}
+
+	if outputToFile() {
+		if err := ioutil.WriteFile(outputFile, []byte(output.String()), 0644); err != nil {
+			return fmt.Errorf("failed to write output file: %w", err)
+		}
+		bold := color.New(color.Bold)
+		shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
+		shush(func() { bold.Println() })
+		return nil
+	}
+
+	if outputToStdout() {
+		fmt.Println(output.String())
+		return nil
+	}
+
 	return nil
 }
 
-func describeCategory(cat api.Category) {
-	prettyPrintCategory(cat)
-	color.Set(color.Faint).Println("Category")
-	color.Unset()
+func describeCategory(cat api.Category) string {
+	if outputToFile() || outputToStdout() {
+		linter := linters.ByCategory[cat]
+		return markdowngen.CategoryDetails(cat, linter)
+	}
 
+	prettyPrintCategory(cat)
+	color.New(color.Faint).Println("Category")
 	fmt.Println()
 	fmt.Println(markdown.Render(cat.Description))
 
-	color.Set(color.Bold).Println("Rules")
-	color.Unset()
+	color.New(color.Bold).Println("Rules")
 	linter := linters.ByCategory[cat]
-	prettyPrintLinterRules(cat, linter)
+	prettyPrintLinter(linter)
 
 	fmt.Println()
+	return ""
 }
 
-func describeRules(rules []*api.Rule) {
+func describeRules(rules []*api.Rule) string {
+	output := strings.Builder{}
 	for i, rule := range rules {
-		if i > 0 {
-			fmt.Println()
-		}
+		output.WriteString(describeRule(*rule))
 
-		describeRule(*rule)
-
-		if i < len(rules)-1 {
-			fmt.Println("---")
+		if outputToFile() || outputToStdout() {
+			output.WriteString("\n---\n\n")
+		} else if i < len(rules)-1 {
+			color.Green(markdown.Render("---"))
 		}
 	}
+	return output.String()
 }
 
-func describeRule(rule api.Rule) {
-	color.Set(color.Bold).Print(rule.Name)
-	color.Unset()
-	fmt.Print(" ")
-	cfmt := color.Set(color.Faint)
-	cfmt.Printf("(%s)\nRule\n", rule.Slug)
-	cfmt.Printf("Weight: %.0f\n", rule.Weight)
-	color.Unset()
-
-	fmt.Println()
-	fmt.Println(markdown.Render(rule.Details))
+func describeRule(rule api.Rule) string {
+	if outputToFile() || outputToStdout() {
+		return markdowngen.RuleDetails(rule)
+	}
+	prettyPrintRule(rule)
+	return ""
 }
 
 func collectAllSlugs() []string {
 	slugs := []string{}
-	for cat, linter := range linters.ByCategory {
+	for _, linter := range linters.ByCategory {
 		rules := linter.Rules()
 		for _, rule := range rules {
-			slugs = append(slugs, cat.Slug+"/"+rule.Slug)
+			slugs = append(slugs, rule.Slug)
 		}
 	}
 	return slugs

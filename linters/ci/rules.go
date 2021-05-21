@@ -7,7 +7,7 @@ import (
 )
 
 var RuleUseCI = api.Rule{
-	Slug: "use",
+	Slug: "ci/use",
 	Name: "Project uses Continuous Integration (CI)",
 	Details: fmt.Sprintf(`This rule checks if your project is using Continuous Integration (CI).
 To learn more about what CI is, does and entails, see the description of category %s

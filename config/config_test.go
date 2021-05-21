@@ -201,7 +201,7 @@ func TestParseFromDir(t *testing.T) {
 		{
 			Name: ".mllint.yml",
 			Dir:  "test-resources/yaml",
-			Type: config.YAMLFile,
+			Type: config.TypeYAML,
 			Expected: func() *config.Config {
 				// preconditions, check whether .mllint.yml file is present in test dir.
 				filename := path.Join("test-resources/yaml", ".mllint.yml")
@@ -217,7 +217,7 @@ func TestParseFromDir(t *testing.T) {
 		{
 			Name: "pyproject.toml",
 			Dir:  "test-resources/toml",
-			Type: config.TOMLFile,
+			Type: config.TypeTOML,
 			Expected: func() *config.Config {
 				// preconditions, check whether pyproject.toml is present in test dir.
 				filename := path.Join("test-resources/toml", "pyproject.toml")
@@ -233,7 +233,7 @@ func TestParseFromDir(t *testing.T) {
 		{
 			Name: "precedence", // tests that a config specified in a .mllint.yml has precendence over specifying them in the pyproject.toml.
 			Dir:  "test-resources/precedence",
-			Type: config.YAMLFile,
+			Type: config.TypeYAML,
 			Expected: func() *config.Config {
 				// preconditions, check whether .mllint.yml and pyproject.toml are present in test dir.
 				yamlFile := path.Join("test-resources/precedence", ".mllint.yml")
@@ -253,7 +253,7 @@ func TestParseFromDir(t *testing.T) {
 			Name:     "EmptyDir",
 			Dir:      "test-resources",
 			Expected: config.Default(),
-			Type:     "",
+			Type:     config.TypeDefault,
 		},
 	}
 
@@ -270,7 +270,8 @@ func TestParseFromDir(t *testing.T) {
 }
 
 func TestConfigTypeString(t *testing.T) {
-	require.Equal(t, "default", config.FileType("").String())
-	require.Equal(t, string(config.YAMLFile), config.YAMLFile.String())
-	require.Equal(t, string(config.TOMLFile), config.TOMLFile.String())
+	require.Equal(t, "unknown", config.FileType("").String())
+	require.Equal(t, string(config.TypeDefault), config.TypeDefault.String())
+	require.Equal(t, string(config.TypeYAML), config.TypeYAML.String())
+	require.Equal(t, string(config.TypeTOML), config.TypeTOML.String())
 }

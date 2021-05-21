@@ -12,7 +12,7 @@ import (
 
 func TestGitName(t *testing.T) {
 	linter := &versioncontrol.GitLinter{}
-	require.Equal(t, "Code", linter.Name())
+	require.Equal(t, "Git", linter.Name())
 }
 
 func TestGitRules(t *testing.T) {

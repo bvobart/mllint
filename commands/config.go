@@ -23,8 +23,8 @@ This can be either:
   - %s  Uses the TOML syntax configuration in the [tool.mllint] section. Has the same structure as the YAML
   - the default configuration if none of the files above was found.
 
-Specifying --quiet or -q will cause this command to purely print the current or default config, allowing for e.g. 'mllint config -q > .mllint.yml'`,
-			color.YellowString(string(config.YAMLFile)), color.YellowString(string(config.TOMLFile))),
+Specifying %s or %s will cause this command to purely print the current or default config, allowing for e.g. %s`,
+			formatInlineCode(string(config.TypeYAML)), formatInlineCode(string(config.TypeTOML)), formatInlineCode("--quiet"), formatInlineCode("-q"), formatInlineCode("mllint config -q > .mllint.yml")),
 		RunE: runConfig,
 		Args: cobra.MaximumNArgs(1),
 	}
@@ -80,10 +80,8 @@ func getConfig(projectdir string) (*config.Config, config.FileType, error) {
 	}
 
 	isDefault := cmp.Equal(conf, config.Default())
-	if typee == config.YAMLFile {
-		shush(func() { color.Green("Using configuration from %s (default: %v)\n", config.YAMLFile, isDefault) })
-	} else if typee == config.TOMLFile {
-		shush(func() { color.Green("Using configuration from %s (default: %v)\n", config.TOMLFile, isDefault) })
+	if typee == config.TypeYAML || typee == config.TypeTOML {
+		shush(func() { color.Green("Using configuration from %s (default: %v)\n", typee.String(), isDefault) })
 	} else {
 		shush(func() {
 			color.Yellow("No .mllint.yml or pyproject.toml found in project folder, using default configuration\n")

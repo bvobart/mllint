@@ -5,7 +5,7 @@ import (
 )
 
 var RuleNoIssues = api.Rule{
-	Slug: "bandit/no-issues",
+	Slug: "code-quality/bandit/no-issues",
 	Name: "Bandit reports no issues with this project",
 	Details: `> [Bandit](https://github.com/PyCQA/bandit) is a tool designed to find common security issues in Python code.
 
