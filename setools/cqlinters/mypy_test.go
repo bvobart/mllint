@@ -29,15 +29,17 @@ const testMypyOutput = `src/evaluate.py:6:1: error: Cannot find implementation o
 src/evaluate.py:6:1: note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 src/evaluate.py:6:1: error: Cannot find implementation or library stub for module named 'sklearn'
 src/evaluate.py:37:42: error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
+linters/dependencymgmt/test-resources/dev-dependencies/setuppy/setup.py: error: Duplicate module named 'setup' (also at '/home/bart/tudelft/thesis/mllint/build/setup.py')
 `
 
 const testMypySuccessOutput = "\n"
 
-var expectedMypyMessageStrings = [4]string{
+var expectedMypyMessageStrings = [5]string{
 	"`src/evaluate.py:6,1` - Error: Cannot find implementation or library stub for module named 'sklearn.metrics'",
 	"`src/evaluate.py:6,1` - Note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports",
 	"`src/evaluate.py:6,1` - Error: Cannot find implementation or library stub for module named 'sklearn'",
 	"`src/evaluate.py:37,42` - Error: Incompatible types in assignment (expression has type \"TextIO\", variable has type \"BinaryIO\")",
+	"`linters/dependencymgmt/test-resources/dev-dependencies/setuppy/setup.py` - Error: Duplicate module named 'setup' (also at '/home/bart/tudelft/thesis/mllint/build/setup.py')",
 }
 
 func TestMypyRun(t *testing.T) {
@@ -63,7 +65,7 @@ func TestMypyRun(t *testing.T) {
 
 		results, err := l.Run(project)
 		require.NoError(t, err)
-		require.Len(t, results, 4)
+		require.Len(t, results, 5)
 		for i, result := range results {
 			require.Equal(t, expectedMypyMessageStrings[i], result.String())
 		}
