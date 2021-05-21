@@ -5,10 +5,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
+	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 )
 
@@ -16,21 +18,39 @@ import (
 func FromProject(project api.ProjectReport) string {
 	output := strings.Builder{}
 	writeProjectHeader(&output, project)
+	writeConfigDetails(&output, project.Config)
 	writeProjectReports(&output, project.Reports)
 	writeProjectErrors(&output, project.Errors)
 	return output.String()
 }
 
 func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
+	isDefault := "No"
+	if cmp.Equal(project.Config, *config.Default()) {
+		isDefault = "Yes"
+	}
+
 	output.WriteString("# ML Project Report\n")
 	output.WriteString("Project | Details\n")
 	output.WriteString("--------|--------\n")
 	output.WriteString("Path    | `" + project.Dir + "`\n")
 	output.WriteString("Config  | `" + project.ConfigType.String() + "`\n")
+	output.WriteString("Default | " + isDefault + "\n")
 	output.WriteString(fmt.Sprintf("Date    | %s \n", time.Now().Format(time.RFC1123Z)))
 	output.WriteString(fmt.Sprintf("Number of Python files | %d\n", len(project.PythonFiles)))
 	output.WriteString(fmt.Sprintf("Lines of Python code | %d\n", project.PythonFiles.CountLoC()))
 	output.WriteString("\n---\n\n")
+}
+
+func writeConfigDetails(output *strings.Builder, config config.Config) {
+	if len(config.Rules.Disabled) > 0 {
+		output.WriteString("## Config\n\n")
+		output.WriteString("**Note** — The following rules were disabled in `mllint`'s configuration:\n")
+		for _, slug := range config.Rules.Disabled {
+			output.WriteString(fmt.Sprintf("- `%s`\n", slug))
+		}
+		output.WriteString("\n")
+	}
 }
 
 func writeProjectReports(output *strings.Builder, reports map[api.Category]api.Report) {

@@ -11,6 +11,8 @@ import (
 type Project struct {
 	// The project's assumed root directory, absolute path.
 	Dir string
+	// mllint's configuration for this project
+	Config config.Config
 	// Type of mllint configuration
 	ConfigType config.FileType
 	// Dependency managers that this project uses, e.g. requirements.txt, Poetry or Pipenv

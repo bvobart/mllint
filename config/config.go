@@ -48,13 +48,14 @@ func Default() *Config {
 type FileType string
 
 const (
-	YAMLFile FileType = ".mllint.yml"
-	TOMLFile FileType = "pyproject.toml"
+	TypeDefault FileType = "default"
+	TypeYAML    FileType = ".mllint.yml"
+	TypeTOML    FileType = "pyproject.toml"
 )
 
 func (t FileType) String() string {
 	if t == "" {
-		return "default"
+		return "unknown"
 	}
 	return string(t)
 }
@@ -63,9 +64,9 @@ func (t FileType) String() string {
 // If an `.mllint.yml` file is present, then this will be used,
 // otherwise, if a `pyproject.toml` file is present, then this will be used,
 // otherwise, the default config is returned.
-// The returned FileType will be either config.YAMLFile, config.TOMLFile, or "".
+// The returned FileType will be either config.TypeYAML, config.TypeTOML, or config.TypeDefault.
 func ParseFromDir(projectdir string) (*Config, FileType, error) {
-	yamlFile := path.Join(projectdir, string(YAMLFile))
+	yamlFile := path.Join(projectdir, string(TypeYAML))
 	if utils.FileExists(yamlFile) {
 		file, err := os.Open(yamlFile)
 		if err != nil {
@@ -75,10 +76,10 @@ func ParseFromDir(projectdir string) (*Config, FileType, error) {
 		if err != nil {
 			return nil, "", fmt.Errorf("failed to parse YAML config file '%s': %w", yamlFile, err)
 		}
-		return conf, YAMLFile, nil
+		return conf, TypeYAML, nil
 	}
 
-	tomlFile := path.Join(projectdir, string(TOMLFile))
+	tomlFile := path.Join(projectdir, string(TypeTOML))
 	if utils.FileExists(tomlFile) {
 		file, err := os.Open(tomlFile)
 		if err != nil {
@@ -88,10 +89,10 @@ func ParseFromDir(projectdir string) (*Config, FileType, error) {
 		if err != nil {
 			return nil, "", fmt.Errorf("failed to parse TOML config from '%s': %w", tomlFile, err)
 		}
-		return conf, TOMLFile, nil
+		return conf, TypeTOML, nil
 	}
 
-	return Default(), "", nil
+	return Default(), TypeDefault, nil
 }
 
 // ParseYAML parses the YAML config from the given reader (tip: *os.File implements io.Reader)

@@ -80,6 +80,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	rc.ProjectR.Config = *rc.Config
 	shush(func() { fmt.Print("---\n\n") })
 
 	// disable any rules from config
