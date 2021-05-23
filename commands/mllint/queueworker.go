@@ -1,6 +1,8 @@
 package mllint
 
-import "runtime"
+import (
+	"runtime"
+)
 
 // Watches the queue for new jobs, running or parking them as they come in / complete.
 // Run in a new go-routine using `go r.queueWorker()`
@@ -10,7 +12,7 @@ func (r *MLLintRunner) queueWorker() {
 	closed := false
 
 	checkParked := func() {
-		if r.nRunning >= int32(runtime.NumCPU()) && len(parked) > 0 {
+		if r.nRunning < int32(runtime.NumCPU()) && len(parked) > 0 {
 			next, parked = parked[0], parked[1:]
 			r.runTask(next)
 		}
@@ -60,15 +62,15 @@ func (r *MLLintRunner) queueWorker() {
 			r.nRunning--
 			r.progress.CompletedTask(task)
 
+			// if there are still parked tasks, run one of them.
+			checkParked()
+
 			// if the queue is closed and no other tasks are running, then signal that we're finished and exit
 			if closed && r.nRunning == 0 {
 				r.progress.AllTasksDone()
 				close(r.closed)
 				return
 			}
-
-			// else, if there are parked tasks, run one of them.
-			checkParked()
 		}
 	}
 }
