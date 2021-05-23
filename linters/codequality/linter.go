@@ -45,7 +45,7 @@ func NewLinter() api.ConfigurableLinter {
 
 type CQLinter struct {
 	Linters []api.CQLinter
-	runner  *mllint.Runner
+	runner  mllint.Runner
 }
 
 func (l *CQLinter) Name() string {
@@ -60,7 +60,7 @@ func (l *CQLinter) Rules() []*api.Rule {
 	return rules
 }
 
-func (l *CQLinter) SetRunner(r *mllint.Runner) {
+func (l *CQLinter) SetRunner(r mllint.Runner) {
 	l.runner = r
 }
 
@@ -110,7 +110,7 @@ func (l *CQLinter) LintProject(project api.Project) (api.Report, error) {
 
 	var multiErr *multierror.Error
 	subReports := []api.Report{}
-	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+	mllint.ForEachTask(l.runner.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
 		if result.Err != nil {
 			multiErr = multierror.Append(multiErr, result.Err)
 		}

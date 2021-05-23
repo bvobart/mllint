@@ -43,7 +43,7 @@ func NewRunCommand() *cobra.Command {
 type runCommand struct {
 	ProjectR api.ProjectReport
 	Config   *config.Config
-	Runner   *mllint.Runner
+	Runner   *mllint.MLLintRunner
 }
 
 // Runs pre-analysis checks:
@@ -98,11 +98,11 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 
 	// start the runner and do all linting
 	progress := createRunnerProgress()
-	rc.Runner = mllint.NewRunner(progress)
+	rc.Runner = mllint.NewMLLintRunner(progress)
 	rc.Runner.Start()
 
 	tasks := scheduleLinters(rc.Runner, rc.ProjectR.Project, linters.ByCategory)
-	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(tasks...)
+	rc.ProjectR.Reports, rc.ProjectR.Errors = collectReports(rc.Runner, tasks...)
 
 	// convert project report to Markdown
 	output := markdown.FromProject(rc.ProjectR)
@@ -153,7 +153,7 @@ func createRunnerProgress() mllint.RunnerProgress {
 	return mllint.NewBasicRunnerProgress()
 }
 
-func scheduleLinters(runner *mllint.Runner, project api.Project, linters map[api.Category]api.Linter) []*mllint.RunnerTask {
+func scheduleLinters(runner mllint.Runner, project api.Project, linters map[api.Category]api.Linter) []*mllint.RunnerTask {
 	tasks := make([]*mllint.RunnerTask, 0, len(linters))
 	for cat, linter := range linters {
 		// use cat.Slug as ID so we can retrieve the category from categories.BySlug later, see collectReports(..)
@@ -163,11 +163,11 @@ func scheduleLinters(runner *mllint.Runner, project api.Project, linters map[api
 	return tasks
 }
 
-func collectReports(tasks ...*mllint.RunnerTask) (map[api.Category]api.Report, *multierror.Error) {
+func collectReports(runner mllint.Runner, tasks ...*mllint.RunnerTask) (map[api.Category]api.Report, *multierror.Error) {
 	var err *multierror.Error
 	reports := map[api.Category]api.Report{}
 
-	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+	mllint.ForEachTask(runner.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
 		if result.Err != nil {
 			err = multierror.Append(err, fmt.Errorf("**%s** - %w", task.Linter.Name(), result.Err))
 		}

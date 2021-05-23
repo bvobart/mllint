@@ -21,7 +21,7 @@ type CompositeLinter struct {
 	name    string
 	linters []api.Linter
 	rules   []*api.Rule
-	runner  *mllint.Runner
+	runner  mllint.Runner
 }
 
 func (l *CompositeLinter) Name() string {
@@ -32,7 +32,7 @@ func (l *CompositeLinter) Rules() []*api.Rule {
 	return l.rules
 }
 
-func (l *CompositeLinter) SetRunner(r *mllint.Runner) {
+func (l *CompositeLinter) SetRunner(r mllint.Runner) {
 	l.runner = r
 }
 
@@ -57,7 +57,7 @@ func (l *CompositeLinter) LintProject(project api.Project) (api.Report, error) {
 
 	var err *multierror.Error
 	reports := make([]api.Report, 0, len(tasks))
-	mllint.ForEachTask(mllint.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+	mllint.ForEachTask(l.runner.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
 		if result.Err != nil {
 			err = multierror.Append(err, fmt.Errorf("linting error in linter '%s': %w", task.Linter.Name(), result.Err))
 		}

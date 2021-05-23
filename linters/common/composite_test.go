@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters/common"
 	"github.com/stretchr/testify/require"
@@ -150,8 +151,12 @@ func TestCompositeLinterLintProject(t *testing.T) {
 	linter1 := &testLinter{name: "linter1", rules: []*api.Rule{&testRule1, &testRule2}, report: report1}
 	linter2 := &testLinter{name: "linter2", rules: []*api.Rule{&testRule3, &testRule4}, report: report2}
 
+	runner := mllint.NewMLLintRunner(nil)
+	runner.Start()
+	defer runner.Close()
+
 	compLinter := common.NewCompositeLinter(name, linter1, linter2)
-	compLinter.SetRunner(nil)
+	compLinter.SetRunner(runner)
 
 	// When: compLinter.LintProject is called
 	project := api.Project{Dir: "test"}
@@ -182,7 +187,13 @@ func TestCompositeLinterLintProjectErr(t *testing.T) {
 	lintErr := errors.New("test error")
 	linter1 := &testLinter{name: "linter1", rules: []*api.Rule{&testRule1, &testRule2}}
 	linter2 := &testLinter{name: "linter2", rules: []*api.Rule{&testRule3, &testRule4}, lintErr: lintErr}
+
+	runner := mllint.NewMLLintRunner(nil)
+	runner.Start()
+	defer runner.Close()
+
 	compLinter := common.NewCompositeLinter(name, linter1, linter2)
+	compLinter.SetRunner(runner)
 
 	project := api.Project{Dir: "test"}
 	_, err := compLinter.LintProject(project)

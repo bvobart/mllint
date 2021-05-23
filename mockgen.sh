@@ -7,3 +7,4 @@ cd $(dirname $0)
 mockgen -source=api/cqlinters.go > api/mock_api/cqlinters.go
 mockgen -source=api/depmanagers.go > api/mock_api/depmanagers.go
 mockgen -source=api/linter.go > api/mock_api/linter.go
+mockgen -source=commands/mllint/interfaces.go > commands/mllint/mock_mllint/interfaces.go
