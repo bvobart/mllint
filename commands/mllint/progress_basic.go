@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/fatih/color"
 )
@@ -19,11 +20,19 @@ func NewBasicRunnerProgress() RunnerProgress {
 func (p *BasicRunnerProgress) Start() {}
 
 func (p *BasicRunnerProgress) RunningTask(task *RunnerTask) {
-	taskStatus{task, statusRunning}.PrintStatus(p.Out)
+	taskStatus{task, statusRunning, time.Since(task.startTime)}.PrintStatus(p.Out)
+}
+
+func (p *BasicRunnerProgress) TaskAwaiting(task *RunnerTask) {
+	taskStatus{task, statusAwaiting, time.Since(task.startTime)}.PrintStatus(p.Out)
+}
+
+func (p *BasicRunnerProgress) TaskResuming(task *RunnerTask) {
+	taskStatus{task, statusRunning, time.Since(task.startTime)}.PrintStatus(p.Out)
 }
 
 func (p *BasicRunnerProgress) CompletedTask(task *RunnerTask) {
-	taskStatus{task, statusDone}.PrintStatus(p.Out)
+	taskStatus{task, statusDone, time.Since(task.startTime)}.PrintStatus(p.Out)
 }
 
 func (p *BasicRunnerProgress) AllTasksDone() {

@@ -11,7 +11,7 @@ func ForEachTask(tasks chan *RunnerTask, f func(task *RunnerTask, result LinterR
 	}
 }
 
-func CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
+func collectTasks(onComplete func(), tasks ...*RunnerTask) chan *RunnerTask {
 	if len(tasks) == 0 {
 		funnel := make(chan *RunnerTask)
 		close(funnel)
@@ -28,7 +28,7 @@ func CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
 		go c.awaitResult(task)
 	}
 
-	go c.awaitDone()
+	go c.awaitDone(onComplete)
 	return c.funnel
 }
 
@@ -45,13 +45,14 @@ func (c *collector) awaitResult(task *RunnerTask) {
 	c.done <- struct{}{}
 }
 
-func (c *collector) awaitDone() {
+func (c *collector) awaitDone(onComplete func()) {
 	nDone := 0
 	for {
 		<-c.done
 		nDone++
 
 		if nDone == c.total {
+			onComplete()
 			close(c.funnel)
 			close(c.done)
 			return

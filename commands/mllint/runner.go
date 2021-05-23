@@ -2,21 +2,23 @@ package mllint
 
 import (
 	"io"
-	"runtime"
+	"time"
 
 	"github.com/bvobart/mllint/api"
 )
 
 const queueSize = 20 // arbitrarily chosen
 
-// NewRunner initialises an *mllint.Runner
-func NewRunner(progress RunnerProgress) *Runner {
+// NewMLLintRunner initialises an *mllint.MLLintRunner
+func NewMLLintRunner(progress RunnerProgress) *MLLintRunner {
 	if progress == nil {
 		progress = &BasicRunnerProgress{Out: io.Discard}
 	}
-	return &Runner{
+	return &MLLintRunner{
 		queue:    make(chan *RunnerTask, queueSize),
-		done:     make(chan *RunnerTask, runtime.NumCPU()),
+		awaiting: make(chan *RunnerTask, queueSize),
+		resuming: make(chan *RunnerTask, queueSize),
+		done:     make(chan *RunnerTask, queueSize),
 		progress: progress,
 		closed:   make(chan struct{}),
 		nRunning: 0,
@@ -46,41 +48,20 @@ func NewRunner(progress RunnerProgress) *Runner {
 //   // do something with the completed task and its result
 // })
 // ```
-type Runner struct {
+type MLLintRunner struct {
 	queue    chan *RunnerTask
+	awaiting chan *RunnerTask
+	resuming chan *RunnerTask
 	done     chan *RunnerTask
+
 	progress RunnerProgress
 	closed   chan struct{}
 	nRunning int32
 }
 
-// RunnerTask represents a task to run a linter on a project that was created by a call to runner.RunLinter(...)
-type RunnerTask struct {
-	Id          string
-	Linter      api.Linter
-	Project     api.Project
-	Result      chan LinterResult
-	displayName string
-}
-
-// LinterResult represents the two-valued return type of a Linter, containing a report and an error.
-type LinterResult struct {
-	api.Report
-	Err error
-}
-
-// TaskOption is an option for a task created by RunLinter, e.g. setting a custom display name.
-type TaskOption func(task *RunnerTask)
-
-func DisplayName(name string) TaskOption {
-	return func(task *RunnerTask) {
-		task.displayName = name
-	}
-}
-
 // Start starts the runner by running a queue worker go-routine in the background that will await tasks and run them as they come in.
 // After calling `runner.Start()`, make sure to also `defer runner.Close()`
-func (r *Runner) Start() {
+func (r *MLLintRunner) Start() {
 	r.progress.Start()
 	go r.queueWorker()
 }
@@ -88,7 +69,7 @@ func (r *Runner) Start() {
 // Close stops the runner by closing its queue channel. Calls to `runner.RunLinter()` after Close will panic.
 // Close blocks until all tasks added to its queue by `runner.RunLinter()` have completed,
 // and all progress output has finished printing to the terminal.
-func (r *Runner) Close() {
+func (r *MLLintRunner) Close() {
 	close(r.queue)
 	<-r.closed
 }
@@ -99,13 +80,14 @@ func (r *Runner) Close() {
 //
 // Once the task completes, the linter's report and error will be sent to the task's `Result` channel,
 // i.e. use `<-task.Result` to await the linter's result.
-func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project, options ...TaskOption) *RunnerTask {
+func (r *MLLintRunner) RunLinter(id string, linter api.Linter, project api.Project, options ...TaskOption) *RunnerTask {
 	result := make(chan LinterResult, 1)
-	task := RunnerTask{id, linter, project, result, linter.Name()}
+	task := RunnerTask{id, linter, project, result, linter.Name(), time.Now()}
 	for _, optionFunc := range options {
 		optionFunc(&task)
 	}
 
+	// a nil runner simply runs the task on the current thread.
 	if r == nil {
 		report, err := linter.LintProject(project)
 		task.Result <- LinterResult{report, err}
@@ -116,71 +98,22 @@ func (r *Runner) RunLinter(id string, linter api.Linter, project api.Project, op
 	return &task
 }
 
-// Watches the queue for new jobs, running or parking them as they come in / complete.
-// Run in a new go-routine using `go r.queueWorker()`
-func (r *Runner) queueWorker() {
-	parked := []*RunnerTask{}
-	closed := false
-
-	for {
-		select {
-		// when new task is scheduled...
-		case task, open := <-r.queue:
-			// if channel just closed and no tasks are running, signal that we're finished and exit
-			if !open && r.nRunning == 0 {
-				r.progress.AllTasksDone()
-				close(r.closed)
-				return
-			}
-			// if channel just closed, but there are still tasks running, signal to the next case that there will be no new tasks.
-			if !open {
-				closed = true
-				break
-			}
-
-			// if we're already running the maximum number of tasks, park it
-			if r.nRunning >= int32(runtime.NumCPU()) {
-				parked = append(parked, task)
-				break
-			}
-
-			// otherwise just run the task
-			r.runTask(task)
-
-		// when a task completes...
-		case task := <-r.done:
-			r.nRunning--
-			r.progress.CompletedTask(task)
-
-			// if the queue is closed and no other tasks are running, then signal that we're finished and exit
-			if closed && r.nRunning == 0 {
-				r.progress.AllTasksDone()
-				close(r.closed)
-				return
-			}
-
-			// else, if there are parked tasks, run one of them.
-			if len(parked) > 0 {
-				var next *RunnerTask
-				next, parked = parked[0], parked[1:]
-				r.runTask(next)
-			}
-		}
-	}
+func (r *MLLintRunner) CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
+	return collectTasks(func() {}, tasks...)
 }
 
-// actually start running the task in a new go-routine
-func (r *Runner) runTask(task *RunnerTask) {
-	r.nRunning++
-	r.progress.RunningTask(task)
+type childRunner struct {
+	// the parent runner on which all tasks will actually be scheduled
+	parent *MLLintRunner
+	// the task for which this child runner was created
+	task *RunnerTask
+}
 
-	go func() {
-		if l, ok := task.Linter.(WithRunner); ok {
-			l.SetRunner(r)
-		}
+func (r *childRunner) RunLinter(id string, linter api.Linter, project api.Project, options ...TaskOption) *RunnerTask {
+	return r.parent.RunLinter(id, linter, project, options...)
+}
 
-		report, err := task.Linter.LintProject(task.Project)
-		task.Result <- LinterResult{Report: report, Err: err}
-		r.done <- task
-	}()
+func (r *childRunner) CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
+	r.parent.awaiting <- r.task
+	return collectTasks(func() { r.parent.resuming <- r.task }, tasks...)
 }

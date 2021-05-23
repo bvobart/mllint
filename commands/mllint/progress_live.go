@@ -51,30 +51,42 @@ func (p *LiveRunnerProgress) RunningTask(task *RunnerTask) {
 	p.mu.Lock()
 
 	p.taskIndexes[task.Id] = len(p.tasks)
-	p.tasks = append(p.tasks, taskStatus{task, statusRunning})
+	p.tasks = append(p.tasks, taskStatus{task, statusRunning, 0})
 
 	p.mu.Unlock()
 
 	p.print <- struct{}{}
 }
 
+func (p *LiveRunnerProgress) TaskAwaiting(task *RunnerTask) {
+	p.updateTaskStatus(task, statusAwaiting, time.Since(task.startTime))
+	p.print <- struct{}{}
+}
+
+func (p *LiveRunnerProgress) TaskResuming(task *RunnerTask) {
+	p.updateTaskStatus(task, statusRunning, time.Since(task.startTime))
+	p.print <- struct{}{}
+}
+
 // CompletedTask is the way for the `mllint.Runner` to signal that it has completed running a task.
 func (p *LiveRunnerProgress) CompletedTask(task *RunnerTask) {
+	p.updateTaskStatus(task, statusDone, time.Since(task.startTime))
+	p.print <- struct{}{}
+}
+
+func (p *LiveRunnerProgress) updateTaskStatus(task *RunnerTask, newStatus status, timeRunning time.Duration) {
 	p.mu.Lock()
+	defer p.mu.Unlock()
 
 	index, found := p.taskIndexes[task.Id]
 	if !found {
-		p.mu.Unlock()
 		return
 	}
 
-	status := p.tasks[index]
-	status.Status = statusDone
-	p.tasks[index] = status
-
-	p.mu.Unlock()
-
-	p.print <- struct{}{}
+	taskStatus := p.tasks[index]
+	taskStatus.Status = newStatus
+	taskStatus.TimeRunning = timeRunning
+	p.tasks[index] = taskStatus
 }
 
 // AllTasksDone is the way for the `mllint.Runner` to signal that it has finished running all tasks,
