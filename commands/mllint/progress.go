@@ -33,7 +33,7 @@ type taskStatus struct {
 
 func (s taskStatus) PrintStatus(writer io.Writer) {
 	msg := fmt.Sprintf("%s %s", s.Status, s.displayName)
-	timeRunning := color.New(color.Faint, color.Italic).Sprint("(", s.TimeRunning, ")")
+	timeRunning := color.New(color.Faint, color.Italic).Sprint("(", formatDuration(s.TimeRunning), ")")
 
 	switch s.Status {
 	case statusRunning:
@@ -43,4 +43,14 @@ func (s taskStatus) PrintStatus(writer io.Writer) {
 	case statusDone:
 		fmt.Fprintln(writer, color.New(color.FgGreen).Sprint(msg), timeRunning)
 	}
+}
+
+func formatDuration(duration time.Duration) string {
+	if duration.Milliseconds() == 0 {
+		return fmt.Sprintf("%.2f ms", float64(duration.Microseconds())/1000)
+	}
+	if duration.Milliseconds() > 1000 {
+		return fmt.Sprintf("%.2f s", duration.Seconds())
+	}
+	return fmt.Sprint(duration.Milliseconds(), " ms")
 }
