@@ -26,7 +26,9 @@
 
 <p align="center"><img src="./docs/example-run.svg"></p>
 
-> See [docs/example-report.md](docs/example-report.md) to view the report generated for this example project.
+> See [`docs/example-report.md`](docs/example-report.md) to view the report generated for this example project.
+>
+> See also the [`mllint-example-projects`](https://github.com/bvobart/mllint-example-projects) repository to explore the reports of an example project using `mllint` to measure and improve its project quality over several iterations.
 
 ---
 
@@ -77,7 +79,7 @@ mllint -o -
 
 In CI scripts, such raw markdown output (whether as a file or printed to the standard output) can be used to e.g. make comments on pull/merge requests or create Wiki pages on your repository.
 
-See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates.
+See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates, or explore those generated for the [example projects](https://github.com/bvobart/mllint-example-projects).
 
 Of course, feel free to explore `mllint help` for more information about its commands and to discover additional flags that can be used.
 
