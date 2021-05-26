@@ -38,7 +38,7 @@
 
 `mllint` is published to [PyPI](https://pypi.org/project/mllint/), so it can be installed globally or in your current environment using `pip`:
 ```sh
-pip install mllint
+pip install --upgrade mllint
 ```
 
 Alternatively, to add `mllint` to an existing project, if your project uses Poetry for its dependencies:
@@ -49,6 +49,24 @@ poetry add --dev mllint
 Or if your project uses Pipenv:
 ```sh
 pipenv install --dev mllint
+```
+
+### Tools
+
+`mllint` has a soft dependency on several Python tools that it uses for its analysis. While `mllint` will recommend that you place these tools in your project's development dependencies, these tools are listed as optional dependencies of `mllint` and can be installed along with `mllint` using:
+
+```sh
+pip install --upgrade mllint[tools]
+```
+
+### Docker
+
+There are also `mllint` Docker containers available on [Docker Hub](https://hub.docker.com/r/bvobart/mllint) at `bvobart/mllint` for Python 3.6, 3.7, 3.8 and 3.9. They require that you mount the folder with your project onto the container as a volume on `/app`.
+
+Here is an example of how to use this Docker container, assuming that your project is in the current folder. Replace `$(pwd)` with the full path to your project folder if it is somewhere else.
+
+```sh
+docker run -it --rm -v $(pwd):/app bvobart/mllint:latest
 ```
 
 ## Usage
@@ -104,8 +122,13 @@ To learn more about a certain rule or category, use `mllint describe` along with
 # Describe the Version Control category. This will also list the rules that it checks.
 mllint describe version-control
 
-# Describe the rule on DVC usage in the Version Control category
+# Use the exact slug of a rule to describe one rule,
+# e.g., the rule on DVC usage in the Version Control category
 mllint describe version-control/data/dvc
+
+# Use a partial slug to describe all rules whose slug starts with this snippet, 
+# e.g., all rules about version controlling data
+mllint describe version-control/data
 ```
 
 ---
@@ -139,6 +162,8 @@ rules:
     - version-control/code/git
     - dependency-management/single
 ```
+
+Similar to the `describe` command, this also matches partial slugs. So, to disable all rules regarding version controlling data, use `version-control/data`.
 
 #### TOML
 
