@@ -33,6 +33,14 @@ func TestCollectTasksEmptyList(t *testing.T) {
 	}
 }
 
+func TestForEachNoTasks(t *testing.T) {
+	r := mllint.NewMLLintRunner(nil)
+	tasks := []*mllint.RunnerTask{}
+	mllint.ForEachTask(r.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+		t.FailNow()
+	})
+}
+
 //---------------------------------------------------------------------------------------
 
 // create a bunch of tests with linters that will simply return api.NewReport() and nil
@@ -113,6 +121,8 @@ func createNestedLinterTest(t testCtl, maxDepth int32) testLinter {
 	var depth int32 = 0
 	test.lintProject = func(project api.Project) {
 		if atomic.LoadInt32(&depth) >= maxDepth {
+			// check that collecting an empty list of tasks from a child runner does not block.
+			mllint.ForEachTask(runner.CollectTasks(), func(task *mllint.RunnerTask, result mllint.LinterResult) { t.t.FailNow() })
 			time.Sleep(time.Millisecond * 10)
 			return
 		}

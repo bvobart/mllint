@@ -114,6 +114,12 @@ func (r *childRunner) RunLinter(id string, linter api.Linter, project api.Projec
 }
 
 func (r *childRunner) CollectTasks(tasks ...*RunnerTask) chan *RunnerTask {
+	if len(tasks) == 0 {
+		funnel := make(chan *RunnerTask)
+		close(funnel)
+		return funnel
+	}
+
 	r.parent.awaiting <- r.task
 	return collectTasks(func() { r.parent.resuming <- r.task }, tasks...)
 }
