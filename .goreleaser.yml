@@ -1,4 +1,5 @@
 # This .goreleaser.yml file configures GoReleaser to properly and reproducibly build `mllint` for Linux, MacOS and Windows
+# It will also create a Docker container from the built executable and the given Dockerfile.
 before:
   hooks:
     - go mod tidy
@@ -13,6 +14,42 @@ builds:
     ldflags:
      - -s -w -X github.com/bvobart/mllint/commands.version={{.Version}} -X github.com/bvobart/mllint/commands.commit={{.Commit}} -X github.com/bvobart/mllint/commands.date={{.CommitDate}}
     mod_timestamp: '{{ .CommitTimestamp }}'
+
+# Build Docker containers of `mllint` for Python versions [3.6, 3.7, 3.8, 3.9]
+dockers:
+  - image_templates:
+      - bvobart/mllint:latest-py3.6
+      - bvobart/mllint:{{.Version}}-py3.6
+    build_flag_templates:
+      - --build-arg=python_version=3.6
+    extra_files:
+      - build/requirements-tools.txt
+
+  - image_templates:
+      - bvobart/mllint:latest-py3.7
+      - bvobart/mllint:{{.Version}}-py3.7
+    build_flag_templates:
+      - --build-arg=python_version=3.7
+    extra_files:
+      - build/requirements-tools.txt
+
+  - image_templates:
+      - bvobart/mllint:latest-py3.8
+      - bvobart/mllint:{{.Version}}-py3.8
+    build_flag_templates:
+      - --build-arg=python_version=3.8
+    extra_files:
+      - build/requirements-tools.txt
+
+  - image_templates:
+      - bvobart/mllint:latest
+      - bvobart/mllint:{{.Version}}
+      - bvobart/mllint:latest-py3.9
+      - bvobart/mllint:{{.Version}}-py3.9
+    build_flag_templates:
+      - --build-arg=python_version=3.9
+    extra_files:
+      - build/requirements-tools.txt
 
 archives:
   - format: tar.gz
