@@ -1,6 +1,7 @@
 import os
 import platform
 import shutil
+
 import setuptools
 
 version = os.getenv("MLLINT_VERSION", "dev-snapshot")
@@ -112,6 +113,9 @@ shutil.copy2(exe_path, os.path.join('mllint', 'mllint-exe'))
 # Include ReadMe as long description
 with open("ReadMe.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
+# Include peer dependencies from requirements-tools.txt
+with open("requirements-tools.txt", "r", encoding="utf-8") as fh:
+  tools_require = fh.read().splitlines()
 
 setuptools.setup(
   name="mllint",
@@ -154,6 +158,7 @@ setuptools.setup(
   packages=['mllint'],
   package_data={'mllint': ['mllint-exe']},
   python_requires=">=3.6",
+  extras_require={'tools': tools_require},
   entry_points={
     'console_scripts': [
       'mllint=mllint.cli:main'

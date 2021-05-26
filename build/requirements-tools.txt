@@ -1,0 +1,6 @@
+dvc>=2.0.0
+pylint>=2.0.0
+mypy>=0.800
+black>=21.4b0
+isort>=5.0.0
+bandit>=1.6.2
