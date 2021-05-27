@@ -3,7 +3,6 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
@@ -115,12 +114,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	if outputToFile() {
-		if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
-			return fmt.Errorf("failed to write output file: %w", err)
-		}
-		bold := color.New(color.Bold)
-		shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
-		shush(func() { bold.Println() })
+		return writeToOutputFile(output)
 	} else {
 		fmt.Println(markdown.Render(output))
 	}

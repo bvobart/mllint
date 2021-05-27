@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -34,6 +35,24 @@ func parseProjectDir(args []string) (string, error) {
 
 func formatInlineCode(text string) string {
 	return color.New(color.Reset, color.Italic, color.FgYellow).Sprint(text)
+}
+
+func writeToOutputFile(output string) error {
+	// create output folder if it doesn't exist
+	if !utils.FolderExists(path.Dir(outputFile)) {
+		if err := os.MkdirAll(path.Dir(outputFile), 0755); err != nil {
+			return fmt.Errorf("failed to create output directory: %w", err)
+		}
+	}
+
+	if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
+		return fmt.Errorf("failed to write output file: %w", err)
+	}
+
+	bold := color.New(color.Bold)
+	shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
+	shush(func() { bold.Println() })
+	return nil
 }
 
 func prettyPrintLinters(linters map[api.Category]api.Linter) {

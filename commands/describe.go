@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/fatih/color"
@@ -11,7 +10,6 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters"
-	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
@@ -64,13 +62,7 @@ func describe(cmd *cobra.Command, args []string) error {
 	}
 
 	if outputToFile() {
-		if err := ioutil.WriteFile(outputFile, []byte(output.String()), 0644); err != nil {
-			return fmt.Errorf("failed to write output file: %w", err)
-		}
-		bold := color.New(color.Bold)
-		shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
-		shush(func() { bold.Println() })
-		return nil
+		return writeToOutputFile(output.String())
 	}
 
 	if outputToStdout() {
