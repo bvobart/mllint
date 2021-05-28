@@ -32,7 +32,7 @@ func (l *CILinter) LintProject(project api.Project) (api.Report, error) {
 	for _, provider := range providers {
 		// if the repo is not tracking the CI config file, then they're not really using CI,
 		// they're merely trying to define it, which is at least a step in the right direction.
-		if !git.IsTracking(project.Dir, provider.ConfigFile()) {
+		if !git.IsTracking(project.Dir, provider.ConfigFile(project.Dir)) {
 			report.Scores[RuleUseCI] = 25
 		}
 	}

@@ -40,7 +40,7 @@ func (l *GitLinter) LintProject(project api.Project) (api.Report, error) {
 		return report, nil
 	}
 
-	largeFiles, err := git.FindLargeFiles(project.Dir, l.MaxFileSize)
+	largeFiles, err := git.FindLargeFilesInHistory(project.Dir, l.MaxFileSize)
 	if err != nil {
 		return api.Report{}, err
 	}
@@ -55,9 +55,14 @@ func (l *GitLinter) LintProject(project api.Project) (api.Report, error) {
 
 func (l *GitLinter) buildDetails(largeFiles []git.FileSize) string {
 	details := strings.Builder{}
-	details.WriteString(fmt.Sprintf("Your project is tracking the following files that are larger than %s:\n", humanize.Bytes(l.MaxFileSize)))
+	details.WriteString(fmt.Sprintf("Your project's Git history contains the following files that are larger than %s:\n", humanize.Bytes(l.MaxFileSize)))
 	for _, file := range largeFiles {
-		details.WriteString(fmt.Sprintf("- **%s**  %s\n", humanize.Bytes(file.Size), file.Path))
+		details.WriteString(fmt.Sprintf("- **%s** - commit `%s` - `%s`\n", humanize.Bytes(file.Size), file.CommitHash, file.Path))
 	}
+	details.WriteString(`
+These files may not necessarily be in your project right now, but they are still stored inside your project's Git history.
+Thus, whenever your project is downloaded (with ` + "`git clone`" + `), all these unnecessary files have to be downloaded as well.
+
+See [this StackOverflow answer](https://stackoverflow.com/a/46615578/8059181) to learn how to remove these files from your project's Git history.`)
 	return details.String()
 }

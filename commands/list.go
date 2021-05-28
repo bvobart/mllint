@@ -2,14 +2,12 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/linters"
-	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
@@ -100,13 +98,7 @@ func listLinters(linters map[api.Category]api.Linter) error {
 		md := markdowngen.LintersOverview(linters)
 
 		if outputToFile() {
-			if err := ioutil.WriteFile(outputFile, []byte(md), 0644); err != nil {
-				return fmt.Errorf("failed to write output file: %w", err)
-			}
-			bold := color.New(color.Bold)
-			shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
-			shush(func() { bold.Println() })
-			return nil
+			return writeToOutputFile(md)
 		}
 
 		if outputToStdout() {

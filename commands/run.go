@@ -3,7 +3,6 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-multierror"
@@ -16,6 +15,7 @@ import (
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/setools/depmanagers"
+	"github.com/bvobart/mllint/setools/git"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 )
@@ -47,10 +47,12 @@ type runCommand struct {
 }
 
 // Runs pre-analysis checks:
+// - Retrieve some info about project's Git state
 // - Detect dependency managers used in the project
 // - Detect code quality linters used in the project
 // - Detect the Python files in the project repository.
 func (rc *runCommand) runPreAnalysisChecks() error {
+	rc.ProjectR.Git = git.MakeGitInfo(rc.ProjectR.Dir)
 	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
 	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
 
@@ -115,12 +117,7 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	}
 
 	if outputToFile() {
-		if err := ioutil.WriteFile(outputFile, []byte(output), 0644); err != nil {
-			return fmt.Errorf("failed to write output file: %w", err)
-		}
-		bold := color.New(color.Bold)
-		shush(func() { bold.Println("Your report is complete, see", formatInlineCode(utils.AbsolutePath(outputFile))) })
-		shush(func() { bold.Println() })
+		return writeToOutputFile(output)
 	} else {
 		fmt.Println(markdown.Render(output))
 	}
