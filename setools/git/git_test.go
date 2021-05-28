@@ -29,7 +29,8 @@ func TestDetect(t *testing.T) {
 func TestMakeGitInfo(t *testing.T) {
 	dir := "."
 	info := git.MakeGitInfo(dir)
-	require.Equal(t, "git@github.com:bvobart/mllint.git", info.RemoteURL)
+	require.Contains(t, info.RemoteURL, "github.com")
+	require.Contains(t, info.RemoteURL, "bvobart/mllint")
 
 	dir = os.TempDir()
 	require.Equal(t, api.GitInfo{}, git.MakeGitInfo(dir))
