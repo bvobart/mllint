@@ -24,19 +24,30 @@ func FromProject(project api.ProjectReport) string {
 	return output.String()
 }
 
-func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
-	isDefault := "No"
-	if cmp.Equal(project.Config, *config.Default()) {
-		isDefault = "Yes"
+func humanizeBool(b bool) string {
+	if b {
+		return "Yes"
 	}
+	return "No"
+}
 
+func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
 	output.WriteString("# ML Project Report\n")
-	output.WriteString("Project | Details\n")
+	output.WriteString("**Project** | **Details**\n")
 	output.WriteString("--------|--------\n")
+	output.WriteString(fmt.Sprintf("Date    | %s \n", time.Now().Format(time.RFC1123Z)))
 	output.WriteString("Path    | `" + project.Dir + "`\n")
 	output.WriteString("Config  | `" + project.ConfigType.String() + "`\n")
-	output.WriteString("Default | " + isDefault + "\n")
-	output.WriteString(fmt.Sprintf("Date    | %s \n", time.Now().Format(time.RFC1123Z)))
+	configIsDefault := cmp.Equal(project.Config, *config.Default())
+	output.WriteString("Default | " + humanizeBool(configIsDefault) + "\n")
+
+	if project.Git.RemoteURL != "" {
+		output.WriteString("Git: Remote URL | `" + project.Git.RemoteURL + "`\n")
+		output.WriteString("Git: Commit | `" + project.Git.Commit + "`\n")
+		output.WriteString("Git: Branch | `" + project.Git.Branch + "`\n")
+		output.WriteString("Git: Dirty Workspace? | " + humanizeBool(project.Git.Dirty) + "\n")
+	}
+
 	output.WriteString(fmt.Sprintf("Number of Python files | %d\n", len(project.PythonFiles)))
 	output.WriteString(fmt.Sprintf("Lines of Python code | %d\n", project.PythonFiles.CountLoC()))
 	output.WriteString("\n---\n\n")

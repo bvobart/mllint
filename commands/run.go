@@ -15,6 +15,7 @@ import (
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/setools/depmanagers"
+	"github.com/bvobart/mllint/setools/git"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/markdown"
 )
@@ -46,10 +47,12 @@ type runCommand struct {
 }
 
 // Runs pre-analysis checks:
+// - Retrieve some info about project's Git state
 // - Detect dependency managers used in the project
 // - Detect code quality linters used in the project
 // - Detect the Python files in the project repository.
 func (rc *runCommand) runPreAnalysisChecks() error {
+	rc.ProjectR.Git = git.MakeGitInfo(rc.ProjectR.Dir)
 	rc.ProjectR.DepManagers = depmanagers.Detect(rc.ProjectR.Project)
 	rc.ProjectR.CQLinters = cqlinters.Detect(rc.ProjectR.Project)
 

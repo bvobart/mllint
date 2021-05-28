@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/exec"
 )
@@ -14,6 +15,38 @@ import (
 func Detect(dir string) bool {
 	_, err := exec.CommandOutput(dir, "git", "rev-parse", "--git-dir")
 	return err == nil
+}
+
+func MakeGitInfo(dir string) api.GitInfo {
+	if !Detect(dir) {
+		return api.GitInfo{}
+	}
+
+	remote, _ := GetRemoteURL(dir)
+	commit, _ := GetCurrentCommit(dir)
+	branch, _ := GetCurrentBranch(dir)
+	dirty := IsDirty(dir)
+	return api.GitInfo{RemoteURL: remote, Commit: commit, Branch: branch, Dirty: dirty}
+}
+
+func GetRemoteURL(dir string) (string, error) {
+	output, err := exec.CommandOutput(dir, "git", "remote", "get-url", "origin")
+	return strings.TrimSpace(string(output)), err
+}
+
+func GetCurrentCommit(dir string) (string, error) {
+	output, err := exec.CommandOutput(dir, "git", "rev-parse", "HEAD")
+	return strings.TrimSpace(string(output)), err
+}
+
+func GetCurrentBranch(dir string) (string, error) {
+	output, err := exec.CommandOutput(dir, "git", "branch", "--show-current")
+	return strings.TrimSpace(string(output)), err
+}
+
+func IsDirty(dir string) bool {
+	_, err := exec.CommandOutput(dir, "git", "diff", "--no-ext-diff", "--quiet")
+	return err != nil
 }
 
 // IsTracking checks whether the Git repository in the given folder is tracking the files specified
