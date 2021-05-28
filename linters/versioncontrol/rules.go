@@ -24,7 +24,7 @@ To start using Git, run %s in a terminal at the root of your project. See also [
 // See https://docs.github.com/en/github/managing-large-files/what-is-my-disk-quota
 var RuleGitNoBigFiles = api.Rule{
 	Slug: "version-control/code/git-no-big-files",
-	Name: "Project should not use Git to track large files",
+	Name: "Project should not have any large files in its Git history",
 	Details: `Git is great for version controlling small, textual files, but not for binary or large files.
 Tracking large files directly with Git adds bloat to your repository's Git history, which needs to be downloaded every time your project is cloned.
 Large files should instead be version controlled as Data, e.g. using Git LFS or DVC.
