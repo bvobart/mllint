@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,6 +18,22 @@ func Detect(dir string) bool {
 	return err == nil
 }
 
+// If the given directory is in a Git repository,
+// GetGitRoot checks whether the given folder is in a Git repository,
+// then returns the absolute path to the root folder of that Git repository,
+// or the dir given as argument when it is not a Git repo.
+func GetGitRoot(dir string) string {
+	gitDir, err := exec.CommandOutput(dir, "git", "rev-parse", "--path-format=absolute", "--git-dir")
+	if err != nil {
+		return dir
+	}
+
+	rootDir := path.Dir(string(gitDir))
+	return rootDir
+}
+
+// MakeGitInfo creates a description of the Git repository in the given directory.
+// Returns an empty api.GitInfo{} when the dir is not a Git repo.
 func MakeGitInfo(dir string) api.GitInfo {
 	if !Detect(dir) {
 		return api.GitInfo{}
@@ -29,6 +46,7 @@ func MakeGitInfo(dir string) api.GitInfo {
 	return api.GitInfo{RemoteURL: remote, Commit: commit, Branch: branch, Dirty: dirty}
 }
 
+// GetRemoteURL returns the URL of the `origin` Git remote.
 func GetRemoteURL(dir string) (string, error) {
 	output, err := exec.CommandOutput(dir, "git", "remote", "get-url", "origin")
 	return strings.TrimSpace(string(output)), err
@@ -44,6 +62,7 @@ func GetCurrentBranch(dir string) (string, error) {
 	return strings.TrimSpace(string(output)), err
 }
 
+// IsDirty returns true when there are changed files in the repository.
 func IsDirty(dir string) bool {
 	_, err := exec.CommandOutput(dir, "git", "diff", "--no-ext-diff", "--quiet")
 	return err != nil

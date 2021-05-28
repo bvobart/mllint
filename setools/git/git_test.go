@@ -4,11 +4,14 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/setools/git"
+	"github.com/bvobart/mllint/utils"
 	"github.com/bvobart/mllint/utils/exec"
 )
 
@@ -21,6 +24,34 @@ func TestDetect(t *testing.T) {
 
 	dir = os.TempDir()
 	require.False(t, git.Detect(dir))
+}
+
+func TestMakeGitInfo(t *testing.T) {
+	dir := "."
+	info := git.MakeGitInfo(dir)
+	require.Equal(t, "git@github.com:bvobart/mllint.git", info.RemoteURL)
+
+	dir = os.TempDir()
+	require.Equal(t, api.GitInfo{}, git.MakeGitInfo(dir))
+}
+
+func TestGetGitRoot(t *testing.T) {
+	dir := "."
+	rootDir := git.GetGitRoot(dir)
+	require.True(t, strings.HasPrefix(utils.AbsolutePath(dir), rootDir))
+
+	dir = os.TempDir()
+	rootDir = git.GetGitRoot(dir)
+	require.Equal(t, dir, rootDir)
+
+	// create Git repo in temp dir, expect that temp dir
+	dir, err := ioutil.TempDir(os.TempDir(), "mllint-tests-git-root")
+	require.NoError(t, err)
+	_, err = exec.CommandOutput(dir, "git", "init")
+	require.NoError(t, err)
+
+	rootDir = git.GetGitRoot(dir)
+	require.Equal(t, dir, rootDir)
 }
 
 func TestIsTracking(t *testing.T) {
