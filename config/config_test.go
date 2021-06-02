@@ -30,6 +30,12 @@ code-quality:
     - black
 `
 
+const yamlTesting = `
+testing:
+  report: tests-report.xml
+  coverage: coverage-report.xml
+`
+
 const yamlInvalid = `
 rules:
   disabled: nothing
@@ -47,6 +53,12 @@ const tomlRulesDisabled = `
 const tomlLinters = `
 [tool.mllint.code-quality]
 linters = ["pylint", "mypy"]
+`
+
+const tomlTesting = `
+[tool.mllint.testing]
+report = "tests-report.xml"
+coverage = "coverage-report.xml"
 `
 
 const tomlInvalid = `
@@ -93,6 +105,17 @@ func TestParseYAML(t *testing.T) {
 			Expected: func() *config.Config {
 				c := config.Default()
 				c.CodeQuality.Linters = []string{"pylint", "mypy", "black"}
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "YamlTesting",
+			File: strings.NewReader(yamlTesting),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.Testing.Report = "tests-report.xml"
+				c.Testing.Coverage = "coverage-report.xml"
 				return c
 			}(),
 			Err: nil,
@@ -162,6 +185,17 @@ func TestParseTOML(t *testing.T) {
 			Expected: func() *config.Config {
 				c := config.Default()
 				c.CodeQuality.Linters = []string{"pylint", "mypy"}
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "TomlTesting",
+			File: strings.NewReader(tomlTesting),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.Testing.Report = "tests-report.xml"
+				c.Testing.Coverage = "coverage-report.xml"
 				return c
 			}(),
 			Err: nil,

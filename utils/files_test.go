@@ -3,6 +3,7 @@ package utils_test
 import (
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/bvobart/mllint/utils"
@@ -70,6 +71,14 @@ func TestFindPythonFiles(t *testing.T) {
 	files, err := utils.FindPythonFilesIn(dir)
 	require.NoError(t, err)
 	require.Equal(t, utils.Filenames{"some_other_script.py", "some_script.py", "subfolder/yet_another_script.py"}, files)
+}
+
+func TestFilenamesFilter(t *testing.T) {
+	files := utils.Filenames{"some_script.py", "some_other_script.py", "subfolder/yet_another_script.py"}
+	files = files.Filter(func(filename string) bool {
+		return strings.Contains(filename, "other")
+	})
+	require.Equal(t, utils.Filenames{"some_other_script.py", "subfolder/yet_another_script.py"}, files)
 }
 
 func TestCountLoC(t *testing.T) {

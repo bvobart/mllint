@@ -13,6 +13,7 @@ require (
 	github.com/gosuri/uilive v0.0.4
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hhatto/gocloc v0.4.1
+	github.com/joshdk/go-junit v0.0.0-20210226021600-6145f504ca0d // indirect
 	github.com/juliangruber/go-intersect v1.0.0
 	github.com/mattn/go-isatty v0.0.12
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d

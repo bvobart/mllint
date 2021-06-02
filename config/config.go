@@ -18,6 +18,7 @@ type Config struct {
 	Rules       RuleConfig        `yaml:"rules" toml:"rules"`
 	Git         GitConfig         `yaml:"git" toml:"git"`
 	CodeQuality CodeQualityConfig `yaml:"code-quality" toml:"code-quality"`
+	Testing     TestingConfig     `yaml:"testing" toml:"testing"`
 }
 
 // RuleConfig contains info about which rules are enabled / disabled.
@@ -32,18 +33,36 @@ type GitConfig struct {
 	MaxFileSize uint64 `yaml:"maxFileSize" toml:"maxFileSize"`
 }
 
+// CodeQualityConfig contains the configuration for the CQ linters used in the Code Quality category
 type CodeQualityConfig struct {
 	// Defines all code linters to use in the Code Quality category
 	Linters []string `yaml:"linters" toml:"linters"`
 }
+
+// TestingConfig contains the configuration for the rules in the Testing category.
+type TestingConfig struct {
+	// Filename of the project's test execution report, either absolute or relative to the project's root.
+	// Expects a JUnit XML file, which when using `pytest` can be generated with `pytest --junitxml=tests-report.xml`
+	Report string `yaml:"report" toml:"report"`
+
+	// Filename of the project's test coverage report, either absolute or relative to the project's root.
+	// Expects a Cobertura-compatible XML file, which can be generated after `coverage run -m pytest --junitxml=tests-report.xml`
+	// with `coverage xml -o tests-coverage.xml`
+	Coverage string `yaml:"coverage" toml:"coverage"`
+}
+
+//---------------------------------------------------------------------------------------
 
 func Default() *Config {
 	return &Config{
 		Rules:       RuleConfig{Disabled: []string{}},
 		Git:         GitConfig{MaxFileSize: 10_000_000}, // 10 MB
 		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort", "bandit"}},
+		Testing:     TestingConfig{},
 	}
 }
+
+//---------------------------------------------------------------------------------------
 
 type FileType string
 
@@ -59,6 +78,8 @@ func (t FileType) String() string {
 	}
 	return string(t)
 }
+
+//---------------------------------------------------------------------------------------
 
 // ParseFromDir parses the mllint config from the given project directory.
 // If an `.mllint.yml` file is present, then this will be used,
