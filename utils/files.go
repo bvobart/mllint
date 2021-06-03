@@ -91,6 +91,7 @@ func FindIPynbFilesIn(dir string) (Filenames, error) {
 // a certain file extension. File extension must start with a '.', e.g. ".py" or ".ipynb"
 // Returns filepaths relative to the given directory.
 // Ignores hidden folders (folders whose names start with a '.'), but not hidden files.
+// Also explicitly ignores `venv` folders
 func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 	files := Filenames{}
 	err := filepath.Walk(dir, func(path string, file os.FileInfo, err error) error {
@@ -99,6 +100,10 @@ func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 		}
 
 		if file.IsDir() && strings.HasPrefix(file.Name(), ".") {
+			return filepath.SkipDir
+		}
+
+		if file.IsDir() && file.Name() == "venv" {
 			return filepath.SkipDir
 		}
 
