@@ -152,3 +152,15 @@ func ParseTOML(reader io.Reader) (*Config, error) {
 
 	return tomlFile.Tool.Mllint, nil
 }
+
+//---------------------------------------------------------------------------------------
+
+func (conf *Config) YAML() ([]byte, error) {
+	return yaml.Marshal(conf)
+}
+
+func (conf *Config) TOML() ([]byte, error) {
+	pyproject := pyprojectTOML{}
+	pyproject.Tool.Mllint = conf
+	return toml.Marshal(pyproject)
+}
