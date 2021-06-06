@@ -10,6 +10,14 @@ const (
 	TypeBandit api.CQLinterType = "bandit"
 )
 
+var AllTypes = []api.CQLinterType{
+	TypePylint,
+	TypeMypy,
+	TypeBlack,
+	TypeISort,
+	TypeBandit,
+}
+
 var ByType = map[api.CQLinterType]api.CQLinter{
 	TypePylint: Pylint{},
 	TypeMypy:   Mypy{},

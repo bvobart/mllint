@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/setools/cqlinters"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 var VersionControl = api.Category{
@@ -54,14 +56,44 @@ to see if it is compatible with all other (sub-)packages.`,
 var CodeQuality = api.Category{
 	Name: "Code Quality",
 	Slug: "code-quality",
-	Description: `This category assesses your project's code quality.
+	Description: `This category assesses your project's code quality by running several static analysis tools on your project.
+Static analysis tools analyse your code without actually running it, in an attempt to find potential bugs, refactoring opportunities and/or coding style violations.
 
-It is not implemented yet. Examples of rules you might expect to see here in the future:
-- Project uses linters (Pylint, Black, isort, mypy, Bandit, dslinter, mllint, etc). Will be configurable
-- Project configures linters (make sure you have a configuration for the linters you employ. Default configuration should also be fine)
-- rules about mllint's config. This will make it so there is little incentive to just disable all of mllint's rules, get a high score and just call it a day.
-- will probably also include actually running the aforementioned linters to see what kind of issues they produce.
-`,
+The linter for this category will check whether your project is using the configured set of code quality linters.
+` + "`mllint`" + ` supports (and by default requires) the following linters:
+` + markdowngen.List(asInterfaceList(cqlinters.AllTypes)) + `
+
+For your project to be considered to be using a linter...
+- **Either** there is a configuration file for this linter in the project
+- **Or** the linter is a dependency of the project (preferably a dev dependency)
+
+You can configure which linters ` + "`mllint`" + ` requires your project to use, using the following snippet of YAML in a ` + "`.mllint.yml`" + ` configuration file:
+` + "```yaml" + `
+code-quality:
+	linters:
+		- pylint
+		- mypy
+		- black
+		- isort
+		- bandit
+` + "```" + `
+
+or TOML:
+` + "```toml" + `
+[code-quality]
+  linters = ["pylint", "mypy", "black", "isort", "bandit"]
+` + "```" + `
+
+We recommend that you configure each of these linters as you see fit using their respective configuration options.
+Those will then automatically be picked up as ` + "`mllint`" + ` runs them.`,
+}
+
+func asInterfaceList(list []api.CQLinterType) []interface{} {
+	res := make([]interface{}, len(list))
+	for i := range list {
+		res[i] = list[i]
+	}
+	return res
 }
 
 var DataQuality = api.Category{
