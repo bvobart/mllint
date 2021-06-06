@@ -15,6 +15,11 @@ builds:
      - -s -w -X github.com/bvobart/mllint/commands.version={{.Version}} -X github.com/bvobart/mllint/commands.commit={{.Commit}} -X github.com/bvobart/mllint/commands.date={{.CommitDate}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 
+.dockers-common: &dockers-common
+  use_buildx: true
+  extra_files:
+    - build/requirements-tools.txt
+
 # Build Docker containers of `mllint` for Python versions [3.6, 3.7, 3.8, 3.9]
 dockers:
   - image_templates:
@@ -22,24 +27,21 @@ dockers:
       - bvobart/mllint:{{.Version}}-py3.6
     build_flag_templates:
       - --build-arg=python_version=3.6
-    extra_files:
-      - build/requirements-tools.txt
+    <<: *dockers-common
 
   - image_templates:
       - bvobart/mllint:latest-py3.7
       - bvobart/mllint:{{.Version}}-py3.7
     build_flag_templates:
       - --build-arg=python_version=3.7
-    extra_files:
-      - build/requirements-tools.txt
+    <<: *dockers-common
 
   - image_templates:
       - bvobart/mllint:latest-py3.8
       - bvobart/mllint:{{.Version}}-py3.8
     build_flag_templates:
       - --build-arg=python_version=3.8
-    extra_files:
-      - build/requirements-tools.txt
+    <<: *dockers-common
 
   - image_templates:
       - bvobart/mllint:latest
@@ -48,8 +50,7 @@ dockers:
       - bvobart/mllint:{{.Version}}-py3.9
     build_flag_templates:
       - --build-arg=python_version=3.9
-    extra_files:
-      - build/requirements-tools.txt
+    <<: *dockers-common
 
 archives:
   - format: tar.gz
