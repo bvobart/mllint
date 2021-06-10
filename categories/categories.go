@@ -109,10 +109,19 @@ and may also include dynamic checks on the data that is currently in the reposit
 var Testing = api.Category{
 	Name: "Testing",
 	Slug: "testing",
-	Description: `This category deals with the way your project is being tested.
+	Description: `Testing in the context of Software Engineering refers to the practice of writing automated checks to ensure that something works as intended.
+Testing ML systems is, however, different from testing traditional software systems.
+In traditional software systems, humans **write** all the logic that processes whatever data the system handles,
+whereas in ML systems, humans provide examples (training data) of what we want the desired behaviour to be and the machine **learns** the logic required to produce this behaviour.
+Properly testing ML systems therefore entails ensuring that the learned logic always and consistently produces the desired behaviour. 
 
-It is not implemented yet. The idea is that this will contain some rules to check whether you have tests, what your latest test results were, how good your test coverage is,
-and probably also something on whether you're actually testing your ML code or not.`,
+Here are some links to interesting blogs that give more in-depth information about different techniques for testing ML systems:
+- [MadeWithML - Testing ML Systems: Code, Data and Models](https://madewithml.com/courses/mlops/testing/)
+- [Jeremy Jordan - Effective testing for machine learning systems](https://www.jeremyjordan.me/testing-ml/)
+
+This category contains several rules relating to whether and to what degree you are testing the code of your ML project.
+
+TODO: update this description again once fully implemented`,
 }
 
 var ContinuousIntegration = api.Category{
