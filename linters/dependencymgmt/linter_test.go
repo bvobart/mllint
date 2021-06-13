@@ -8,24 +8,19 @@ import (
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
+	"github.com/bvobart/mllint/linters/testutils"
 	"github.com/bvobart/mllint/setools/depmanagers"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
-var linter = dependencymgmt.NewLinter()
-
 func TestName(t *testing.T) {
+	linter := dependencymgmt.NewLinter()
 	require.Equal(t, categories.DependencyMgmt.Name, linter.Name())
 }
 
 func TestRules(t *testing.T) {
+	linter := dependencymgmt.NewLinter()
 	require.Equal(t, []*api.Rule{&dependencymgmt.RuleUse, &dependencymgmt.RuleSingle, &dependencymgmt.RuleUseDev}, linter.Rules())
-}
-
-type linterTest struct {
-	Name   string
-	Dir    string
-	Expect func(report api.Report, err error)
 }
 
 func TestLintProject(t *testing.T) {
@@ -35,7 +30,7 @@ func TestLintProject(t *testing.T) {
 		require.EqualValues(t, 100, report.Scores[dependencymgmt.RuleSingle])
 	}
 
-	tests := []linterTest{
+	tests := []testutils.LinterTest{
 		{Name: "Correct/Pipenv", Dir: "test-resources/correct-pipenv", Expect: perfectScore},
 		{Name: "Correct/Poetry", Dir: "test-resources/correct-poetry", Expect: perfectScore},
 		{Name: "Invalid/None", Dir: "test-resources/none", Expect: func(report api.Report, err error) {
@@ -95,16 +90,10 @@ func TestLintProject(t *testing.T) {
 		}},
 	}
 
-	for _, tt := range tests {
-		test := tt
-		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
-			project := api.Project{Dir: test.Dir}
-			project.DepManagers = depmanagers.Detect(project)
-			report, err := linter.LintProject(project)
-			test.Expect(report, err)
-		})
-	}
+	linter := dependencymgmt.NewLinter()
+	suite := testutils.NewLinterTestSuite(linter, tests)
+	suite.DefaultOptions().DetectDepManagers()
+	suite.RunAll(t)
 }
 
 type ruleUseDevTest struct {
