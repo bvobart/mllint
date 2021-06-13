@@ -116,6 +116,10 @@ func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 // Filenames is simply an alias for []string, but allows me to add some methods.
 type Filenames []string
 
+func (names Filenames) Concat(extra Filenames) Filenames {
+	return append(names, extra...)
+}
+
 func (names Filenames) Filter(shouldInclude func(filename string) bool) Filenames {
 	result := Filenames{}
 	for _, filename := range names {
