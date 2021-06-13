@@ -1,4 +1,4 @@
-package template
+package testing
 
 import "github.com/bvobart/mllint/api"
 

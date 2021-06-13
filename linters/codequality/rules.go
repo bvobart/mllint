@@ -31,7 +31,7 @@ Linter | Why?
 
 This rule will be satisfied, iff for each of these linters:
 - **Either** there is a configuration file for this linter in the project
-- **Or** the linter is a dependency of the project`,
+- **Or** the linter is a dependency of the project (preferably a dev dependency)`,
 	Weight: 1,
 }
 

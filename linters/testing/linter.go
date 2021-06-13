@@ -1,4 +1,4 @@
-package template
+package testing
 
 import (
 	"fmt"
@@ -48,9 +48,16 @@ func (l *TestingLinter) LintProject(project api.Project) (api.Report, error) {
 }
 
 func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Project) {
+	if len(project.PythonFiles) == 0 {
+		report.Scores[RuleHasTests] = 0
+		return
+	}
+
 	testFiles := project.PythonFiles.Filter(func(filename string) bool {
 		return strings.HasSuffix(filename, "_test.py") || strings.HasPrefix(path.Base(filename), "test_")
 	})
+
+	// Possible TODO: have a config option for the target amount of tests per file?
 
 	// there should be at 1 test file per 4 non-test Python files.
 	report.Scores[RuleHasTests] = 100 * (float64(len(testFiles)) * 4 / float64(len(project.PythonFiles)-len(testFiles)))
