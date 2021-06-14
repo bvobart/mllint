@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bvobart/mllint/api"
@@ -13,7 +14,7 @@ import (
 type LinterTest struct {
 	Name    string
 	Dir     string
-	Expect  func(report api.Report, err error)
+	Expect  func(t *testing.T, report api.Report, err error)
 	Options *LinterTestOptions
 }
 
@@ -41,13 +42,16 @@ func (suite *LinterTestSuite) RunAll(t *testing.T) {
 	for _, tt := range suite.tests {
 		test := tt
 		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
+			if suite.canBeParallelised(test) {
+				fmt.Println("> ", test.Name, "running in parallel")
+				t.Parallel()
+			}
 
 			project := api.Project{Dir: test.Dir}
 			suite.applyOptions(t, test.Options, &project)
 
 			report, err := suite.linter.LintProject(project)
-			test.Expect(report, err)
+			test.Expect(t, report, err)
 		})
 	}
 }
@@ -126,4 +130,10 @@ func (suite *LinterTestSuite) applyConfigOption(t *testing.T, testOptions *Linte
 			return
 		}
 	}
+}
+
+func (suite *LinterTestSuite) canBeParallelised(test LinterTest) bool {
+	_, isConfigurable := suite.linter.(api.ConfigurableLinter)
+	needsConfig := (suite.defaultOpts != nil && suite.defaultOpts.conf != nil) || (test.Options != nil && test.Options.conf != nil)
+	return !(isConfigurable && needsConfig)
 }

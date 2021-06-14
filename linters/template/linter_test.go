@@ -2,7 +2,7 @@ package template_test
 
 import (
 	"errors"
-	stdtesting "testing"
+	"testing"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/config"
@@ -19,7 +19,7 @@ import (
 // You can use options on the suite or on the test in order to e.g. specify which Python files to set on the project,
 // supply a specific Config that will be passed to the linter if it implements api.Configurable,
 // or provide / auto-detect the dependency managers in the project.
-func TestTemplateLinter(t *stdtesting.T) {
+func TestTemplateLinter(t *testing.T) {
 	linter := template.NewLinter()
 	require.Equal(t, "Linter Template", linter.Name())
 	require.Equal(t, []*api.Rule{&template.RuleSomething}, linter.Rules())
@@ -29,7 +29,7 @@ func TestTemplateLinter(t *stdtesting.T) {
 			Name:    "ExampleTest",
 			Dir:     ".",
 			Options: testutils.NewOptions().WithConfig(config.Default()),
-			Expect: func(report api.Report, err error) {
+			Expect: func(t *testing.T, report api.Report, err error) {
 				require.Error(t, err, errors.New("not implemented"))
 				require.EqualValues(t, 80, report.Scores[template.RuleSomething])
 			},
