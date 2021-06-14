@@ -5,7 +5,7 @@ import "github.com/bvobart/mllint/api"
 var RuleHasTests = api.Rule{
 	Name:    "Project has automated tests",
 	Slug:    "testing/has-tests",
-	Details: "TODO",
+	Details: "TODO, https://docs.pytest.org/en/6.2.x/goodpractices.html#conventions-for-python-test-discovery",
 	Weight:  1,
 }
 

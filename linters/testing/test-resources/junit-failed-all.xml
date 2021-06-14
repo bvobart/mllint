@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="4" time="0.091" timestamp="2021-06-13T17:04:08.088328" hostname="mllint">
+
+    <testcase classname="tests.file1_test" name="test_parse_post" time="0.001">
+      <failure message="assert 1 == 2">def test_parse_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+
+    <testcase classname="tests.file2_test" name="test_process_post" time="0.001">
+      <failure message="assert 1 == 2">def test_process_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+
+    <testcase classname="tests.file3_test" name="test_parse_post" time="0.001">
+      <failure message="assert 1 == 2">def test_parse_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+    
+    <testcase classname="tests.file4_test" name="test_process_post" time="0.001">
+      <failure message="assert 1 == 2">def test_process_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

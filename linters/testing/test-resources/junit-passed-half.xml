@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.117" timestamp="2021-06-14T22:12:43.078881" hostname="mllint">
+    <testcase classname="tests.prepare_test" name="test_parse_post" time="0.001" />
+
+    <testcase classname="tests.prepare_test" name="test_process_post" time="0.001">
+      <failure message="assert 1 == 2">def test_process_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+
+    <testcase classname="tests.prepare_test" name="test_parse_post" time="0.001" />
+
+    <testcase classname="tests.prepare_test" name="test_process_post" time="0.001">
+      <failure message="assert 1 == 2">def test_process_post() -&gt; None:
+        "Tests the process_post method"
+&gt;       assert 1==2
+E       assert 1 == 2
+
+tests/prepare_test.py:29: AssertionError</failure>
+    </testcase>
+
+  </testsuite>
+</testsuites>

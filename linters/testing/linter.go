@@ -37,12 +37,14 @@ func (l *TestingLinter) Rules() []*api.Rule {
 func (l *TestingLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 
-	// TODO: find and count the amount of test files to score RuleHasTests
 	l.ScoreRuleHasTests(&report, project)
 	l.ScoreRuleTestsPass(&report, project)
 
 	// TODO: implement the linting for RuleTestCoverage, which checks whether there is a Cobertura XML coverage report and analyses it for test coverage.
 	// TODO: check whether all test files are in tests folder.
+	// TODO: determine possible config options:
+	// - target amount of tests per file
+	// - target test coverage
 
 	return report, nil
 }
@@ -70,13 +72,14 @@ func (l *TestingLinter) ScoreRuleTestsPass(report *api.Report, project api.Proje
 		return
 	}
 
-	if !utils.FileExists(l.Config.Report) {
+	junitReportPath := path.Join(project.Dir, l.Config.Report)
+	if !utils.FileExists(junitReportPath) {
 		report.Scores[RuleTestsPass] = 0
-		report.Details[RuleTestsPass] = fmt.Sprintf("A test report was provided, namely `%s`, but this file could not be found. Please update the `testing.report` setting in your project's `mllint` configuration to fix the path to your project's test report.", l.Config.Report)
+		report.Details[RuleTestsPass] = fmt.Sprintf("A test report was provided, namely `%s`, but this file could not be found. Please update the `testing.report` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Report)
 		return
 	}
 
-	suites, err := junit.IngestFile(l.Config.Report)
+	suites, err := junit.IngestFile(junitReportPath)
 	if err != nil {
 		report.Scores[RuleTestsPass] = 0
 		report.Details[RuleTestsPass] = fmt.Sprintf(`A test report file `+"`%s`"+` was provided and found, but there was an error parsing the JUnit XML contents:
@@ -97,20 +100,21 @@ Please make sure your test report file is a valid JUnit XML file. %s`, l.Config.
 	if totalTests == 0 {
 		report.Scores[RuleTestsPass] = 0
 		report.Details[RuleTestsPass] = fmt.Sprintf(`No tests were run, according to the provided test report file `+"`%s`"+`. Don't be shy, implement some tests!`, l.Config.Report)
+		return
 	}
 
 	score := 100 * float64(passedTests) / float64(totalTests)
 	report.Scores[RuleTestsPass] = score
 	if passedTests == totalTests {
-		report.Details[RuleTestsPass] = fmt.Sprintf("Congratulations, all of your project's %d tests passed!", totalTests)
+		report.Details[RuleTestsPass] = fmt.Sprintf("Congratulations, all **%d** tests in your project passed!", totalTests)
 	} else if passedTests == 0 {
-		report.Details[RuleTestsPass] = fmt.Sprintf("Oh no! What a shame... **None** of your project's %d tests passed! There must be something terribly wrong.", totalTests)
+		report.Details[RuleTestsPass] = fmt.Sprintf("Oh no! What a shame... **None** of the %d tests in your project passed! There must be something terribly wrong.", totalTests)
 	} else if score < 0.25 {
-		report.Details[RuleTestsPass] = fmt.Sprintf("Oh no! Only **%d** out of **%d** tests passed... That's less than a quarter of all tests in your project...", passedTests, totalTests)
+		report.Details[RuleTestsPass] = fmt.Sprintf("Oh no! Only **%d** out of **%d** tests in your project passed... That's less than a quarter of all your project's tests...", passedTests, totalTests)
 	} else if score > 0.75 {
-		report.Details[RuleTestsPass] = fmt.Sprintf("Hmm, only **%d** out of **%d** of your project's tests passed... That's over three quarter of all tests in your project, but it's not enough: all tests must pass. Good luck fixing the broken tests!", passedTests, totalTests)
+		report.Details[RuleTestsPass] = fmt.Sprintf("Hmm, only **%d** out of **%d** tests in your project passed... That's over three quarter of all tests in your project, but it's not enough: _all tests must pass_. Good luck fixing the broken tests!", passedTests, totalTests)
 	} else {
-		report.Details[RuleTestsPass] = fmt.Sprintf("Oh my, only **%d** out of **%d** of your project's tests passed... You can do better, right? Good luck fixing those tests!", passedTests, totalTests)
+		report.Details[RuleTestsPass] = fmt.Sprintf("Oh my, only **%d** out of **%d** tests in your project passed... You can do better, right? Good luck fixing those tests!", passedTests, totalTests)
 	}
 }
 
