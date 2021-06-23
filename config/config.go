@@ -49,6 +49,9 @@ type TestingConfig struct {
 	// Expects a Cobertura-compatible XML file, which can be generated after `coverage run -m pytest --junitxml=tests-report.xml`
 	// with `coverage xml -o tests-coverage.xml`
 	Coverage string `yaml:"coverage" toml:"coverage"`
+
+	// Target percentage of line test coverage to achieve for this project
+	CoverageTarget float64 `yaml:"coverageTarget" toml:"coverageTarget"`
 }
 
 //---------------------------------------------------------------------------------------
@@ -58,7 +61,7 @@ func Default() *Config {
 		Rules:       RuleConfig{Disabled: []string{}},
 		Git:         GitConfig{MaxFileSize: 10_000_000}, // 10 MB
 		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort", "bandit"}},
-		Testing:     TestingConfig{},
+		Testing:     TestingConfig{CoverageTarget: 80},
 	}
 }
 

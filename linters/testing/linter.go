@@ -1,10 +1,14 @@
 package testing
 
 import (
+	"encoding/xml"
+	"errors"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 
+	"github.com/bvobart/gocover-cobertura/cobertura"
 	"github.com/joshdk/go-junit"
 
 	"github.com/bvobart/mllint/api"
@@ -12,6 +16,9 @@ import (
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/utils"
 )
+
+var ErrCoverageTargetTooHigh = errors.New("coverage target higher than 100%")
+var ErrCoverageTargetTooLow = errors.New("coverage target lower than 0%")
 
 func NewLinter() api.ConfigurableLinter {
 	return &TestingLinter{}
@@ -27,6 +34,11 @@ func (l *TestingLinter) Name() string {
 
 func (l *TestingLinter) Configure(conf *config.Config) error {
 	l.Config = conf.Testing
+	if l.Config.CoverageTarget > 100 {
+		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooHigh, l.Config.CoverageTarget)
+	} else if l.Config.CoverageTarget < 0 {
+		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooLow, l.Config.CoverageTarget)
+	}
 	return nil
 }
 
@@ -39,12 +51,11 @@ func (l *TestingLinter) LintProject(project api.Project) (api.Report, error) {
 
 	l.ScoreRuleHasTests(&report, project)
 	l.ScoreRuleTestsPass(&report, project)
+	l.ScoreRuleTestCoverage(&report, project)
 
-	// TODO: implement the linting for RuleTestCoverage, which checks whether there is a Cobertura XML coverage report and analyses it for test coverage.
 	// TODO: check whether all test files are in tests folder.
 	// TODO: determine possible config options:
 	// - target amount of tests per file
-	// - target test coverage
 
 	return report, nil
 }
@@ -118,4 +129,60 @@ Please make sure your test report file is a valid JUnit XML file. %s`, l.Config.
 	}
 }
 
+func (l *TestingLinter) ScoreRuleTestCoverage(report *api.Report, project api.Project) {
+	if l.Config.Coverage == "" {
+		report.Scores[RuleTestCoverage] = 0
+		report.Details[RuleTestCoverage] = "No test coverage report was provided. Please update the `testing.coverage` setting in your project's `mllint` configuration to specify the path to your project's test coverage report.\n\n" + howToMakeCoverageXML
+		return
+	}
+
+	covReportFile, err := utils.OpenFile(project.Dir, l.Config.Coverage)
+	if err != nil {
+		report.Scores[RuleTestCoverage] = 0
+		report.Details[RuleTestCoverage] = fmt.Sprintf("A test coverage report was provided, namely `%s`, but this file could not be found or opened (%s). Please update the `testing.coverage` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Coverage, err.Error())
+		return
+	}
+
+	var covReport cobertura.Coverage
+	covReportData, err := io.ReadAll(covReportFile)
+	if err == nil {
+		err = xml.Unmarshal(covReportData, &covReport)
+	}
+	if err != nil {
+		report.Scores[RuleTestCoverage] = 0
+		report.Details[RuleTestCoverage] = fmt.Sprintf(`A test report file `+"`%s`"+` was provided and found, but there was an error parsing the Cobertura XML contents:
+
+%s
+
+Please make sure your test report file is a valid Cobertura-compatible XML file. %s`, l.Config.Report, "```\n"+err.Error()+"\n```", howToMakeCoverageXML)
+		return
+	}
+
+	totalLines := covReport.NumLines()
+	hitLines := covReport.NumLinesWithHits()
+	hitRate := 100 * float64(hitLines) / float64(totalLines) // percentage of lines covered.
+	score := 100 * hitRate / l.Config.CoverageTarget         // percentage of coverage target achieved.
+	if totalLines == 0 {
+		score = 0
+	}
+	if l.Config.CoverageTarget == 0 {
+		score = 100
+	}
+	report.Scores[RuleTestCoverage] = score
+
+	if totalLines != 0 && hitLines == totalLines {
+		report.Details[RuleTestCoverage] = "Wow! Congratulations! You've achieved full 100% line test coverage! Great job!"
+	} else if hitRate < l.Config.CoverageTarget {
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Your project's tests achieved %.1f%% line test coverage, but %.1f%% is the target amount of test coverage to beat. You'll need to further improve your tests.", hitRate, l.Config.CoverageTarget)
+	} else if hitRate >= l.Config.CoverageTarget {
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Congratulations, your project's tests have achieved %.1f%% line test coverage, which meets the target of %.1f%% test coverage!", hitRate, l.Config.CoverageTarget)
+	} else if totalLines == 0 {
+		report.Details[RuleTestCoverage] = "It seems your test coverage report is empty, no lines were covered."
+	}
+}
+
 const howToMakeJUnitXML = "When using `pytest` to run your project's tests, use the `--junitxml=<filename>` option to generate such a test report, e.g.: `pytest --junitxml=tests-report.xml`"
+const howToMakeCoverageXML = "Generating a test coverage report with `pytest` can be done by adding and installing `pytest-cov` as a development dependency of your project. Then use the following command to run your tests and generate both a test report as well as a coverage report:" + `
+` + "```" + `
+pytest --junitxml=tests-report.xml --cov=path_to_package_under_test --cov-report=xml
+` + "```\n"
