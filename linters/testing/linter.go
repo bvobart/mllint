@@ -223,11 +223,11 @@ Please make sure your test report file is a valid Cobertura-compatible XML file.
 	report.Scores[RuleTestCoverage] = score
 
 	if totalLines != 0 && hitLines == totalLines {
-		report.Details[RuleTestCoverage] = "Wow! Congratulations! You've achieved full 100% line test coverage! Great job!"
+		report.Details[RuleTestCoverage] = "Wow! Congratulations! You've achieved full **100%** line test coverage! Great job!"
 	} else if hitRate < l.Config.CoverageTarget {
-		report.Details[RuleTestCoverage] = fmt.Sprintf("Your project's tests achieved %.1f%% line test coverage, but %.1f%% is the target amount of test coverage to beat. You'll need to further improve your tests.", hitRate, l.Config.CoverageTarget)
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Your project's tests achieved **%.1f%%** line test coverage, but **%.1f%%** is the target amount of test coverage to beat. You'll need to further improve your tests.", hitRate, l.Config.CoverageTarget)
 	} else if hitRate >= l.Config.CoverageTarget {
-		report.Details[RuleTestCoverage] = fmt.Sprintf("Congratulations, your project's tests have achieved %.1f%% line test coverage, which meets the target of %.1f%% test coverage!", hitRate, l.Config.CoverageTarget)
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Congratulations, your project's tests have achieved **%.1f%%** line test coverage, which meets the target of **%.1f%%** test coverage!", hitRate, l.Config.CoverageTarget)
 	} else if totalLines == 0 {
 		report.Details[RuleTestCoverage] = "It seems your test coverage report is empty, no lines were covered."
 	}
@@ -235,7 +235,11 @@ Please make sure your test report file is a valid Cobertura-compatible XML file.
 
 //---------------------------------------------------------------------------------------
 
-const howToMakeJUnitXML = "When using `pytest` to run your project's tests, use the `--junitxml=<filename>` option to generate such a test report, e.g.: `pytest --junitxml=tests-report.xml`"
+const howToMakeJUnitXML = "When using `pytest` to run your project's tests, use the `--junitxml=<filename>` option to generate such a test report, e.g.:" + `
+` + "```" + `
+pytest --junitxml=tests-report.xml
+` + "```\n"
+
 const howToMakeCoverageXML = "Generating a test coverage report with `pytest` can be done by adding and installing `pytest-cov` as a development dependency of your project. Then use the following command to run your tests and generate both a test report as well as a coverage report:" + `
 ` + "```" + `
 pytest --junitxml=tests-report.xml --cov=path_to_package_under_test --cov-report=xml

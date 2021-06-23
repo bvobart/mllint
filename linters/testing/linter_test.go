@@ -115,8 +115,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.Contains(t, report.Details[testing.RuleTestsPass], "all **4** tests in your project passed")
 				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved 0.0% line test coverage")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "80.0% is the target amount of test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved **0.0%** line test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "**80.0%** is the target amount of test coverage")
 			},
 		},
 		{
@@ -137,8 +137,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.Contains(t, report.Details[testing.RuleTestsPass], "all **4** tests in your project passed")
 				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 50, report.Scores[testing.RuleTestCoverage])
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved 50.0% line test coverage")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "100.0% is the target amount of test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved **50.0%** line test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "**100.0%** is the target amount of test coverage")
 			},
 		},
 		{
@@ -159,8 +159,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.Contains(t, report.Details[testing.RuleTestsPass], "all **4** tests in your project passed")
 				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 100, report.Scores[testing.RuleTestCoverage])
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved 50.0% line test coverage")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "which meets the target of 50.0% test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "achieved **50.0%** line test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "which meets the target of **50.0%** test coverage")
 			},
 		},
 		{
@@ -182,7 +182,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 100, report.Scores[testing.RuleTestCoverage])
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "Wow! Congratulations!")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "100% line test coverage")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "**100%** line test coverage")
 			},
 		},
 		{
