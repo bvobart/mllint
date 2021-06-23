@@ -15,6 +15,7 @@ import (
 	"github.com/bvobart/mllint/categories"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/utils"
+	"github.com/bvobart/mllint/utils/markdowngen"
 )
 
 var ErrCoverageTargetTooHigh = errors.New("coverage target higher than 100%")
@@ -25,7 +26,8 @@ func NewLinter() api.ConfigurableLinter {
 }
 
 type TestingLinter struct {
-	Config config.TestingConfig
+	Config    config.TestingConfig
+	TestFiles utils.Filenames
 }
 
 func (l *TestingLinter) Name() string {
@@ -49,16 +51,22 @@ func (l *TestingLinter) Rules() []*api.Rule {
 func (l *TestingLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 
+	l.TestFiles = project.PythonFiles.Filter(func(filename string) bool {
+		return strings.HasSuffix(filename, "_test.py") || strings.HasPrefix(path.Base(filename), "test_")
+	})
+
 	l.ScoreRuleHasTests(&report, project)
+	l.ScoreRuleTestsFolder(&report, project)
 	l.ScoreRuleTestsPass(&report, project)
 	l.ScoreRuleTestCoverage(&report, project)
 
-	// TODO: check whether all test files are in tests folder.
 	// TODO: determine possible config options:
 	// - target amount of tests per file
 
 	return report, nil
 }
+
+//---------------------------------------------------------------------------------------
 
 func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Project) {
 	if len(project.PythonFiles) == 0 {
@@ -66,15 +74,57 @@ func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Projec
 		return
 	}
 
-	testFiles := project.PythonFiles.Filter(func(filename string) bool {
-		return strings.HasSuffix(filename, "_test.py") || strings.HasPrefix(path.Base(filename), "test_")
-	})
-
 	// Possible TODO: have a config option for the target amount of tests per file?
 
 	// there should be at 1 test file per 4 non-test Python files.
-	report.Scores[RuleHasTests] = 100 * (float64(len(testFiles)) * 4 / float64(len(project.PythonFiles)-len(testFiles)))
+	report.Scores[RuleHasTests] = 100 * (float64(len(l.TestFiles)) * 4 / float64(len(project.PythonFiles)-len(l.TestFiles)))
 }
+
+//---------------------------------------------------------------------------------------
+
+func (l *TestingLinter) ScoreRuleTestsFolder(report *api.Report, project api.Project) {
+	if len(project.PythonFiles) == 0 {
+		report.Scores[RuleTestsFolder] = 0
+		return
+	}
+
+	if len(l.TestFiles) == 0 {
+		if utils.FolderExists(path.Join(project.Dir, "tests")) {
+			report.Scores[RuleTestsFolder] = 100
+			report.Details[RuleTestsFolder] = "While no tests were detected in your project, it's good that your project already has a `tests` folder!"
+		} else {
+			report.Scores[RuleTestsFolder] = 0
+			report.Details[RuleTestsFolder] = "Tip for when you start implementing tests: create a folder called `tests` at the root of your project and place all your Python test files in there, as per common convention."
+		}
+		return
+	}
+
+	notInTestsFolder := utils.Filenames{}
+	for _, testFile := range l.TestFiles {
+		if !isInTestsFolder(project.Dir, testFile) {
+			notInTestsFolder = append(notInTestsFolder, testFile)
+		}
+	}
+
+	// score is percentage of test files that _are_ in the tests folder.
+	report.Scores[RuleTestsFolder] = 100 * (1 - float64(len(notInTestsFolder))/float64(len(l.TestFiles)))
+	if len(notInTestsFolder) > 0 {
+		report.Details[RuleTestsFolder] = "The following test files have been detected that are **not** in the `tests` folder at the root of your project:\n\n" +
+			markdowngen.ListFiles(notInTestsFolder)
+	}
+}
+
+func isInTestsFolder(projectdir, testFile string) bool {
+	// files passed into a linter through the project are generally absolute paths.
+	if path.IsAbs(testFile) {
+		return strings.HasPrefix(testFile, path.Join(projectdir, "tests"))
+	}
+
+	// if the path is not absolute, it is assumed to be relative to the project root.
+	return strings.HasPrefix(testFile, "tests")
+}
+
+//---------------------------------------------------------------------------------------
 
 func (l *TestingLinter) ScoreRuleTestsPass(report *api.Report, project api.Project) {
 	if l.Config.Report == "" {
@@ -129,6 +179,8 @@ Please make sure your test report file is a valid JUnit XML file. %s`, l.Config.
 	}
 }
 
+//---------------------------------------------------------------------------------------
+
 func (l *TestingLinter) ScoreRuleTestCoverage(report *api.Report, project api.Project) {
 	if l.Config.Coverage == "" {
 		report.Scores[RuleTestCoverage] = 0
@@ -180,6 +232,8 @@ Please make sure your test report file is a valid Cobertura-compatible XML file.
 		report.Details[RuleTestCoverage] = "It seems your test coverage report is empty, no lines were covered."
 	}
 }
+
+//---------------------------------------------------------------------------------------
 
 const howToMakeJUnitXML = "When using `pytest` to run your project's tests, use the `--junitxml=<filename>` option to generate such a test report, e.g.: `pytest --junitxml=tests-report.xml`"
 const howToMakeCoverageXML = "Generating a test coverage report with `pytest` can be done by adding and installing `pytest-cov` as a development dependency of your project. Then use the following command to run your tests and generate both a test report as well as a coverage report:" + `

@@ -2,6 +2,7 @@ package testing_test
 
 import (
 	"fmt"
+	"path"
 	stdtesting "testing"
 
 	"github.com/bvobart/mllint/api"
@@ -33,7 +34,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "No test coverage report was provided")
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "update the `testing.coverage` setting")
 
-				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
 			},
 		},
 		{
@@ -44,8 +45,9 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.NoError(t, err)
 				require.EqualValues(t, 0, report.Scores[testing.RuleHasTests])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
-				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
+				require.Equal(t, "Tip for when you start implementing tests: create a folder called `tests` at the root of your project and place all your Python test files in there, as per common convention.", report.Details[testing.RuleTestsFolder])
 			},
 		},
 		{
@@ -56,8 +58,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.NoError(t, err)
 				require.EqualValues(t, 25, report.Scores[testing.RuleHasTests])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
-				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
 			},
 		},
 		{
@@ -68,8 +70,32 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.NoError(t, err)
 				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
-				// require.Equal(t, 0, report.Scores[testing.RuleTestsFolder])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
+			},
+		},
+		{
+			Name:    "FourTestsSixteenFiles/InTestsFolder",
+			Dir:     ".",
+			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix("tests"))),
+			Expect: func(t *stdtesting.T, report api.Report, err error) {
+				require.NoError(t, err)
+				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 100, report.Scores[testing.RuleTestsFolder])
+			},
+		},
+		{
+			Name:    "FourTestsSixteenFiles/InTestsFolderAbsolute",
+			Dir:     utils.AbsolutePath("."),
+			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix(path.Join(utils.AbsolutePath("."), "tests")))),
+			Expect: func(t *stdtesting.T, report api.Report, err error) {
+				require.NoError(t, err)
+				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
+				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 100, report.Scores[testing.RuleTestsFolder])
 			},
 		},
 		{
