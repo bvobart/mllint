@@ -105,7 +105,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-passed-all.xml"
-					c.Testing.Coverage = "coverage-0.xml"
+					c.Testing.Coverage.Report = "coverage-0.xml"
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -126,8 +126,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-passed-all.xml"
-					c.Testing.Coverage = "coverage-50.xml"
-					c.Testing.CoverageTarget = 100
+					c.Testing.Coverage.Report = "coverage-50.xml"
+					c.Testing.Coverage.Targets.Line = 100
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -148,8 +148,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-passed-all.xml"
-					c.Testing.Coverage = "coverage-50.xml"
-					c.Testing.CoverageTarget = 50
+					c.Testing.Coverage.Report = "coverage-50.xml"
+					c.Testing.Coverage.Targets.Line = 50
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -170,8 +170,8 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-passed-all.xml"
-					c.Testing.Coverage = "coverage-100.xml"
-					c.Testing.CoverageTarget = 100
+					c.Testing.Coverage.Report = "coverage-100.xml"
+					c.Testing.Coverage.Targets.Line = 100
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -192,7 +192,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-failed-all.xml"
-					c.Testing.Coverage = ""
+					c.Testing.Coverage.Report = ""
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -211,7 +211,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-passed-half.xml"
-					c.Testing.Coverage = "" // TODO
+					c.Testing.Coverage.Report = "" // TODO
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -247,7 +247,7 @@ func TestTestingLinter(t *stdtesting.T) {
 			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4))).
 				WithConfig(func() *config.Config {
 					c := config.Default()
-					c.Testing.Coverage = "non-existant-file.xml"
+					c.Testing.Coverage.Report = "non-existant-file.xml"
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -281,7 +281,7 @@ func TestTestingLinter(t *stdtesting.T) {
 			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4))).
 				WithConfig(func() *config.Config {
 					c := config.Default()
-					c.Testing.Coverage = "coverage-malformed.xml"
+					c.Testing.Coverage.Report = "coverage-malformed.xml"
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -298,7 +298,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				WithConfig(func() *config.Config {
 					c := config.Default()
 					c.Testing.Report = "junit-empty.xml"
-					c.Testing.Coverage = "coverage-empty.xml"
+					c.Testing.Coverage.Report = "coverage-empty.xml"
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -318,8 +318,8 @@ func TestTestingLinter(t *stdtesting.T) {
 			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4))).
 				WithConfig(func() *config.Config {
 					c := config.Default()
-					c.Testing.Coverage = "coverage-0.xml"
-					c.Testing.CoverageTarget = 0
+					c.Testing.Coverage.Report = "coverage-0.xml"
+					c.Testing.Coverage.Targets.Line = 0
 					return c
 				}()),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
@@ -333,6 +333,17 @@ func TestTestingLinter(t *stdtesting.T) {
 
 	suite.DefaultOptions().WithConfig(config.Default())
 	suite.RunAll(t)
+}
+
+func TestTestingLinterConfigure(t *stdtesting.T) {
+	linter := testing.NewLinter()
+	conf := config.Default()
+	require.NoError(t, linter.Configure(conf))
+
+	conf.Testing.Coverage.Targets.Line = -1
+	require.ErrorIs(t, linter.Configure(conf), testing.ErrCoverageTargetTooLow)
+	conf.Testing.Coverage.Targets.Line = 200
+	require.ErrorIs(t, linter.Configure(conf), testing.ErrCoverageTargetTooHigh)
 }
 
 func createPythonFilenames(n int) utils.Filenames {

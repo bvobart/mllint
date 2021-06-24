@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"path"
 	"strings"
 
@@ -36,10 +37,10 @@ func (l *TestingLinter) Name() string {
 
 func (l *TestingLinter) Configure(conf *config.Config) error {
 	l.Config = conf.Testing
-	if l.Config.CoverageTarget > 100 {
-		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooHigh, l.Config.CoverageTarget)
-	} else if l.Config.CoverageTarget < 0 {
-		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooLow, l.Config.CoverageTarget)
+	if l.Config.Coverage.Targets.Line > 100 {
+		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooHigh, l.Config.Coverage.Targets.Line)
+	} else if l.Config.Coverage.Targets.Line < 0 {
+		return fmt.Errorf("%w: %.1f", ErrCoverageTargetTooLow, l.Config.Coverage.Targets.Line)
 	}
 	return nil
 }
@@ -60,9 +61,6 @@ func (l *TestingLinter) LintProject(project api.Project) (api.Report, error) {
 	l.ScoreRuleTestsPass(&report, project)
 	l.ScoreRuleTestCoverage(&report, project)
 
-	// TODO: determine possible config options:
-	// - target amount of tests per file
-
 	return report, nil
 }
 
@@ -74,10 +72,22 @@ func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Projec
 		return
 	}
 
-	// Possible TODO: have a config option for the target amount of tests per file?
+	if len(l.TestFiles) < int(l.Config.Targets.Minimum) {
+		report.Scores[RuleHasTests] = 0
+		report.Details[RuleHasTests] = fmt.Sprintf("There are **%d** test files in your project, but `mllint` was expecting at least **%d**.", len(l.TestFiles), l.Config.Targets.Minimum)
+		return
+	}
 
-	// there should be at 1 test file per 4 non-test Python files.
-	report.Scores[RuleHasTests] = 100 * (float64(len(l.TestFiles)) * 4 / float64(len(project.PythonFiles)-len(l.TestFiles)))
+	// determine expected ratio of test files vs. other Python files
+	expectedRatio := float64(l.Config.Targets.Ratio.Tests) / float64(l.Config.Targets.Ratio.Other)
+	actualRatio := float64(len(l.TestFiles)) / float64(len(project.PythonFiles))
+	report.Scores[RuleHasTests] = math.Min(100*actualRatio/expectedRatio, 100)
+	if actualRatio < expectedRatio {
+		report.Details[RuleHasTests] = fmt.Sprintf("There are **%d** test files in your project, which meets the minimum of **%d** test files required.", len(l.TestFiles), l.Config.Targets.Minimum)
+		report.Details[RuleHasTests] += fmt.Sprintf("\n\nHowever, this only equates to **%.1f%%** of Python files in your project being tests, while `mllint` expects that **%.1f%%** of your project's Python files are tests.", 100*actualRatio, 100*expectedRatio)
+	} else {
+		report.Details[RuleHasTests] = fmt.Sprintf("Great! Your project contains **%d** test files, which meets the minimum of **%d** test files required.\nThis equates to **%.1f%%** of Python files in your project being tests, which meets the target ratio of **%.1f%%**", len(l.TestFiles), l.Config.Targets.Minimum, 100*actualRatio, 100*expectedRatio)
+	}
 }
 
 //---------------------------------------------------------------------------------------
@@ -182,16 +192,16 @@ Please make sure your test report file is a valid JUnit XML file. %s`, l.Config.
 //---------------------------------------------------------------------------------------
 
 func (l *TestingLinter) ScoreRuleTestCoverage(report *api.Report, project api.Project) {
-	if l.Config.Coverage == "" {
+	if l.Config.Coverage.Report == "" {
 		report.Scores[RuleTestCoverage] = 0
 		report.Details[RuleTestCoverage] = "No test coverage report was provided. Please update the `testing.coverage` setting in your project's `mllint` configuration to specify the path to your project's test coverage report.\n\n" + howToMakeCoverageXML
 		return
 	}
 
-	covReportFile, err := utils.OpenFile(project.Dir, l.Config.Coverage)
+	covReportFile, err := utils.OpenFile(project.Dir, l.Config.Coverage.Report)
 	if err != nil {
 		report.Scores[RuleTestCoverage] = 0
-		report.Details[RuleTestCoverage] = fmt.Sprintf("A test coverage report was provided, namely `%s`, but this file could not be found or opened (%s). Please update the `testing.coverage` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Coverage, err.Error())
+		report.Details[RuleTestCoverage] = fmt.Sprintf("A test coverage report was provided, namely `%s`, but this file could not be found or opened (%s). Please update the `testing.coverage` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Coverage.Report, err.Error())
 		return
 	}
 
@@ -213,21 +223,21 @@ Please make sure your test report file is a valid Cobertura-compatible XML file.
 	totalLines := covReport.NumLines()
 	hitLines := covReport.NumLinesWithHits()
 	hitRate := 100 * float64(hitLines) / float64(totalLines) // percentage of lines covered.
-	score := 100 * hitRate / l.Config.CoverageTarget         // percentage of coverage target achieved.
+	score := 100 * hitRate / l.Config.Coverage.Targets.Line  // percentage of coverage target achieved.
 	if totalLines == 0 {
 		score = 0
 	}
-	if l.Config.CoverageTarget == 0 {
+	if l.Config.Coverage.Targets.Line == 0 {
 		score = 100
 	}
 	report.Scores[RuleTestCoverage] = score
 
 	if totalLines != 0 && hitLines == totalLines {
 		report.Details[RuleTestCoverage] = "Wow! Congratulations! You've achieved full **100%** line test coverage! Great job!"
-	} else if hitRate < l.Config.CoverageTarget {
-		report.Details[RuleTestCoverage] = fmt.Sprintf("Your project's tests achieved **%.1f%%** line test coverage, but **%.1f%%** is the target amount of test coverage to beat. You'll need to further improve your tests.", hitRate, l.Config.CoverageTarget)
-	} else if hitRate >= l.Config.CoverageTarget {
-		report.Details[RuleTestCoverage] = fmt.Sprintf("Congratulations, your project's tests have achieved **%.1f%%** line test coverage, which meets the target of **%.1f%%** test coverage!", hitRate, l.Config.CoverageTarget)
+	} else if hitRate < l.Config.Coverage.Targets.Line {
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Your project's tests achieved **%.1f%%** line test coverage, but **%.1f%%** is the target amount of test coverage to beat. You'll need to further improve your tests.", hitRate, l.Config.Coverage.Targets.Line)
+	} else if hitRate >= l.Config.Coverage.Targets.Line {
+		report.Details[RuleTestCoverage] = fmt.Sprintf("Congratulations, your project's tests have achieved **%.1f%%** line test coverage, which meets the target of **%.1f%%** test coverage!", hitRate, l.Config.Coverage.Targets.Line)
 	} else if totalLines == 0 {
 		report.Details[RuleTestCoverage] = "It seems your test coverage report is empty, no lines were covered."
 	}

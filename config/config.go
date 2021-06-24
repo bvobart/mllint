@@ -45,13 +45,43 @@ type TestingConfig struct {
 	// Expects a JUnit XML file, which when using `pytest` can be generated with `pytest --junitxml=tests-report.xml`
 	Report string `yaml:"report" toml:"report"`
 
+	// Settings about how many tests there should be in a project.
+	Targets TestingTargets `yaml:"targets" toml:"targets"`
+
+	// Settings about the rules for checking project test coverage.
+	Coverage TestCoverage `yaml:"coverage" toml:"coverage"`
+}
+
+type TestingTargets struct {
+	// Minimum amount of test files to have in a project. Absolute number. Defaults to 1.
+	Minimum uint64 `yaml:"minimum" toml:"minimum"`
+
+	// Ratio of test files to have in a project, i.e. number of test files per other Python file.
+	// Defaults to 1 part tests to 4 parts non-tests
+	Ratio TestingTargetsRatio `yaml:"ratio" toml:"ratio"`
+}
+
+type TestingTargetsRatio struct {
+	// Number of parts of test files.
+	Tests uint64 `yaml:"tests" toml:"tests"`
+	// Number of parts of other Python files.
+	Other uint64 `yaml:"other" toml:"other"`
+}
+
+type TestCoverage struct {
 	// Filename of the project's test coverage report, either absolute or relative to the project's root.
 	// Expects a Cobertura-compatible XML file, which can be generated after `coverage run -m pytest --junitxml=tests-report.xml`
-	// with `coverage xml -o tests-coverage.xml`
-	Coverage string `yaml:"coverage" toml:"coverage"`
+	// with `coverage xml -o tests-coverage.xml`, or using the `pytest-cov` plugin.
+	Report string `yaml:"report" toml:"report"`
 
-	// Target percentage of line test coverage to achieve for this project
-	CoverageTarget float64 `yaml:"coverageTarget" toml:"coverageTarget"`
+	// Specifies the target amount of line / branch / whatever coverage that the user wants want to have in the project
+	// Only line coverage is implemented so far.
+	Targets TestCoverageTargets `yaml:"targets" toml:"targets"`
+}
+
+type TestCoverageTargets struct {
+	// Target amount of overall line coverage to achieve in tests.
+	Line float64 `yaml:"line" toml:"line"`
 }
 
 //---------------------------------------------------------------------------------------
@@ -61,7 +91,20 @@ func Default() *Config {
 		Rules:       RuleConfig{Disabled: []string{}},
 		Git:         GitConfig{MaxFileSize: 10_000_000}, // 10 MB
 		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort", "bandit"}},
-		Testing:     TestingConfig{CoverageTarget: 80},
+		Testing: TestingConfig{
+			Targets: TestingTargets{
+				Minimum: 1,
+				Ratio: TestingTargetsRatio{
+					Tests: 1,
+					Other: 4,
+				},
+			},
+			Coverage: TestCoverage{
+				Targets: TestCoverageTargets{
+					Line: 80,
+				},
+			},
+		},
 	}
 }
 
