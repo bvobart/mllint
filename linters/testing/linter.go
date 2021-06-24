@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/bvobart/gocover-cobertura/cobertura"
+	"github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize/english"
 	"github.com/joshdk/go-junit"
 
 	"github.com/bvobart/mllint/api"
@@ -72,21 +74,30 @@ func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Projec
 		return
 	}
 
-	if len(l.TestFiles) < int(l.Config.Targets.Minimum) {
+	numTests := len(l.TestFiles)
+	if numTests < int(l.Config.Targets.Minimum) {
 		report.Scores[RuleHasTests] = 0
-		report.Details[RuleHasTests] = fmt.Sprintf("There are **%d** test files in your project, but `mllint` was expecting at least **%d**.", len(l.TestFiles), l.Config.Targets.Minimum)
+		report.Details[RuleHasTests] = fmt.Sprintf("There %s **%d** test files in your project, but `mllint` was expecting at least **%d**.", english.PluralWord(numTests, "is", "are"), numTests, l.Config.Targets.Minimum)
 		return
 	}
 
-	// determine expected ratio of test files vs. other Python files
+	// determine expected and actual ratio of test files vs. other Python files
 	expectedRatio := float64(l.Config.Targets.Ratio.Tests) / float64(l.Config.Targets.Ratio.Other)
-	actualRatio := float64(len(l.TestFiles)) / float64(len(project.PythonFiles))
+	actualRatio := float64(numTests) / float64(len(project.PythonFiles)-numTests) // project.PythonFiles includes the test files, so we subtract them
+	// score is basically: actual ratio / expected ratio
 	report.Scores[RuleHasTests] = math.Min(100*actualRatio/expectedRatio, 100)
+
+	// add details
+	fileStr := english.PluralWord(numTests, "file", "")
 	if actualRatio < expectedRatio {
-		report.Details[RuleHasTests] = fmt.Sprintf("There are **%d** test files in your project, which meets the minimum of **%d** test files required.", len(l.TestFiles), l.Config.Targets.Minimum)
-		report.Details[RuleHasTests] += fmt.Sprintf("\n\nHowever, this only equates to **%.1f%%** of Python files in your project being tests, while `mllint` expects that **%.1f%%** of your project's Python files are tests.", 100*actualRatio, 100*expectedRatio)
+		report.Details[RuleHasTests] = fmt.Sprintf("There %s **%d** test %s in your project, which meets the minimum of **%d** test %s required.", english.PluralWord(numTests, "is", "are"), numTests, fileStr, l.Config.Targets.Minimum, fileStr)
+		report.Details[RuleHasTests] += fmt.Sprintf("\n\nHowever, this only equates to **%s%%** of Python files in your project being tests, while `mllint` expects that **%s%%** of your project's Python files are tests.", humanize.Ftoa(100*actualRatio), humanize.Ftoa(100*expectedRatio))
 	} else {
-		report.Details[RuleHasTests] = fmt.Sprintf("Great! Your project contains **%d** test files, which meets the minimum of **%d** test files required.\nThis equates to **%.1f%%** of Python files in your project being tests, which meets the target ratio of **%.1f%%**", len(l.TestFiles), l.Config.Targets.Minimum, 100*actualRatio, 100*expectedRatio)
+		report.Details[RuleHasTests] = fmt.Sprintf(
+			`Great! Your project contains **%d** test %s, which meets the minimum of **%d** test files required.
+This equates to **%s%%** of Python files in your project being tests, which meets the target ratio of **%s%%**`,
+			numTests, fileStr, l.Config.Targets.Minimum, humanize.Ftoa(100*actualRatio), humanize.Ftoa(100*expectedRatio),
+		)
 	}
 }
 

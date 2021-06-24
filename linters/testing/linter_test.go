@@ -44,6 +44,7 @@ func TestTestingLinter(t *stdtesting.T) {
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
 				require.NoError(t, err)
 				require.EqualValues(t, 0, report.Scores[testing.RuleHasTests])
+				require.Equal(t, "There are **0** test files in your project, but `mllint` was expecting at least **1**.", report.Details[testing.RuleHasTests])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
@@ -57,6 +58,10 @@ func TestTestingLinter(t *stdtesting.T) {
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
 				require.NoError(t, err)
 				require.EqualValues(t, 25, report.Scores[testing.RuleHasTests])
+				require.Contains(t, report.Details[testing.RuleHasTests], "There is **1** test file in your project")
+				require.Contains(t, report.Details[testing.RuleHasTests], "minimum of **1** test file required")
+				require.Contains(t, report.Details[testing.RuleHasTests], "equates to **6.25%** of Python files in your project being tests")
+				require.Contains(t, report.Details[testing.RuleHasTests], "`mllint` expects that **25%** of your project's Python files are tests")
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
@@ -69,32 +74,53 @@ func TestTestingLinter(t *stdtesting.T) {
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
 				require.NoError(t, err)
 				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
+				require.Contains(t, report.Details[testing.RuleHasTests], "Your project contains **4** test files")
+				require.Contains(t, report.Details[testing.RuleHasTests], "meets the minimum of **1** test files required")
+				require.Contains(t, report.Details[testing.RuleHasTests], "equates to **25%** of Python files in your project being tests")
+				require.Contains(t, report.Details[testing.RuleHasTests], "meets the target ratio of **25%**")
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
 			},
 		},
 		{
-			Name:    "FourTestsSixteenFiles/InTestsFolder",
-			Dir:     ".",
-			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix("tests"))),
+			Name: "FourTestsSixteenFiles/InTestsFolder",
+			Dir:  ".",
+			Options: testutils.NewOptions().UsePythonFiles(
+				createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix("tests")),
+			),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
 				require.NoError(t, err)
 				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
-				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
-				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.EqualValues(t, 100, report.Scores[testing.RuleTestsFolder])
 			},
 		},
 		{
-			Name:    "FourTestsSixteenFiles/InTestsFolderAbsolute",
-			Dir:     utils.AbsolutePath("."),
-			Options: testutils.NewOptions().UsePythonFiles(createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix(path.Join(utils.AbsolutePath("."), "tests")))),
+			Name: "FourTestsSixteenFiles/HalfInTestsFolder",
+			Dir:  ".",
+			Options: testutils.NewOptions().UsePythonFiles(
+				createPythonFilenames(16).
+					Concat(createPythonTestFilenames(2).Prefix("tests")).
+					Concat(createPythonTestFilenames(2)),
+			),
 			Expect: func(t *stdtesting.T, report api.Report, err error) {
 				require.NoError(t, err)
 				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
-				require.EqualValues(t, 0, report.Scores[testing.RuleTestsPass])
-				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
+				require.EqualValues(t, 50, report.Scores[testing.RuleTestsFolder])
+				require.Contains(t, report.Details[testing.RuleTestsFolder], "The following test files have been detected that are **not** in the `tests` folder at the root of your project")
+				require.Contains(t, report.Details[testing.RuleTestsFolder], "- file0_test.py")
+				require.Contains(t, report.Details[testing.RuleTestsFolder], "- file1_test.py")
+			},
+		},
+		{
+			Name: "FourTestsSixteenFiles/InTestsFolderAbsolute",
+			Dir:  utils.AbsolutePath("."),
+			Options: testutils.NewOptions().UsePythonFiles(
+				createPythonFilenames(16).Concat(createPythonTestFilenames(4).Prefix(path.Join(utils.AbsolutePath("."), "tests"))),
+			),
+			Expect: func(t *stdtesting.T, report api.Report, err error) {
+				require.NoError(t, err)
+				require.EqualValues(t, 100, report.Scores[testing.RuleHasTests])
 				require.EqualValues(t, 100, report.Scores[testing.RuleTestsFolder])
 			},
 		},
