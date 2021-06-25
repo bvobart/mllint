@@ -43,23 +43,21 @@ func FolderIsEmpty(filename string) (bool, error) {
 // Will return a non-nil error when either no or more than one files match.
 // Returns the opened file otherwise.
 func OpenFile(folder string, pattern string) (*os.File, error) {
-	matches, err := filepath.Glob(folder + "/" + pattern)
+	matches, err := filepath.Glob(path.Join(folder, pattern))
 	if err != nil {
 		return nil, err
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(matches) == 0 {
-		return nil, fmt.Errorf("did not find a file matching %s in folder %s/%s: %w", pattern, cwd, folder, os.ErrNotExist)
-	} else if len(matches) > 1 {
-		return nil, fmt.Errorf("pattern %s in folder %s/%s matches multiple files: %+v", pattern, cwd, folder, matches)
-	} else {
+	if len(matches) == 1 {
 		return os.Open(matches[0])
 	}
+
+	folderpath := AbsolutePath(folder)
+	if len(matches) == 0 {
+		return nil, fmt.Errorf("did not find a file matching %s in folder %s: %w", pattern, folderpath, os.ErrNotExist)
+	}
+
+	return nil, fmt.Errorf("pattern %s in folder %s matches multiple files: %+v", pattern, folderpath, matches)
 }
 
 // AbsolutePath returns the absolute path to the given file.
