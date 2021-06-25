@@ -1,6 +1,3 @@
-ignore:
-  - linters/testing/test-resources
-
 coverage:
   status:
     project:

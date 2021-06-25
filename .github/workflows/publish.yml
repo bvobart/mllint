@@ -52,6 +52,11 @@ jobs:
           name: mllint-binaries
           path: ./dist
 
+      - name: Upload code coverage to Codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          files: coverage.txt
+
   build_wheels:
     name: Build Pip wheels on ${{ matrix.os }}
     needs: build_golang

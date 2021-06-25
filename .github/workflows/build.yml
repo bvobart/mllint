@@ -43,3 +43,5 @@ jobs:
 
       - name: Upload code coverage to Codecov.io
         uses: codecov/codecov-action@v1
+        with:
+          files: coverage.txt
