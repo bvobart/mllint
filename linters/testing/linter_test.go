@@ -32,7 +32,7 @@ func TestTestingLinter(t *stdtesting.T) {
 
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "No test coverage report was provided")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "update the `testing.coverage` setting")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "update the `testing.coverage.report` setting")
 
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestsFolder])
 			},
@@ -282,7 +282,7 @@ func TestTestingLinter(t *stdtesting.T) {
 				require.EqualValues(t, 0, report.Scores[testing.RuleTestCoverage])
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "`non-existant-file.xml`")
 				require.Contains(t, report.Details[testing.RuleTestCoverage], "file could not be found")
-				require.Contains(t, report.Details[testing.RuleTestCoverage], "update the `testing.coverage` setting")
+				require.Contains(t, report.Details[testing.RuleTestCoverage], "update the `testing.coverage.report` setting")
 			},
 		},
 		{

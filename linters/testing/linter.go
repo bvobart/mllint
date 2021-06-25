@@ -207,14 +207,14 @@ Please make sure your test report file is a valid JUnit XML file. %s`, l.Config.
 func (l *TestingLinter) ScoreRuleTestCoverage(report *api.Report, project api.Project) {
 	if l.Config.Coverage.Report == "" {
 		report.Scores[RuleTestCoverage] = 0
-		report.Details[RuleTestCoverage] = "No test coverage report was provided. Please update the `testing.coverage` setting in your project's `mllint` configuration to specify the path to your project's test coverage report.\n\n" + howToMakeCoverageXML
+		report.Details[RuleTestCoverage] = "No test coverage report was provided. Please update the `testing.coverage.report` setting in your project's `mllint` configuration to specify the path to your project's test coverage report.\n\n" + howToMakeCoverageXML
 		return
 	}
 
 	covReportFile, err := utils.OpenFile(project.Dir, l.Config.Coverage.Report)
 	if err != nil {
 		report.Scores[RuleTestCoverage] = 0
-		report.Details[RuleTestCoverage] = fmt.Sprintf("A test coverage report was provided, namely `%s`, but this file could not be found or opened (%s). Please update the `testing.coverage` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Coverage.Report, err.Error())
+		report.Details[RuleTestCoverage] = fmt.Sprintf("A test coverage report was provided, namely `%s`, but this file could not be found or opened (%s). Please update the `testing.coverage.report` setting in your project's `mllint` configuration to fix the path to your project's test report. Remember that this path must be relative to the root of your project directory.", l.Config.Coverage.Report, err.Error())
 		return
 	}
 
