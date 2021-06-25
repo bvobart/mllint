@@ -82,8 +82,9 @@ func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Projec
 	}
 
 	// determine expected and actual ratio of test files vs. other Python files
-	expectedRatio := float64(l.Config.Targets.Ratio.Tests) / float64(l.Config.Targets.Ratio.Other)
-	actualRatio := float64(numTests) / float64(len(project.PythonFiles)-numTests) // project.PythonFiles includes the test files, so we subtract them
+	ratioTotal := float64(l.Config.Targets.Ratio.Tests + l.Config.Targets.Ratio.Other)
+	expectedRatio := float64(l.Config.Targets.Ratio.Tests) / ratioTotal
+	actualRatio := float64(numTests) / float64(len(project.PythonFiles))
 	// score is basically: actual ratio / expected ratio
 	report.Scores[RuleHasTests] = math.Min(100*actualRatio/expectedRatio, 100)
 
@@ -95,6 +96,7 @@ func (l *TestingLinter) ScoreRuleHasTests(report *api.Report, project api.Projec
 	} else {
 		report.Details[RuleHasTests] = fmt.Sprintf(
 			`Great! Your project contains **%d** test %s, which meets the minimum of **%d** test files required.
+
 This equates to **%s%%** of Python files in your project being tests, which meets the target ratio of **%s%%**`,
 			numTests, fileStr, l.Config.Targets.Minimum, humanize.Ftoa(100*actualRatio), humanize.Ftoa(100*expectedRatio),
 		)
@@ -257,11 +259,11 @@ Please make sure your test report file is a valid Cobertura-compatible XML file.
 //---------------------------------------------------------------------------------------
 
 const howToMakeJUnitXML = "When using `pytest` to run your project's tests, use the `--junitxml=<filename>` option to generate such a test report, e.g.:" + `
-` + "```" + `
+` + "```sh" + `
 pytest --junitxml=tests-report.xml
 ` + "```\n"
 
 const howToMakeCoverageXML = "Generating a test coverage report with `pytest` can be done by adding and installing `pytest-cov` as a development dependency of your project. Then use the following command to run your tests and generate both a test report as well as a coverage report:" + `
-` + "```" + `
+` + "```sh" + `
 pytest --junitxml=tests-report.xml --cov=path_to_package_under_test --cov-report=xml
 ` + "```\n"
