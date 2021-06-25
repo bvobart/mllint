@@ -121,6 +121,20 @@ func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 // Filenames is simply an alias for []string, but allows me to add some methods.
 type Filenames []string
 
+func (names Filenames) Concat(extra Filenames) Filenames {
+	return append(names, extra...)
+}
+
+func (names Filenames) Filter(shouldInclude func(filename string) bool) Filenames {
+	result := Filenames{}
+	for _, filename := range names {
+		if shouldInclude(filename) {
+			result = append(result, filename)
+		}
+	}
+	return result
+}
+
 // Prefix prefixes each of the filenames with a directory name.
 // i.e. Filenames{"name.py"}.Prefix("something") becomes Filenames{"something/name.py"}
 func (names Filenames) Prefix(dir string) Filenames {

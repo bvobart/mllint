@@ -109,10 +109,34 @@ and may also include dynamic checks on the data that is currently in the reposit
 var Testing = api.Category{
 	Name: "Testing",
 	Slug: "testing",
-	Description: `This category deals with the way your project is being tested.
+	Description: `Testing in the context of Software Engineering refers to the practice of writing automated checks to ensure that something works as intended.
+Testing ML systems is, however, different from testing traditional software systems.
+In traditional software systems, **humans write** all the logic that processes whatever data the system handles,
+whereas in ML systems, **humans provide examples** (training data) of what we want the desired behaviour to be and the **machine learns** the logic required to produce this behaviour.
 
-It is not implemented yet. The idea is that this will contain some rules to check whether you have tests, what your latest test results were, how good your test coverage is,
-and probably also something on whether you're actually testing your ML code or not.`,
+Properly testing ML systems is not only limited to testing the output behaviour of the system, but also entails, e.g.:
+- ensuring that data preparation is done correctly and consistently
+- ensuring that data featurisation is done correctly and consistent
+- ensuring that the data is fed into the learning process correctly, e.g. testing helper functions
+- ensuring that the learned logic consistently and accurately produces the desired behaviour
+
+This category contains several rules relating to whether and to what degree you are testing the code of your ML project.
+Per default, ` + "`mllint`" + ` expects **at least one test file** to be implemented in your project ` + "(i.e. a Python file starting with `test_` or ending with `_test.py`)" + `
+and recommends that you have **at least 1 test file** for **every 4 non-test files**, though both these targets are configurable.
+See the default configuration and the description of rule ` + "`testing/has-tests`" + ` for more information on how to configure this.
+
+For ` + "`mllint`" + ` to be able to assess whether your project's tests pass and what coverage these tests achieve,
+we will **not** actually run your tests. Instead, we expect you to run your project's tests yourself and provide 
+the filenames to a JUnit-compatible XML test report and a Cobertura-compatible XML coverage report in your project's ` + "`mllint`" + ` configuration.
+See the description of rule ` + "`testing/pass` and `testing/coverage`" + ` for more information on how to generate and configure these.
+
+---
+
+Here are some links to interesting blogs that give more in-depth information about different techniques for testing ML systems:
+- [MadeWithML - Testing ML Systems: Code, Data and Models](https://madewithml.com/courses/mlops/testing/)
+- [Jeremy Jordan - Effective testing for machine learning systems](https://www.jeremyjordan.me/testing-ml/)
+
+> *"When writing tests for machine learning systems, one must not only test the student (the ML model), but also the teacher (the code that produces the ML model)." — Bart van Oort (bvobart)*`,
 }
 
 var ContinuousIntegration = api.Category{

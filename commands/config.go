@@ -6,11 +6,12 @@ import (
 	"github.com/fatih/color"
 	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/utils"
 )
+
+var outputToml = false
 
 func NewConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -28,6 +29,7 @@ Specifying %s or %s will cause this command to purely print the current or defau
 		RunE: runConfig,
 		Args: cobra.MaximumNArgs(1),
 	}
+	cmd.Flags().BoolVarP(&outputToml, "toml", "t", false, "Specify this flag to output the config in TOML format instead of the default is YAML output.")
 	return cmd
 }
 
@@ -50,7 +52,12 @@ func runConfig(_ *cobra.Command, args []string) error {
 	shush(func() { fmt.Print("---\n\n") })
 
 	// print the config
-	output, err := yaml.Marshal(conf)
+	var output []byte
+	if outputToml {
+		output, err = conf.TOML()
+	} else {
+		output, err = conf.YAML()
+	}
 	if err != nil {
 		return err
 	}
@@ -63,7 +70,13 @@ func runConfig(_ *cobra.Command, args []string) error {
 func runConfigDefault() error {
 	shush(func() { color.Green("Using default configuration\n\n") })
 
-	output, err := yaml.Marshal(config.Default())
+	var output []byte
+	var err error
+	if outputToml {
+		output, err = config.Default().TOML()
+	} else {
+		output, err = config.Default().YAML()
+	}
 	if err != nil {
 		return err
 	}

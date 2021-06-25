@@ -18,6 +18,7 @@ type Config struct {
 	Rules       RuleConfig        `yaml:"rules" toml:"rules"`
 	Git         GitConfig         `yaml:"git" toml:"git"`
 	CodeQuality CodeQualityConfig `yaml:"code-quality" toml:"code-quality"`
+	Testing     TestingConfig     `yaml:"testing" toml:"testing"`
 }
 
 // RuleConfig contains info about which rules are enabled / disabled.
@@ -32,18 +33,82 @@ type GitConfig struct {
 	MaxFileSize uint64 `yaml:"maxFileSize" toml:"maxFileSize"`
 }
 
+// CodeQualityConfig contains the configuration for the CQ linters used in the Code Quality category
 type CodeQualityConfig struct {
 	// Defines all code linters to use in the Code Quality category
 	Linters []string `yaml:"linters" toml:"linters"`
 }
+
+// TestingConfig contains the configuration for the rules in the Testing category.
+type TestingConfig struct {
+	// Filename of the project's test execution report, either absolute or relative to the project's root.
+	// Expects a JUnit XML file, which when using `pytest` can be generated with `pytest --junitxml=tests-report.xml`
+	Report string `yaml:"report" toml:"report"`
+
+	// Settings about how many tests there should be in a project.
+	Targets TestingTargets `yaml:"targets" toml:"targets"`
+
+	// Settings about the rules for checking project test coverage.
+	Coverage TestCoverage `yaml:"coverage" toml:"coverage"`
+}
+
+type TestingTargets struct {
+	// Minimum amount of test files to have in a project. Absolute number. Defaults to 1.
+	Minimum uint64 `yaml:"minimum" toml:"minimum"`
+
+	// Ratio of test files to have in a project, i.e. number of test files per other Python file.
+	// Defaults to 1 part tests to 4 parts non-tests
+	Ratio TestingTargetsRatio `yaml:"ratio" toml:"ratio"`
+}
+
+type TestingTargetsRatio struct {
+	// Number of parts of test files.
+	Tests uint64 `yaml:"tests" toml:"tests"`
+	// Number of parts of other Python files.
+	Other uint64 `yaml:"other" toml:"other"`
+}
+
+type TestCoverage struct {
+	// Filename of the project's test coverage report, either absolute or relative to the project's root.
+	// Expects a Cobertura-compatible XML file, which can be generated after `coverage run -m pytest --junitxml=tests-report.xml`
+	// with `coverage xml -o tests-coverage.xml`, or using the `pytest-cov` plugin.
+	Report string `yaml:"report" toml:"report"`
+
+	// Specifies the target amount of line / branch / whatever coverage that the user wants want to have in the project
+	// Only line coverage is implemented so far.
+	Targets TestCoverageTargets `yaml:"targets" toml:"targets"`
+}
+
+type TestCoverageTargets struct {
+	// Target amount of overall line coverage to achieve in tests.
+	Line float64 `yaml:"line" toml:"line"`
+}
+
+//---------------------------------------------------------------------------------------
 
 func Default() *Config {
 	return &Config{
 		Rules:       RuleConfig{Disabled: []string{}},
 		Git:         GitConfig{MaxFileSize: 10_000_000}, // 10 MB
 		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort", "bandit"}},
+		Testing: TestingConfig{
+			Targets: TestingTargets{
+				Minimum: 1,
+				Ratio: TestingTargetsRatio{
+					Tests: 1,
+					Other: 4,
+				},
+			},
+			Coverage: TestCoverage{
+				Targets: TestCoverageTargets{
+					Line: 80,
+				},
+			},
+		},
 	}
 }
+
+//---------------------------------------------------------------------------------------
 
 type FileType string
 
@@ -59,6 +124,8 @@ func (t FileType) String() string {
 	}
 	return string(t)
 }
+
+//---------------------------------------------------------------------------------------
 
 // ParseFromDir parses the mllint config from the given project directory.
 // If an `.mllint.yml` file is present, then this will be used,
@@ -130,4 +197,16 @@ func ParseTOML(reader io.Reader) (*Config, error) {
 	}
 
 	return tomlFile.Tool.Mllint, nil
+}
+
+//---------------------------------------------------------------------------------------
+
+func (conf *Config) YAML() ([]byte, error) {
+	return yaml.Marshal(conf)
+}
+
+func (conf *Config) TOML() ([]byte, error) {
+	pyproject := pyprojectTOML{}
+	pyproject.Tool.Mllint = conf
+	return toml.Marshal(pyproject)
 }

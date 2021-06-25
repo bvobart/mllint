@@ -30,6 +30,20 @@ code-quality:
     - black
 `
 
+const yamlTesting = `
+testing:
+    report: junit-report.xml
+    targets:
+        minimum: 2
+        ratio:
+            tests: 2
+            other: 8
+    coverage:
+        report: coverage.xml
+        targets:
+            line: 50 # percent line coverage.
+`
+
 const yamlInvalid = `
 rules:
   disabled: nothing
@@ -47,6 +61,13 @@ const tomlRulesDisabled = `
 const tomlLinters = `
 [tool.mllint.code-quality]
 linters = ["pylint", "mypy"]
+`
+
+const tomlTesting = `
+[tool.mllint.testing]
+report = "tests-report.xml"
+targets = { minimum = 2, ratio = { tests = 2, other = 8 }}
+coverage = { report = "coverage.xml", targets = { line = 100.0 }}
 `
 
 const tomlInvalid = `
@@ -93,6 +114,21 @@ func TestParseYAML(t *testing.T) {
 			Expected: func() *config.Config {
 				c := config.Default()
 				c.CodeQuality.Linters = []string{"pylint", "mypy", "black"}
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "YamlTesting",
+			File: strings.NewReader(yamlTesting),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.Testing.Report = "junit-report.xml"
+				c.Testing.Targets.Minimum = 2
+				c.Testing.Targets.Ratio.Tests = 2
+				c.Testing.Targets.Ratio.Other = 8
+				c.Testing.Coverage.Report = "coverage.xml"
+				c.Testing.Coverage.Targets.Line = 50
 				return c
 			}(),
 			Err: nil,
@@ -162,6 +198,21 @@ func TestParseTOML(t *testing.T) {
 			Expected: func() *config.Config {
 				c := config.Default()
 				c.CodeQuality.Linters = []string{"pylint", "mypy"}
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "TomlTesting",
+			File: strings.NewReader(tomlTesting),
+			Expected: func() *config.Config {
+				c := config.Default()
+				c.Testing.Report = "tests-report.xml"
+				c.Testing.Targets.Minimum = 2
+				c.Testing.Targets.Ratio.Tests = 2
+				c.Testing.Targets.Ratio.Other = 8
+				c.Testing.Coverage.Report = "coverage.xml"
+				c.Testing.Coverage.Targets.Line = 100
 				return c
 			}(),
 			Err: nil,

@@ -24,6 +24,7 @@ dockers:
       - --build-arg=python_version=3.6
     extra_files:
       - build/requirements-tools.txt
+    use_buildx: true
 
   - image_templates:
       - bvobart/mllint:latest-py3.7
@@ -32,6 +33,7 @@ dockers:
       - --build-arg=python_version=3.7
     extra_files:
       - build/requirements-tools.txt
+    use_buildx: true
 
   - image_templates:
       - bvobart/mllint:latest-py3.8
@@ -40,6 +42,7 @@ dockers:
       - --build-arg=python_version=3.8
     extra_files:
       - build/requirements-tools.txt
+    use_buildx: true
 
   - image_templates:
       - bvobart/mllint:latest
@@ -50,6 +53,7 @@ dockers:
       - --build-arg=python_version=3.9
     extra_files:
       - build/requirements-tools.txt
+    use_buildx: true
 
 archives:
   - format: tar.gz
