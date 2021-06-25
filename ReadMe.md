@@ -3,6 +3,7 @@
 <p align="center">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/bvobart/mllint/Build%20mllint%20and%20upload%20to%20PyPI">
   <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/bvobart/mllint">
+  <a href="https://pkg.go.dev/github.com/bvobart/mllint"><img src="https://pkg.go.dev/badge/github.com/bvobart/mllint.svg" alt="Go Reference"></a>
   <a href="https://codecov.io/gh/bvobart/mllint"><img alt="Code coverage" src="https://codecov.io/gh/bvobart/mllint/branch/main/graph/badge.svg?token=K9PJMGMFVI"/></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Linux%20%7C%20MacOS%20%7C%20Windows-informational">
 </p>
