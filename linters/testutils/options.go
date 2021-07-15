@@ -2,12 +2,14 @@ package testutils
 
 import (
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/utils"
 )
 
 type LinterTestOptions struct {
 	conf              *config.Config
+	runner            mllint.Runner
 	detectPythonFiles bool
 	detectDepManagers bool
 	detectCQLinters   bool
@@ -52,5 +54,10 @@ func (opts *LinterTestOptions) UseCQLinters(linters []api.CQLinter) *LinterTestO
 
 func (opts *LinterTestOptions) WithConfig(conf *config.Config) *LinterTestOptions {
 	opts.conf = conf
+	return opts
+}
+
+func (opts *LinterTestOptions) WithRunner(runner mllint.Runner) *LinterTestOptions {
+	opts.runner = runner
 	return opts
 }

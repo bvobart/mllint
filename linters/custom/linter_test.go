@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters/custom"
 	"github.com/bvobart/mllint/linters/testutils"
@@ -13,10 +14,19 @@ import (
 
 func TestCustomLinter(t *testing.T) {
 	linter := custom.NewLinter()
-	require.Equal(t, "Custom", linter.Name())
+	require.Equal(t, "Custom Rules", linter.Name())
 	require.Equal(t, []*api.Rule(nil), linter.Rules())
 
 	suite := testutils.NewLinterTestSuite(linter, []testutils.LinterTest{
+		{
+			Name:    "NoCustomRules",
+			Dir:     ".",
+			Options: testutils.NewOptions().WithConfig(config.Default()),
+			Expect: func(t *testing.T, report api.Report, err error) {
+				require.NoError(t, err)
+				require.Equal(t, api.NewReport(), report)
+			},
+		},
 		{
 			Name: "SimpleEcho",
 			Dir:  ".",
@@ -85,11 +95,16 @@ func TestCustomLinter(t *testing.T) {
 				require.Contains(t, err.Error(), "custom rule `custom/error-rule-3` was run, but exited with an error: exit status 1")
 				require.Contains(t, err.Error(), "custom rule `custom/error-rule-4` was run, but exited with an error: exit status 1")
 				require.Contains(t, err.Error(), "```\ndate: invalid option -- 'e'\nTry 'date --help' for more information.\n```")
-				require.Contains(t, err.Error(), "custom rule `custom/error-rule-5` executed successfully, but the output was not a valid JSON / YAML object: yaml: did not find expected key. Output: `score 100, details: \"\" }`")
+				require.Contains(t, err.Error(), "custom rule `custom/error-rule-5` executed successfully, but the output was not a valid YAML or JSON object: yaml: did not find expected key. Output: `score 100, details: \"\" }`")
 			},
 		},
 	})
-	suite.DefaultOptions().WithConfig(config.Default())
+
+	runner := mllint.NewMLLintRunner(nil)
+	runner.Start()
+	defer runner.Close()
+
+	suite.DefaultOptions().WithConfig(config.Default()).WithRunner(runner)
 	suite.RunAll(t)
 }
 

@@ -27,7 +27,7 @@ type CustomLinter struct {
 }
 
 func (l *CustomLinter) Name() string {
-	return "Custom"
+	return "Custom Rules"
 }
 
 func (l *CustomLinter) Configure(conf *config.Config) error {
@@ -54,44 +54,68 @@ func (l *CustomLinter) SetRunner(runner mllint.Runner) {
 func (l *CustomLinter) LintProject(project api.Project) (api.Report, error) {
 	report := api.NewReport()
 
-	var multiErr *multierror.Error
+	// create linters from each of the rules and schedule each of them for execution on the mllint.Runner
+	tasks := []*mllint.RunnerTask{}
 	for customRule, rule := range l.customRules {
-		var err error
-		report.Scores[*rule], report.Details[*rule], err = l.runCustomRule(project, customRule)
-		if err != nil {
-			multiErr = multierror.Append(multiErr, err)
-			continue
-		}
+		customLinter := customRuleLinter{customRule, *rule}
+		task := l.runner.RunLinter(rule.Slug, &customLinter, project)
+		tasks = append(tasks, task)
 	}
+
+	// collect all the results
+	var multiErr *multierror.Error
+	mllint.ForEachTask(l.runner.CollectTasks(tasks...), func(task *mllint.RunnerTask, result mllint.LinterResult) {
+		report = api.MergeReports(report, result.Report)
+		multiErr = multierror.Append(multiErr, result.Err)
+	})
 
 	return report, multiErr.ErrorOrNil()
 }
 
-func (l *CustomLinter) runCustomRule(project api.Project, rule config.CustomRule) (float64, string, error) {
-	// TODO: run these rules in their own processes on a runner
-
-	cmdparts, err := shlex.Split(rule.Run)
-	if err != nil {
-		return 0, "", fmt.Errorf("custom rule `%s` has invalid run command `%s`: %w", rule.Slug, rule.Run, err)
-	}
-
-	output, err := exec.CommandCombinedOutput(project.Dir, cmdparts[0], cmdparts[1:]...)
-	if err != nil {
-		return 0, "", fmt.Errorf("custom rule `%s` was run, but exited with an error: %w.%s", rule.Slug, err, formatOutput(output))
-	}
-
-	var result customRuleResult
-	if err := yaml.Unmarshal(output, &result); err != nil {
-		return 0, "", fmt.Errorf("custom rule `%s` executed successfully, but the output was not a valid JSON / YAML object: %w.%s", rule.Slug, err, formatOutput(output))
-	}
-
-	return result.Score, result.Details, nil
-}
+//---------------------------------------------------------------------------------------
 
 // describes the expected structure of what the execution of a custom rule should result in
 type customRuleResult struct {
 	Score   float64 `json:"score" yaml:"score"`
 	Details string  `json:"details" yaml:"details"`
+}
+
+//---------------------------------------------------------------------------------------
+
+type customRuleLinter struct {
+	customRule config.CustomRule
+	rule       api.Rule
+}
+
+func (l *customRuleLinter) Name() string {
+	return "Custom Rule - " + l.rule.Name
+}
+
+// otherwise unused, but it's here to ensure customRuleLinter implements api.Linter
+func (l *customRuleLinter) Rules() []*api.Rule { return []*api.Rule{&l.rule} }
+
+// runs the custom rule definition's `run` command in the project's root directory and parses the result as YAML ()
+func (l *customRuleLinter) LintProject(project api.Project) (api.Report, error) {
+	report := api.NewReport()
+
+	cmdparts, err := shlex.Split(l.customRule.Run)
+	if err != nil {
+		return report, fmt.Errorf("custom rule `%s` has invalid run command `%s`: %w", l.customRule.Slug, l.customRule.Run, err)
+	}
+
+	output, err := exec.CommandCombinedOutput(project.Dir, cmdparts[0], cmdparts[1:]...)
+	if err != nil {
+		return report, fmt.Errorf("custom rule `%s` was run, but exited with an error: %w.%s", l.customRule.Slug, err, formatOutput(output))
+	}
+
+	var result customRuleResult
+	if err := yaml.Unmarshal(output, &result); err != nil {
+		return report, fmt.Errorf("custom rule `%s` executed successfully, but the output was not a valid YAML or JSON object: %w.%s", l.customRule.Slug, err, formatOutput(output))
+	}
+
+	report.Scores[l.rule] = result.Score
+	report.Details[l.rule] = result.Details
+	return report, nil
 }
 
 // formats the output of an executed command such that it can be appended to an error.
