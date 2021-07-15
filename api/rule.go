@@ -1,5 +1,7 @@
 package api
 
+import "github.com/bvobart/mllint/config"
+
 // Rule is a struct for defining what a rule looks like that `mllint` will check.
 type Rule struct {
 	// Slug should be a lowercased, dashed reference code, e.g. 'git-no-big-files'
@@ -26,4 +28,15 @@ func (r *Rule) Disable() {
 
 func (r *Rule) Enable() {
 	r.Disabled = false
+}
+
+// NewCustomRule creates a new rule based on a custom rule definition as can be configured in `mllint`'s config
+func NewCustomRule(cr config.CustomRule) Rule {
+	return Rule{
+		Slug:     cr.Slug,
+		Name:     cr.Name,
+		Details:  cr.Details,
+		Weight:   cr.Weight,
+		Disabled: false,
+	}
 }
