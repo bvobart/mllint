@@ -181,8 +181,10 @@ Custom rules may also be useful for creating 'plugins' to ` + "`mllint`" + `, th
 that ` + "`mllint`" + ` does not yet have built-in rules for.
 
 ` + "`mllint`" + ` will pick up these custom rules from your configuration and automatically run their checks during its analysis.
-It is also possible to use the ` + "`mllint describe`" + ` command with custom rules. Similarly, ` + "`mllint list all`" + `
-	
+It is also possible to use the ` + "`mllint describe`" + ` command with custom rules. Similarly, ` + "`mllint list all`" + ` also lists all custom linting rules.
+
+---
+
 To create such a custom rule, write a script or program that checks whether your project adheres to a certain practice and prints a simple YAML or JSON object
 containing the score for this rule, possibly along with some detail text. Then, add the rule's name, slug, details and run command
 to your project's ` + "`mllint`" + ` config.
@@ -192,11 +194,22 @@ See the table below for more details about each of the custom rule definition's 
 ` + "```yaml" + `
 rules:
   custom:
-    - name: Project contains a LICENSE file.
+    - name: Project contains a LICENSE file
       slug: custom/is-licensed
       details: This rule checks whether the project contains a LICENSE or LICENSE.md file at the project's root.
       weight: 1
       run: bash ./scripts/mllint/check-license.sh
+` + "```" + `
+
+The equivalent configuration in TOML syntax (for ` + "`pyproject.toml`" + ` files) is as follows. Multiple of these snippets can be repeated for defining more rules.
+
+` + "```toml" + `
+[[tool.mllint.rules.custom]]
+name = "Project contains a LICENSE file"
+slug = "custom/is-licensed"
+details = "This rule checks whether the project contains a LICENSE or LICENSE.md file at the project's root."
+weight = 1.0
+run = "bash ./scripts/mllint/check-license.sh"
 ` + "```" + `
 
 Property | Type | Description
