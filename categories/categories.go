@@ -171,6 +171,75 @@ var Deployment = api.Category{
 It is not yet implemented, but may contain rules about Dockerfiles and configurability, among others.`,
 }
 
+var Custom = api.Category{
+	Name: "Custom Rules",
+	Slug: "custom",
+	Description: "This category enables you to write your own custom evaluation rules for `mllint`. " + `
+Custom rules can be useful for enforcing team, company or organisational practices,
+as well as implementing checks and analyses for how your proprietary / closed-source tools are being used.
+Custom rules may also be useful for creating 'plugins' to ` + "`mllint`" + `, that implement checks on tools
+that ` + "`mllint`" + ` does not yet have built-in rules for.
+
+` + "`mllint`" + ` will pick up these custom rules from your configuration and automatically run their checks during its analysis.
+It is also possible to use the ` + "`mllint describe`" + ` command with custom rules. Similarly, ` + "`mllint list all`" + ` also lists all custom linting rules.
+
+---
+
+To create such a custom rule, write a script or program that checks whether your project adheres to a certain practice and prints a simple YAML or JSON object
+containing the score for this rule, possibly along with some detail text. Then, add the rule's name, slug, details and run command
+to your project's ` + "`mllint`" + ` config.
+
+The following snippet of a YAML ` + "`mllint`" + ` configuration is an example of how a custom rule can be configured.
+See the table below for more details about each of the custom rule definition's properties.
+` + "```yaml" + `
+rules:
+  custom:
+    - name: Project contains a LICENSE file
+      slug: custom/is-licensed
+      details: This rule checks whether the project contains a LICENSE or LICENSE.md file at the project's root.
+      weight: 1
+      run: bash ./scripts/mllint/check-license.sh
+` + "```" + `
+
+The equivalent configuration in TOML syntax (for ` + "`pyproject.toml`" + ` files) is as follows. Multiple of these snippets can be repeated for defining more rules.
+
+` + "```toml" + `
+[[tool.mllint.rules.custom]]
+name = "Project contains a LICENSE file"
+slug = "custom/is-licensed"
+details = "This rule checks whether the project contains a LICENSE or LICENSE.md file at the project's root."
+weight = 1.0
+run = "bash ./scripts/mllint/check-license.sh"
+` + "```" + `
+
+Property | Type | Description
+---------|------|-------------
+` + "`name`" + ` | string | A short and concise sentence on what this rule expects of a project / what the rule enforces on the project. Feel free to take inspiration from the names given to ` + "`mllint`'s" + ` built-in rules.
+` + "`slug`" + ` | string | A unique and URL-friendly identifier for each rule. Should only consist of lowercased letters with dashes for spaces, optionally using slashes for categorisation. For custom rule definitions, the recommended convention is for their slugs to always start with ` + "`custom/`" + `
+` + "`details`" + ` | string | A longer, descriptive, Markdown-formatted text that explains the rule in more detail. This text should explain... _1)_ what exactly the rule checks; _2)_ why the rule checks what it checks, i.e., why is this practice important?; and 3) how should a user fix violations of this rule?
+` + "`weight`" + ` | float | The weight of this rule compared to other rules in the same category. This is used for calculating the category score as a weighted average of the scores of all rules. Zero weight means the rule's results will be shown in the report, but won't count for the category score. Note that YAML accepts any number for this property, e.g. ` + "`4`" + `, but TOML is more strict with typing and requires you to specify a number with a decimal point, e.g. ` + "`4.0`" + `
+` + "`run`" + ` | string | The command to run for evaluating this rule. This command will be run in the project's root directory. Note that the command will be run using Golang's ` + "[`os/exec`](https://pkg.go.dev/os/exec)" + ` package, which _"intentionally does not invoke the system shell and does not expand any glob patterns or handle other expansions, pipelines, or redirections typically done by shells."_ To run shell commands, invoke the shell directly using e.g. ` + "`bash -c 'your command && here'`" + ` or using the example above to execute shell scripts.
+
+The command specified with ` + "`run`" + ` is expected to print a simple YAML (or JSON) object with the following structure: 
+
+Property | Type | Description
+---------|------|-------------
+` + "`score`" + ` | float | The score given to the rule. Must be a number between 0 and 100, i.e., the score is a percentage indicating the degree to which the project adheres to the implemented rule.
+` + "`details`" + ` | string | A Markdown-formatted piece of text that provides details about the given score and what the user can do to fix a violation of this rule. Where applicable, you may also use this to congratulate the user on successful implementation of this rule.
+
+For an example implementation, consider the rule defined in the example configuration above. The script below is a possible implementation of the ` + "`./scripts/mllint/check-license.sh`" + ` script that is referred to by the example.
+
+` + "```bash" + `
+#!/bin/bash
+if [[ -f LICENSE ]] || [[ -f LICENSE.md ]]; then
+  echo 'score: 100'
+else
+  echo 'score: 0'
+  echo 'details: "Your project is missing a LICENSE. Please be sure to include our [company license file](https://link.to/company/license-file/) in your project."'
+fi
+` + "```",
+}
+
 var All = []api.Category{
 	VersionControl,
 	FileStructure,
@@ -180,6 +249,7 @@ var All = []api.Category{
 	Testing,
 	ContinuousIntegration,
 	Deployment,
+	Custom,
 }
 
 var BySlug = makeSlugMap()

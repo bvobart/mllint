@@ -44,6 +44,21 @@ testing:
             line: 50 # percent line coverage.
 `
 
+const yamlCustomRule = `
+rules:
+  custom:
+    - name: Custom Test Rule
+      slug: custom/test-rule
+      details: Tests whether parsing a custom rule from a YAML config works
+      weight: 420
+      run: python ./scripts/mllint-test-rule.py
+    - name: Custom Test Rule
+      slug: custom/test-rule
+      details: Tests whether parsing a custom rule from a YAML config works
+      weight: 420
+      run: python ./scripts/mllint-test-rule.py
+`
+
 const yamlInvalid = `
 rules:
   disabled: nothing
@@ -68,6 +83,23 @@ const tomlTesting = `
 report = "tests-report.xml"
 targets = { minimum = 2, ratio = { tests = 2, other = 8 }}
 coverage = { report = "coverage.xml", targets = { line = 100.0 }}
+`
+const tomlCustomRule = `
+[tool.mllint.rules]
+
+[[tool.mllint.rules.custom]]
+name = "Custom Test Rule"
+slug = "custom/test-rule"
+details = "Tests whether parsing a custom rule from a YAML config works"
+weight = 420.0
+run = "python ./scripts/mllint-test-rule.py"
+
+[[tool.mllint.rules.custom]]
+name = "Custom Test Rule"
+slug = "custom/test-rule"
+details = "Tests whether parsing a custom rule from a YAML config works"
+weight = 420.0
+run = "python ./scripts/mllint-test-rule.py"
 `
 
 const tomlInvalid = `
@@ -129,6 +161,23 @@ func TestParseYAML(t *testing.T) {
 				c.Testing.Targets.Ratio.Other = 8
 				c.Testing.Coverage.Report = "coverage.xml"
 				c.Testing.Coverage.Targets.Line = 50
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "YamlCustomRule",
+			File: strings.NewReader(yamlCustomRule),
+			Expected: func() *config.Config {
+				c := config.Default()
+				customRule := config.CustomRule{
+					Name:    "Custom Test Rule",
+					Slug:    "custom/test-rule",
+					Details: "Tests whether parsing a custom rule from a YAML config works",
+					Weight:  420,
+					Run:     "python ./scripts/mllint-test-rule.py",
+				}
+				c.Rules.Custom = []config.CustomRule{customRule, customRule}
 				return c
 			}(),
 			Err: nil,
@@ -213,6 +262,23 @@ func TestParseTOML(t *testing.T) {
 				c.Testing.Targets.Ratio.Other = 8
 				c.Testing.Coverage.Report = "coverage.xml"
 				c.Testing.Coverage.Targets.Line = 100
+				return c
+			}(),
+			Err: nil,
+		},
+		{
+			Name: "TomlCustomRule",
+			File: strings.NewReader(tomlCustomRule),
+			Expected: func() *config.Config {
+				c := config.Default()
+				customRule := config.CustomRule{
+					Name:    "Custom Test Rule",
+					Slug:    "custom/test-rule",
+					Details: "Tests whether parsing a custom rule from a YAML config works",
+					Weight:  420,
+					Run:     "python ./scripts/mllint-test-rule.py",
+				}
+				c.Rules.Custom = []config.CustomRule{customRule, customRule}
 				return c
 			}(),
 			Err: nil,

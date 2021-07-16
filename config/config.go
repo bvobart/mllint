@@ -21,10 +21,24 @@ type Config struct {
 	Testing     TestingConfig     `yaml:"testing" toml:"testing"`
 }
 
+//---------------------------------------------------------------------------------------
+
 // RuleConfig contains info about which rules are enabled / disabled.
 type RuleConfig struct {
-	Disabled []string `yaml:"disabled" toml:"disabled"`
+	Disabled []string     `yaml:"disabled" toml:"disabled"`
+	Custom   []CustomRule `yaml:"custom" toml:"custom"`
 }
+
+// CustomRule contains the configuration for custom rules
+type CustomRule struct {
+	Name    string  `yaml:"name" toml:"name"`
+	Slug    string  `yaml:"slug" toml:"slug"`
+	Details string  `yaml:"details" toml:"details"`
+	Weight  float64 `yaml:"weight" toml:"weight"`
+	Run     string  `yaml:"run" toml:"run"`
+}
+
+//---------------------------------------------------------------------------------------
 
 // GitConfig contains the configuration for the Git linters.
 type GitConfig struct {
@@ -33,11 +47,15 @@ type GitConfig struct {
 	MaxFileSize uint64 `yaml:"maxFileSize" toml:"maxFileSize"`
 }
 
+//---------------------------------------------------------------------------------------
+
 // CodeQualityConfig contains the configuration for the CQ linters used in the Code Quality category
 type CodeQualityConfig struct {
 	// Defines all code linters to use in the Code Quality category
 	Linters []string `yaml:"linters" toml:"linters"`
 }
+
+//---------------------------------------------------------------------------------------
 
 // TestingConfig contains the configuration for the rules in the Testing category.
 type TestingConfig struct {
@@ -88,9 +106,16 @@ type TestCoverageTargets struct {
 
 func Default() *Config {
 	return &Config{
-		Rules:       RuleConfig{Disabled: []string{}},
-		Git:         GitConfig{MaxFileSize: 10_000_000}, // 10 MB
-		CodeQuality: CodeQualityConfig{Linters: []string{"pylint", "mypy", "black", "isort", "bandit"}},
+		Rules: RuleConfig{
+			Disabled: []string{},
+			Custom:   []CustomRule{},
+		},
+		Git: GitConfig{
+			MaxFileSize: 10_000_000, // 10 MB
+		},
+		CodeQuality: CodeQualityConfig{
+			Linters: []string{"pylint", "mypy", "black", "isort", "bandit"},
+		},
 		Testing: TestingConfig{
 			Targets: TestingTargets{
 				Minimum: 1,

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/commands/mllint"
 	"github.com/bvobart/mllint/setools/cqlinters"
 	"github.com/bvobart/mllint/setools/depmanagers"
 	"github.com/bvobart/mllint/utils"
@@ -64,6 +65,7 @@ func (suite *LinterTestSuite) applyOptions(t *testing.T, testOptions *LinterTest
 	suite.applyDepManagerOptions(t, testOptions, project)
 	suite.applyCQLinterOptions(t, testOptions, project)
 	suite.applyConfigOption(t, testOptions)
+	suite.applyRunnerOption(testOptions)
 }
 
 //---------------------------------------------------------------------------------------
@@ -132,8 +134,24 @@ func (suite *LinterTestSuite) applyConfigOption(t *testing.T, testOptions *Linte
 	}
 }
 
+func (suite *LinterTestSuite) applyRunnerOption(testOptions *LinterTestOptions) {
+	if rlinter, ok := suite.linter.(mllint.LinterWithRunner); ok {
+		if testOptions != nil && testOptions.runner != nil {
+			rlinter.SetRunner(testOptions.runner)
+			return
+		}
+
+		if suite.defaultOpts != nil && suite.defaultOpts.conf != nil {
+			rlinter.SetRunner(suite.defaultOpts.runner)
+			return
+		}
+	}
+}
+
 func (suite *LinterTestSuite) canBeParallelised(test LinterTest) bool {
 	_, isConfigurable := suite.linter.(api.ConfigurableLinter)
+	_, wantsRunner := suite.linter.(mllint.LinterWithRunner)
 	needsConfig := (suite.defaultOpts != nil && suite.defaultOpts.conf != nil) || (test.Options != nil && test.Options.conf != nil)
-	return !(isConfigurable && needsConfig)
+	needsRunner := (suite.defaultOpts != nil && suite.defaultOpts.runner != nil) || (test.Options != nil && test.Options.runner != nil)
+	return !(isConfigurable && needsConfig) && !(wantsRunner && needsRunner)
 }

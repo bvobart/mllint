@@ -10,6 +10,7 @@ import (
 
 	"github.com/bvobart/mllint/linters/ci"
 	"github.com/bvobart/mllint/linters/codequality"
+	"github.com/bvobart/mllint/linters/custom"
 	"github.com/bvobart/mllint/linters/dependencymgmt"
 	"github.com/bvobart/mllint/linters/testing"
 	"github.com/bvobart/mllint/linters/versioncontrol"
@@ -24,6 +25,7 @@ var ByCategory = map[api.Category]api.Linter{
 	categories.ContinuousIntegration: ci.NewLinter(),
 	categories.CodeQuality:           codequality.NewLinter(),
 	categories.Testing:               testing.NewLinter(),
+	categories.Custom:                custom.NewLinter(),
 }
 
 // Disabled contains all the linters for categories that have been disabled using Disable or DisableAll.

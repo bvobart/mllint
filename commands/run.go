@@ -85,13 +85,14 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 	rc.ProjectR.Config = *rc.Config
 	shush(func() { fmt.Print("---\n\n") })
 
-	// disable any rules from config
-	rulesDisabled := linters.DisableAll(rc.Config.Rules.Disabled)
-
 	// configure all linters with config
 	if err = linters.ConfigureAll(rc.Config); err != nil {
 		return err
 	}
+
+	// disable any rules from config.
+	// This is done after configuring each linter, such that any rules arising from the configuration (e.g. custom rules) can also be disabled.
+	rulesDisabled := linters.DisableAll(rc.Config.Rules.Disabled)
 
 	// run pre-analysis checks
 	if err = rc.runPreAnalysisChecks(); err != nil {

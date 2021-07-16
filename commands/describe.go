@@ -9,6 +9,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
+	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/utils/markdown"
 	"github.com/bvobart/mllint/utils/markdowngen"
@@ -38,6 +39,17 @@ func describe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	conf, conftype, err := config.ParseFromDir(".")
+	if err == nil && len(conf.Rules.Custom) > 0 {
+		shush(func() {
+			color.Green("Including %d custom rules from the %s file in the current directory\n\n", len(conf.Rules.Custom), conftype.String())
+		})
+
+		if err := linters.ConfigureAll(conf); err != nil {
+			color.HiYellow("Warning! The mllint configuration file %s contains an error: %s\n\n", conftype.String(), err.Error())
+		}
+	}
+
 	output := strings.Builder{}
 	for i, slug := range args {
 		if i > 0 {
@@ -49,7 +61,8 @@ func describe(cmd *cobra.Command, args []string) error {
 		} else if rules := linters.FindRules(slug); len(rules) > 0 {
 			output.WriteString(describeRules(rules))
 		} else {
-			output.WriteString(color.RedString("No rule or category found that matched: %s\n", color.Set(color.Reset).Sprint(slug)))
+			output.WriteString(color.RedString("No rule or category found that matched: %s\n", color.New(color.FgYellow, color.Italic).Sprint(slug)))
+			continue
 		}
 
 		if outputToFile() || outputToStdout() {
@@ -65,11 +78,7 @@ func describe(cmd *cobra.Command, args []string) error {
 		return writeToOutputFile(output.String())
 	}
 
-	if outputToStdout() {
-		fmt.Println(output.String())
-		return nil
-	}
-
+	fmt.Println(output.String())
 	return nil
 }
 

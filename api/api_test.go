@@ -7,6 +7,7 @@ import (
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/categories"
+	"github.com/bvobart/mllint/config"
 )
 
 func TestCategoryString(t *testing.T) {
@@ -66,4 +67,21 @@ func TestMergeReports(t *testing.T) {
 	expectedReport.Details[rule3] = "something completely different"
 
 	require.Equal(t, expectedReport, finalReport)
+}
+
+func TestNewCustomRule(t *testing.T) {
+	cr := config.CustomRule{
+		Name:    "Custom Test Rule",
+		Slug:    "custom/test-rule",
+		Details: "Tests whether parsing a custom rule from a YAML config works",
+		Weight:  420,
+		Run:     "python ./scripts/mllint-test-rule.py",
+	}
+	rule := api.NewCustomRule(cr)
+
+	require.Equal(t, cr.Name, rule.Name)
+	require.Equal(t, cr.Slug, rule.Slug)
+	require.Equal(t, cr.Details, rule.Details)
+	require.Equal(t, cr.Weight, rule.Weight)
+	require.False(t, rule.Disabled)
 }

@@ -132,11 +132,23 @@ mllint describe version-control/data/dvc
 mllint describe version-control/data
 ```
 
+### Custom linting rules
+
+It is also possible to define your own custom linting rules by implementing a script or program that `mllint` will run while performing its analysis.
+These custom rules need to be defined in `mllint`'s configuration. For more information on how to do this, see `mllint describe custom`.
+
 ---
 
 ## Configuration
 
-`mllint` can be configured either using a `.mllint.yml` file or through the project's `pyproject.toml`. This allows you to selectively disable specific linting rules or categories by means of their slug, as well as configure specific settings for various linting rules. See below for examples of such configuration files.
+`mllint` can be configured either using a `.mllint.yml` file or through the project's `pyproject.toml`. This allows you to:
+- selectively disable specific linting rules or categories using their slug
+- define custom linting rules
+- configure specific settings for various linting rules.
+
+See the code snippets and commands provided below for examples of such configuration files.
+
+#### Commands
 
 To print `mllint`'s current configuration in YAML format, run (optionally providing the path to the project's folder):
 ```sh
@@ -173,7 +185,6 @@ If no `.mllint.yml` is found, `mllint` searches the project's `pyproject.toml` f
 An example `pyproject.toml` configuration of `mllint` is as follows. Note that it is identical to the YAML example above.
 
 ```toml
-[tool.mllint]
 [tool.mllint.rules]
 disabled = ["version-control/code/git", "dependency-management/single"]
 ```
