@@ -171,6 +171,12 @@ var Deployment = api.Category{
 It is not yet implemented, but may contain rules about Dockerfiles and configurability, among others.`,
 }
 
+var Custom = api.Category{
+	Name:        "Custom Rules",
+	Slug:        "custom",
+	Description: "TODO: write this description",
+}
+
 var All = []api.Category{
 	VersionControl,
 	FileStructure,
@@ -180,6 +186,7 @@ var All = []api.Category{
 	Testing,
 	ContinuousIntegration,
 	Deployment,
+	Custom,
 }
 
 var BySlug = makeSlugMap()
