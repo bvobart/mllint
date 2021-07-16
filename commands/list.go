@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bvobart/mllint/api"
+	"github.com/bvobart/mllint/config"
 	"github.com/bvobart/mllint/linters"
 	"github.com/bvobart/mllint/utils/markdowngen"
 )
@@ -60,6 +61,18 @@ func listAll(_ *cobra.Command, args []string) error {
 	if err := checkOutputFlag(); err != nil {
 		return err
 	}
+
+	conf, conftype, err := config.ParseFromDir(".")
+	if err == nil && len(conf.Rules.Custom) > 0 {
+		shush(func() {
+			color.Green("Including %d custom rules from the %s file in the current directory\n\n", len(conf.Rules.Custom), conftype.String())
+		})
+
+		if err := linters.ConfigureAll(conf); err != nil {
+			color.HiYellow("Warning! The mllint configuration file %s contains an error: %s\n\n", conftype.String(), err.Error())
+		}
+	}
+
 	return listLinters(linters.ByCategory)
 }
 
@@ -80,10 +93,10 @@ func listEnabled(_ *cobra.Command, args []string) error {
 	}
 	shush(func() { fmt.Print("---\n\n") })
 
-	linters.DisableAll(conf.Rules.Disabled)
 	if err := linters.ConfigureAll(conf); err != nil {
 		return err
 	}
+	linters.DisableAll(conf.Rules.Disabled)
 
 	if err := listLinters(linters.ByCategory); err != nil {
 		return err
