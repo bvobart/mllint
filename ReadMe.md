@@ -25,7 +25,7 @@
 
 `mllint` is created during my MSc thesis in Computer Science at the Software Engineering Research Group ([SERG](https://se.ewi.tudelft.nl/)) at [TU Delft](https://tudelft.nl/) and [ING](https://www.ing.com/)'s [AI for FinTech Research Lab](https://se.ewi.tudelft.nl/ai4fintech/) on the topic of _Code Quality and Software Engineering for Machine Learning projects_
 
-<p align="center"><img src="./docs/example-run.svg"></p>
+<p align="center"><img src="./docs/gh-pages/static/example-run.svg"></p>
 
 > See [`docs/example-report.md`](docs/example-report.md) to view the report generated for this example project.
 >
@@ -62,9 +62,9 @@ pip install --upgrade mllint[tools]
 
 ### Docker
 
-There are also `mllint` Docker containers available on [Docker Hub](https://hub.docker.com/r/bvobart/mllint) at `bvobart/mllint` for Python 3.6, 3.7, 3.8 and 3.9. They require that you mount the folder with your project onto the container as a volume on `/app`.
+There are also `mllint` Docker containers available on [Docker Hub](https://hub.docker.com/r/bvobart/mllint) at `bvobart/mllint` for Python 3.6, 3.7, 3.8 and 3.9. These may particularly be helpful when running `mllint` in CI environments, such as Gitlab CI or Github Actions. See the Docker Hub for a full list of available tags that can be used.
 
-Here is an example of how to use this Docker container, assuming that your project is in the current folder. Replace `$(pwd)` with the full path to your project folder if it is somewhere else.
+The Docker containers require that you mount the folder with your project onto the container as a volume on `/app`. Here is an example of how to use this Docker container, assuming that your project is in the current folder. Replace `$(pwd)` with the full path to your project folder if it is somewhere else.
 
 ```sh
 docker run -it --rm -v $(pwd):/app bvobart/mllint:latest
