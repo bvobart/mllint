@@ -84,7 +84,7 @@ params:
             > See also the [`mllint-example-projects`](https://github.com/bvobart/mllint-example-projects) repository to explore the reports of an example project using `mllint` to measure and improve its project quality over several iterations.
             >
             > See this [`example-report.md`](https://github.com/bvobart/mllint/blob/main/docs/example-report.md) to view the report generated for the example project in the demo below.
-            > <p align="center"><img src="example-run.svg" alt="Example run of mllint"></p>
+            > <div align="center" class="home-example-run"><img src="example-run.svg" alt="Example run of mllint"></div>
 
 
     socialIcons:

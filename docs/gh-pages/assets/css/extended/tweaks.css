@@ -54,3 +54,12 @@
 .post-content h5 {
   color: var(--header-color);
 }
+
+.home-example-run {
+  width: var(--main-width);
+  overflow: hidden;
+}
+
+.home-example-run img {
+  max-width: 1800px;
+}
