@@ -31,7 +31,7 @@ mllint -o -
 
 In CI scripts, such raw markdown output (whether as a file or printed to the standard output) can be used to e.g. make comments on pull/merge requests or create Wiki pages on your repository.
 
-See [docs/example-report.md](docs/example-report.md) for an example of a report that `mllint` generates, or explore those generated for the [example projects](https://github.com/bvobart/mllint-example-projects).
+See this [`example-report.md`](https://github.com/bvobart/mllint/blob/main/docs/example-report.md) for an example of a report that `mllint` generates, or explore those generated for the [example projects](https://github.com/bvobart/mllint-example-projects).
 
 Of course, feel free to explore `mllint help` for more information about its commands and to discover additional flags that can be used.
 
@@ -49,7 +49,7 @@ To list all enabled linting rules, run (optionally providing the path to the pro
 mllint list enabled
 ```
 
-By default, all of `mllint`'s rules are enabled. See [Configuration](#configuration) to learn how to selectively disable certain rules.
+By default, all of `mllint`'s rules are enabled. See [Configuration](../configuration) to learn how to selectively disable certain rules.
 
 To learn more about a certain rule or category, use `mllint describe` along with the slug of the category or rule:
 ```sh
