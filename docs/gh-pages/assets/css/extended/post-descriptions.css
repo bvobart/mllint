@@ -1,0 +1,226 @@
+/* Proper Markdown formatting in post descriptions */
+/* Copied the `.post-content` styles from themes/PaperMod/assets/css/common/post-single.css and renamed them to `.post-description` */
+
+.post-description h3,
+.post-description h4,
+.post-description h5,
+.post-description h6 {
+    margin: 24px 0 16px;
+}
+
+.post-description h1 {
+    margin: 40px auto 32px;
+    font-size: 40px;
+}
+
+.post-description h2 {
+    margin: 32px auto 24px;
+    font-size: 32px;
+}
+
+.post-description h3 {
+    font-size: 24px;
+}
+
+.post-description h4 {
+    font-size: 16px;
+}
+
+.post-description h5 {
+    font-size: 14px;
+}
+
+.post-description h6 {
+    font-size: 12px;
+}
+
+.post-description a,
+.toc a:hover {
+    box-shadow: 0 1px 0;
+}
+
+.post-description a code {
+    margin: auto 0;
+    border-radius: 0;
+    box-shadow: 0 -1px 0 var(--primary) inset;
+}
+
+.post-description del {
+    text-decoration: none;
+    background: linear-gradient(to right, var(--primary) 100%, transparent 0) 0 50%/1px 1px repeat-x;
+}
+
+.post-description dl,
+.post-description ol,
+.post-description p,
+.post-description figure,
+.post-description ul {
+    margin-bottom: var(--content-gap);
+}
+
+.post-description ol,
+.post-description ul {
+    padding-inline-start: 20px;
+}
+
+.post-description li {
+    margin-top: 5px;
+}
+
+.post-description li p {
+    margin-bottom: 0;
+}
+
+.post-description dl {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.post-description dt {
+    width: 25%;
+    font-weight: 700;
+}
+
+.post-description dd {
+    width: 75%;
+    margin-inline-start: 0;
+    padding-inline-start: 10px;
+}
+
+.post-description dd ~ dd,
+.post-description dt ~ dt {
+    margin-top: 10px;
+}
+
+.post-description table {
+    margin-bottom: 32px;
+}
+
+.post-description table th,
+.post-description table:not(.highlighttable, .highlight table, .gist .highlight) td {
+    min-width: 80px;
+    padding: 12px 8px;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+}
+
+.post-description table th {
+    font-size: 14px;
+    text-align: start;
+}
+
+.post-description table:not(.highlighttable) td code:only-child {
+    margin: auto 0;
+}
+
+.post-description .highlight table {
+    border-radius: var(--radius);
+}
+
+.post-description .highlight:not(table),
+.post-description pre {
+    margin: 10px auto;
+    background: var(--hljs-bg) !important;
+    border-radius: var(--radius);
+}
+
+.post-description li > .highlight {
+    margin-inline-end: 0;
+}
+
+.post-description ul pre {
+    margin-inline-start: calc(var(--gap) * -2);
+}
+
+.post-description .highlight pre {
+    margin: 0;
+}
+
+.post-description .highlighttable {
+    table-layout: fixed;
+}
+
+.post-description .highlighttable td:first-child {
+    width: 40px;
+}
+
+.post-description .highlighttable td .linenodiv {
+    padding-inline-end: 0 !important;
+}
+
+.post-description .highlighttable td .highlight,
+.post-description .highlighttable td .linenodiv pre {
+    margin-bottom: 0;
+}
+
+.post-description .highlighttable td .highlight pre code::-webkit-scrollbar {
+    display: none;
+}
+
+.post-description .highlight span {
+    background: 0 0 !important;
+}
+
+.post-description code {
+    margin: auto 4px;
+    padding: 4px 6px;
+    font-size: 0.78em;
+    line-height: 1.5;
+    background: var(--code-bg);
+    border-radius: 2px;
+}
+
+.post-description pre code {
+    display: block;
+    margin: auto 0;
+    padding: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    background: 0 0;
+    border-radius: 0;
+    overflow-x: auto;
+    word-break: break-all;
+}
+
+.post-description blockquote {
+    margin: 20px 0;
+    padding: 0 14px;
+    border-inline-start: 3px solid var(--primary);
+}
+
+.post-description hr {
+    margin: 30px 0;
+    height: 2px;
+    background: var(--tertiary);
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.post-description iframe {
+    max-width: 100%;
+}
+
+.post-description img {
+    border-radius: 4px;
+}
+
+.post-description img[src*="#center"] {
+    margin: auto;
+}
+
+.post-description figure.align-center {
+    text-align: center;
+}
+
+.post-description figure > figcaption {
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: bold;
+    margin: 8px 0 16px;
+}
+
+.post-description figure > figcaption > p {
+    color: var(--secondary);
+    font-size: 14px;
+    font-weight: normal;
+}

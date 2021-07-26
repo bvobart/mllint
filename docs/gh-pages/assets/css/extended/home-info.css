@@ -1,0 +1,226 @@
+/* Proper Markdown formatting on the home page. */
+/* Copied the `.post-content` styles from themes/PaperMod/assets/css/common/post-single.css and renamed them to `.home-info .entry-content` */
+
+.home-info .entry-content h3,
+.home-info .entry-content h4,
+.home-info .entry-content h5,
+.home-info .entry-content h6 {
+    margin: 24px 0 16px;
+}
+
+.home-info .entry-content h1 {
+    margin: 40px auto 32px;
+    font-size: 40px;
+}
+
+.home-info .entry-content h2 {
+    margin: 32px auto 24px;
+    font-size: 32px;
+}
+
+.home-info .entry-content h3 {
+    font-size: 24px;
+}
+
+.home-info .entry-content h4 {
+    font-size: 16px;
+}
+
+.home-info .entry-content h5 {
+    font-size: 14px;
+}
+
+.home-info .entry-content h6 {
+    font-size: 12px;
+}
+
+.home-info .entry-content a,
+.toc a:hover {
+    box-shadow: 0 1px 0;
+}
+
+.home-info .entry-content a code {
+    margin: auto 0;
+    border-radius: 0;
+    box-shadow: 0 -1px 0 var(--primary) inset;
+}
+
+.home-info .entry-content del {
+    text-decoration: none;
+    background: linear-gradient(to right, var(--primary) 100%, transparent 0) 0 50%/1px 1px repeat-x;
+}
+
+.home-info .entry-content dl,
+.home-info .entry-content ol,
+.home-info .entry-content p,
+.home-info .entry-content figure,
+.home-info .entry-content ul {
+    margin-bottom: var(--content-gap);
+}
+
+.home-info .entry-content ol,
+.home-info .entry-content ul {
+    padding-inline-start: 20px;
+}
+
+.home-info .entry-content li {
+    margin-top: 5px;
+}
+
+.home-info .entry-content li p {
+    margin-bottom: 0;
+}
+
+.home-info .entry-content dl {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.home-info .entry-content dt {
+    width: 25%;
+    font-weight: 700;
+}
+
+.home-info .entry-content dd {
+    width: 75%;
+    margin-inline-start: 0;
+    padding-inline-start: 10px;
+}
+
+.home-info .entry-content dd ~ dd,
+.home-info .entry-content dt ~ dt {
+    margin-top: 10px;
+}
+
+.home-info .entry-content table {
+    margin-bottom: 32px;
+}
+
+.home-info .entry-content table th,
+.home-info .entry-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
+    min-width: 80px;
+    padding: 12px 8px;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+}
+
+.home-info .entry-content table th {
+    font-size: 14px;
+    text-align: start;
+}
+
+.home-info .entry-content table:not(.highlighttable) td code:only-child {
+    margin: auto 0;
+}
+
+.home-info .entry-content .highlight table {
+    border-radius: var(--radius);
+}
+
+.home-info .entry-content .highlight:not(table),
+.home-info .entry-content pre {
+    margin: 10px auto;
+    background: var(--hljs-bg) !important;
+    border-radius: var(--radius);
+}
+
+.home-info .entry-content li > .highlight {
+    margin-inline-end: 0;
+}
+
+.home-info .entry-content ul pre {
+    margin-inline-start: calc(var(--gap) * -2);
+}
+
+.home-info .entry-content .highlight pre {
+    margin: 0;
+}
+
+.home-info .entry-content .highlighttable {
+    table-layout: fixed;
+}
+
+.home-info .entry-content .highlighttable td:first-child {
+    width: 40px;
+}
+
+.home-info .entry-content .highlighttable td .linenodiv {
+    padding-inline-end: 0 !important;
+}
+
+.home-info .entry-content .highlighttable td .highlight,
+.home-info .entry-content .highlighttable td .linenodiv pre {
+    margin-bottom: 0;
+}
+
+.home-info .entry-content .highlighttable td .highlight pre code::-webkit-scrollbar {
+    display: none;
+}
+
+.home-info .entry-content .highlight span {
+    background: 0 0 !important;
+}
+
+.home-info .entry-content code {
+    margin: auto 4px;
+    padding: 4px 6px;
+    font-size: 0.78em;
+    line-height: 1.5;
+    background: var(--code-bg);
+    border-radius: 2px;
+}
+
+.home-info .entry-content pre code {
+    display: block;
+    margin: auto 0;
+    padding: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    background: 0 0;
+    border-radius: 0;
+    overflow-x: auto;
+    word-break: break-all;
+}
+
+.home-info .entry-content blockquote {
+    margin: 20px 0;
+    padding: 0 14px;
+    border-inline-start: 3px solid var(--primary);
+}
+
+.home-info .entry-content hr {
+    margin: 30px 0;
+    height: 2px;
+    background: var(--tertiary);
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.home-info .entry-content iframe {
+    max-width: 100%;
+}
+
+.home-info .entry-content img {
+    border-radius: 4px;
+}
+
+.home-info .entry-content img[src*="#center"] {
+    margin: auto;
+}
+
+.home-info .entry-content figure.align-center {
+    text-align: center;
+}
+
+.home-info .entry-content figure > figcaption {
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: bold;
+    margin: 8px 0 16px;
+}
+
+.home-info .entry-content figure > figcaption > p {
+    color: var(--secondary);
+    font-size: 14px;
+    font-weight: normal;
+}
