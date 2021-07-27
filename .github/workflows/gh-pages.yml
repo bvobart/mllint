@@ -60,7 +60,8 @@ jobs:
           if: startsWith(github.ref, 'refs/heads/')
           working-directory: docs/gh-pages/
           run: |
-            echo "HUGO_MLLINT_VERSION=$(git describe --tags)" >> $GITHUB_ENV
+            export HUGO_MLLINT_VERSION=$(git describe --tags)
+            echo "> mllint version: $HUGO_MLLINT_VERSION"
             hugo --minify
         
         - name: Deploy website
