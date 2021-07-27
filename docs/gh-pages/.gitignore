@@ -3,3 +3,5 @@
 
 /content/docs/rules/*
 !/content/docs/rules/_index.md
+
+/public/
