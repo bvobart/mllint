@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: http://bvobart.github.io/mllint/sitemap.xml

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>mllint — Linter for Machine Learning projects</title>
+    <link>http://bvobart.github.io/mllint/</link>
+    <description>Recent content on mllint — Linter for Machine Learning projects</description>
+    <image>
+      <url>http://bvobart.github.io/mllint/example-run.svg</url>
+      <link>http://bvobart.github.io/mllint/example-run.svg</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator><atom:link href="http://bvobart.github.io/mllint/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Installation</title>
+      <link>http://bvobart.github.io/mllint/docs/installation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/installation/</guid>
+      <description>Options for installing `mllint`</description>
+    </item>
+    
+    <item>
+      <title>Usage</title>
+      <link>http://bvobart.github.io/mllint/docs/usage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/usage/</guid>
+      <description>Shows how to use `mllint` and which commands can be run</description>
+    </item>
+    
+    <item>
+      <title>Configuration</title>
+      <link>http://bvobart.github.io/mllint/docs/configuration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/configuration/</guid>
+      <description>Shows `mllint` can be configured, including YAML and TOML examples</description>
+    </item>
+    
+    <item>
+      <title>Category — Code Quality</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/code-quality/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/code-quality/</guid>
+      <description>- `code-quality`</description>
+    </item>
+    
+    <item>
+      <title>Category — Continuous Integration</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/ci/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/ci/</guid>
+      <description>- `ci`</description>
+    </item>
+    
+    <item>
+      <title>Category — Custom Rules</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/custom/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/custom/</guid>
+      <description>- `custom`</description>
+    </item>
+    
+    <item>
+      <title>Category — Data Quality</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/data-quality/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/data-quality/</guid>
+      <description>- `data-quality`</description>
+    </item>
+    
+    <item>
+      <title>Category — Dependency Management</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/dependency-management/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/dependency-management/</guid>
+      <description>- `dependency-management`</description>
+    </item>
+    
+    <item>
+      <title>Category — Deployment</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/deployment/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/deployment/</guid>
+      <description>- `deployment`</description>
+    </item>
+    
+    <item>
+      <title>Category — File Structure</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/file-structure/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/file-structure/</guid>
+      <description>- `file-structure`</description>
+    </item>
+    
+    <item>
+      <title>Category — Testing</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/testing/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/testing/</guid>
+      <description>- `testing`</description>
+    </item>
+    
+    <item>
+      <title>Category — Version Control</title>
+      <link>http://bvobart.github.io/mllint/docs/categories/version-control/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/categories/version-control/</guid>
+      <description>- `version-control`</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — All code quality linters should be installed in the current environment</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/linters-installed/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/linters-installed/</guid>
+      <description>- `code-quality/linters-installed`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Bandit reports no issues with this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/bandit/no-issues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/bandit/no-issues/</guid>
+      <description>- `code-quality/bandit/no-issues`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Black reports no issues with this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/black/no-issues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/black/no-issues/</guid>
+      <description>- `code-quality/black/no-issues`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — isort is properly configured</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/isort/is-configured/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/isort/is-configured/</guid>
+      <description>- `code-quality/isort/is-configured`
+- `weight: 0.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — isort reports no issues with this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/isort/no-issues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/isort/no-issues/</guid>
+      <description>- `code-quality/isort/no-issues`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Mypy reports no issues with this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/mypy/no-issues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/mypy/no-issues/</guid>
+      <description>- `code-quality/mypy/no-issues`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Project should use code quality linters</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/use-linters/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/use-linters/</guid>
+      <description>- `code-quality/use-linters`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Pylint is configured for this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/pylint/is-configured/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/pylint/is-configured/</guid>
+      <description>- `code-quality/pylint/is-configured`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Code Quality — Pylint reports no issues with this project</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/code-quality/pylint/no-issues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/code-quality/pylint/no-issues/</guid>
+      <description>- `code-quality/pylint/no-issues`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Continuous Integration — Project uses Continuous Integration (CI)</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/ci/use/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/ci/use/</guid>
+      <description>- `ci/use`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Dependency Management — Project places its development dependencies in dev-dependencies</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/dependency-management/use-dev/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/dependency-management/use-dev/</guid>
+      <description>- `dependency-management/use-dev`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Dependency Management — Project properly keeps track of its dependencies</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/dependency-management/use/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/dependency-management/use/</guid>
+      <description>- `dependency-management/use`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Dependency Management — Project should only use one dependency manager</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/dependency-management/single/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/dependency-management/single/</guid>
+      <description>- `dependency-management/single`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Testing — Project has automated tests</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/testing/has-tests/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/testing/has-tests/</guid>
+      <description>- `testing/has-tests`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Testing — Project passes all of its automated tests</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/testing/pass/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/testing/pass/</guid>
+      <description>- `testing/pass`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Testing — Project provides a test coverage report</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/testing/coverage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/testing/coverage/</guid>
+      <description>- `testing/coverage`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Testing — Tests should be placed in the tests folder</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/testing/tests-folder/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/testing/tests-folder/</guid>
+      <description>- `testing/tests-folder`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: File &#39;dvc.lock&#39; should be committed to Git</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/commit-dvc-lock/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/commit-dvc-lock/</guid>
+      <description>- `version-control/data/commit-dvc-lock`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: Folder &#39;.dvc&#39; should be committed to Git</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/commit-dvc-folder/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/commit-dvc-folder/</guid>
+      <description>- `version-control/data/commit-dvc-folder`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: Is installed</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-is-installed/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-is-installed/</guid>
+      <description>- `version-control/data/dvc-is-installed`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: Project uses Data Version Control</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc/</guid>
+      <description>- `version-control/data/dvc`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: Should be tracking at least one data file</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-has-files/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-has-files/</guid>
+      <description>- `version-control/data/dvc-has-files`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — DVC: Should have at least one remote data storage configured</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-has-remote/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/data/dvc-has-remote/</guid>
+      <description>- `version-control/data/dvc-has-remote`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — Project should not have any large files in its Git history</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/code/git-no-big-files/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/code/git-no-big-files/</guid>
+      <description>- `version-control/code/git-no-big-files`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>Rule — Version Control — Project uses Git</title>
+      <link>http://bvobart.github.io/mllint/docs/rules/version-control/code/git/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/rules/version-control/code/git/</guid>
+      <description>- `version-control/code/git`
+- `weight: 1.0`
+</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>http://bvobart.github.io/mllint/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/about/</guid>
+      <description>Something something mllint was the product of my MSc thesis and this is how it came to be :)</description>
+    </item>
+    
+    
+  </channel>
+</rss>

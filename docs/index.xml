@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Documentation on mllint — Linter for Machine Learning projects</title>
+    <link>http://bvobart.github.io/mllint/docs/</link>
+    <description>Recent content in Documentation on mllint — Linter for Machine Learning projects</description>
+    <image>
+      <url>http://bvobart.github.io/mllint/example-run.svg</url>
+      <link>http://bvobart.github.io/mllint/example-run.svg</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator><atom:link href="http://bvobart.github.io/mllint/docs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Installation</title>
+      <link>http://bvobart.github.io/mllint/docs/installation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/installation/</guid>
+      <description>Options for installing `mllint`</description>
+    </item>
+    
+    <item>
+      <title>Usage</title>
+      <link>http://bvobart.github.io/mllint/docs/usage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/usage/</guid>
+      <description>Shows how to use `mllint` and which commands can be run</description>
+    </item>
+    
+    <item>
+      <title>Configuration</title>
+      <link>http://bvobart.github.io/mllint/docs/configuration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://bvobart.github.io/mllint/docs/configuration/</guid>
+      <description>Shows `mllint` can be configured, including YAML and TOML examples</description>
+    </item>
+    
+  </channel>
+</rss>
