@@ -1,0 +1,9 @@
+<footer class="footer-version">
+  {{ $version := getenv "HUGO_MLLINT_VERSION" }}
+  {{ if ne $version "" }}
+  <span>mllint version: </span>
+  <span><a href="https://github.com/bvobart/mllint/releases/tag/{{ $version }}" rel="noopener noreferrer" target="_blank">{{ $version }}</a></span>
+  {{ else }}
+  <span>mllint version unknown</span>
+  {{ end }}
+</footer>
