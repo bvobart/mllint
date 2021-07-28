@@ -1,10 +1,11 @@
-# `mllint` — Linter for Machine Learning projects
+# [`mllint` — Linter for Machine Learning projects](https://bvobart.github.io/mllint/)
 
 <p align="center">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/bvobart/mllint/Build%20mllint%20and%20upload%20to%20PyPI">
   <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/bvobart/mllint">
   <a href="https://pkg.go.dev/github.com/bvobart/mllint"><img src="https://pkg.go.dev/badge/github.com/bvobart/mllint.svg" alt="Go Reference"></a>
   <a href="https://codecov.io/gh/bvobart/mllint"><img alt="Code coverage" src="https://codecov.io/gh/bvobart/mllint/branch/main/graph/badge.svg?token=K9PJMGMFVI"/></a>
+  <a href="https://goreportcard.com/report/github.com/bvobart/mllint"><img alt="GoReportCard" src="https://goreportcard.com/badge/github.com/bvobart/mllint"/></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Linux%20%7C%20MacOS%20%7C%20Windows-informational">
 </p>
 <p align="center">
@@ -30,6 +31,8 @@
 > See [`docs/example-report.md`](docs/example-report.md) to view the report generated for this example project.
 >
 > See also the [`mllint-example-projects`](https://github.com/bvobart/mllint-example-projects) repository to explore the reports of an example project using `mllint` to measure and improve its project quality over several iterations.
+>
+> See also [`mllint`'s website](https://bvobart.github.io/mllint/) for online documentation of all of its linting rules and categories.
 
 ---
 
@@ -116,6 +119,8 @@ To list all enabled linting rules, run (optionally providing the path to the pro
 mllint list enabled
 ```
 
+Alternatively, visit the [Categories](https://bvobart.github.io/mllint/docs/categories/) and [Rules](https://bvobart.github.io/mllint/docs/rules/) pages on [`mllint`'s website](https://bvobart.github.io/mllint/) to view the latest online documentation of these rules.
+
 By default, all of `mllint`'s rules are enabled. See [Configuration](#configuration) to learn how to selectively disable certain rules.
 
 To learn more about a certain rule or category, use `mllint describe` along with the slug of the category or rule:
@@ -135,7 +140,7 @@ mllint describe version-control/data
 ### Custom linting rules
 
 It is also possible to define your own custom linting rules by implementing a script or program that `mllint` will run while performing its analysis.
-These custom rules need to be defined in `mllint`'s configuration. For more information on how to do this, see `mllint describe custom`.
+These custom rules need to be defined in `mllint`'s configuration. For more information on how to do this, see `mllint describe custom` or view the documentation online [here](https://bvobart.github.io/mllint/docs/categories/custom/).
 
 ---
 
