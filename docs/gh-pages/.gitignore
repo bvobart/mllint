@@ -1,0 +1,7 @@
+/content/docs/categories/*
+!/content/docs/categories/_index.md
+
+/content/docs/rules/*
+!/content/docs/rules/_index.md
+
+/public/

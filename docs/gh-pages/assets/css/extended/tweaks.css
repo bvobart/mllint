@@ -1,0 +1,68 @@
+:root {
+  /* Wider content width */
+  --nav-width: 1200px;
+  --main-width: 1200px;
+  /* Custom colors (light mode). Almost standard */
+  --marker-color: #534000;
+  --links-color: var(--primary);
+  --code-text-color: var(--primary);
+  --header-color: var(--primary);
+}
+
+.dark {
+  /* Custom colours (dark mode). Just some accent colours to cut through the boring gray. */
+  --marker-color: #f5bc00;
+  --links-color: #4be7f7;
+  --code-text-color: #cae3e6;
+  --header-color: #ddf8fb;
+}
+
+.social-icons a,
+::marker {
+  color: var(--marker-color);
+}
+
+.entry-content a,
+.entry-content code a,
+.entry-content a code,
+.post-description a,
+.post-description a code,
+.post-content a,
+.post-content a code,
+.post-content code a {
+  color: var(--links-color);
+}
+
+.entry-content code,
+.post-description code,
+.post-content code {
+  color: var(--code-text-color);
+}
+
+.entry-header h1,
+.page-header h1,
+.post-title {
+  color: var(--header-color);
+}
+
+.post-description h1,
+.post-description h2,
+.post-description h3,
+.post-description h4,
+.post-description h5
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5 {
+  color: var(--header-color);
+}
+
+.home-example-run {
+  width: var(--main-width);
+  overflow: hidden;
+}
+
+.home-example-run img {
+  max-width: 1800px;
+}

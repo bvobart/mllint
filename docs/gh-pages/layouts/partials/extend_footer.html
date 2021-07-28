@@ -1,0 +1,20 @@
+<footer class="footer-version">
+  <!-- HUGO_MLLINT_VERSION will be set to basically the output of `git describe --tags` during build, e.g. `v0.11.0` or `v0.11.0-8-g3b6aa93` -->
+  {{ $version := getenv "HUGO_MLLINT_VERSION" }}
+  {{ $tag := index (split $version "-") 0 }}
+
+  <!-- If not set, just say version unknown -->
+  {{ if eq $version "" }} <span>mllint version unknown</span>
+  <!-- else, display proper version with link to latest release. -->
+  {{ else }}
+    <span>mllint version: </span>
+    <span><a href="https://github.com/bvobart/mllint/releases/tag/{{ $tag }}" rel="noopener noreferrer" target="_blank">{{ $tag }}</a></span>
+    <!-- if the current deployment is not a tagged release, but a regular commit, display the full Git reference -->
+    {{ if ne $version $tag }}
+      <br />
+      <span> Git ref:</span>
+      <span> {{ $version }} </span>
+    {{ end }}
+  {{ end }}
+
+</footer>

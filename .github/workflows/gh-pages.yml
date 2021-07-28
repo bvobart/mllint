@@ -1,0 +1,72 @@
+name: Publish mllint's GitHub Pages website
+
+# Runs on 
+# - pushes to master with changes to the files in docs/gh-pages or this file
+# - release tags
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - docs/gh-pages
+      - .github/workflows/gh-pages.yml
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+      name: Build and publish mllint's website to GitHub Pages
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/setup-go@v2
+          with:
+            go-version: ^1.16
+
+        - uses: actions/checkout@v2
+          with:
+            submodules: true  # Fetch Hugo theme (true OR recursive)
+            fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+        - uses: actions/cache@v2
+          with:
+            # In order:
+            # * Go module download cache
+            # * Go build cache (Linux)
+            path: |
+              ~/go/pkg/mod
+              ~/.cache/go-build
+            key: ubuntu-latest-go-${{ hashFiles('**/go.sum') }}
+            restore-keys: |
+              ubuntu-latest-go-
+        
+        - name: Setup Hugo
+          uses: peaceiris/actions-hugo@v2
+          with:
+            hugo-version: '0.85.0'
+            extended: true
+
+        - name: Generate Categories & Rules documentation
+          run: go run ./docs/gh-pages/scripts/generate-docs.go
+
+        - name: Build website (tagged version)
+          if: startsWith(github.ref, 'refs/tags/v')
+          working-directory: docs/gh-pages/
+          env:
+            HUGO_MLLINT_VERSION: ${GITHUB_REF#refs/tags/v}
+          run: |
+            echo "> mllint version: $HUGO_MLLINT_VERSION"
+            hugo --minify
+
+        - name: Build website (regular commit)
+          if: startsWith(github.ref, 'refs/heads/')
+          working-directory: docs/gh-pages/
+          run: |
+            export HUGO_MLLINT_VERSION=$(git describe --tags)
+            echo "> mllint version: $HUGO_MLLINT_VERSION"
+            hugo --minify
+        
+        - name: Deploy website
+          uses: peaceiris/actions-gh-pages@v3
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./docs/gh-pages/public/
