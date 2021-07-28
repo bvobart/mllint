@@ -51,7 +51,7 @@ outputs:
 
 params:
     env: production # to enable google analytics, opengraph, twitter-cards and schema.
-    description: "mllint — Linter for Machine Learning projects"
+    description: "mllint — Linter for Machine Learning projects' software quality — https://github.com/bvobart/mllint"
     author: Bart van Oort (bvobart)
 
     defaultTheme: dark
