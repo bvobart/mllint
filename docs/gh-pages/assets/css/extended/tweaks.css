@@ -23,10 +23,13 @@
 }
 
 .entry-content a,
+.entry-content code a,
+.entry-content a code,
 .post-description a,
 .post-description a code,
 .post-content a,
-.post-content a code {
+.post-content a code,
+.post-content code a {
   color: var(--links-color);
 }
 
