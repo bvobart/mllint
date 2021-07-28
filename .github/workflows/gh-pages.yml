@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - master
-      - mllint-site
     paths:
       - docs/gh-pages
       - .github/workflows/gh-pages.yml
