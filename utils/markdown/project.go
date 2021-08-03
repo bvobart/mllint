@@ -43,13 +43,13 @@ func writeProjectHeader(output *strings.Builder, project api.ProjectReport) {
 
 	if project.Git.RemoteURL != "" {
 		output.WriteString("Git: Remote URL | `" + project.Git.RemoteURL + "`\n")
-		output.WriteString("Git: Commit | `" + project.Git.Commit + "`\n")
-		output.WriteString("Git: Branch | `" + project.Git.Branch + "`\n")
-		output.WriteString("Git: Dirty Workspace? | " + humanizeBool(project.Git.Dirty) + "\n")
+		output.WriteString("Git: Commit     | `" + project.Git.Commit + "`\n")
+		output.WriteString("Git: Branch     | `" + project.Git.Branch + "`\n")
+		output.WriteString("Git: Dirty Workspace?  | " + humanizeBool(project.Git.Dirty) + "\n")
 	}
 
 	output.WriteString(fmt.Sprintf("Number of Python files | %d\n", len(project.PythonFiles)))
-	output.WriteString(fmt.Sprintf("Lines of Python code | %d\n", project.PythonFiles.CountLoC()))
+	output.WriteString(fmt.Sprintf("Lines of Python code   | %d\n", project.PythonFiles.CountLoC()))
 	output.WriteString("\n---\n\n")
 }
 
@@ -85,7 +85,9 @@ func writeProjectReports(output *strings.Builder, reports map[api.Category]api.R
 }
 
 func writeCategoryReport(output *strings.Builder, category api.Category, linter api.Linter, report api.Report) {
-	output.WriteString(fmt.Sprintln("###", category.Name, "(`"+category.Slug+"`)"))
+	overallScore := report.OverallScore()
+
+	output.WriteString(fmt.Sprintf("### %s (`%s`) — **%.1f**%%\n", category.Name, category.Slug, overallScore))
 	output.WriteString("\n")
 	output.WriteString("Passed | Score | Weight | Rule | Slug\n")
 	output.WriteString(":-----:|------:|-------:|------|-----\n")
@@ -104,6 +106,9 @@ func writeCategoryReport(output *strings.Builder, category api.Category, linter 
 			writeRuleDetails(&details, *rule, score, linterDetails)
 		}
 	}
+
+	output.WriteString(" | _Total_ | | | \n")
+	output.WriteString(fmt.Sprintf("%s | **%.1f**%% | | %s | `%s`\n", getPassedEmoji(overallScore), overallScore, category.Name, category.Slug))
 
 	output.WriteString("\n")
 	output.WriteString(details.String())

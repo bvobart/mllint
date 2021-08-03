@@ -85,3 +85,38 @@ func TestNewCustomRule(t *testing.T) {
 	require.Equal(t, cr.Weight, rule.Weight)
 	require.False(t, rule.Disabled)
 }
+
+func TestReportOverallScore(t *testing.T) {
+	t.Run("Empty", func(t *testing.T) {
+		report := api.NewReport()
+		require.Equal(t, 0.0, report.OverallScore())
+	})
+
+	t.Run("SameWeight", func(t *testing.T) {
+		report := api.NewReport()
+		rule1 := api.Rule{Slug: "test-1", Weight: 1}
+		rule2 := api.Rule{Slug: "test-2", Weight: 1}
+		rule3 := api.Rule{Slug: "test-3", Weight: 1}
+		rule4 := api.Rule{Slug: "test-4", Weight: 1}
+
+		report.Scores[rule1] = 100
+		report.Scores[rule2] = 30
+		report.Scores[rule3] = 70
+		report.Scores[rule4] = 40
+		require.Equal(t, 60.0, report.OverallScore())
+	})
+
+	t.Run("Weighted", func(t *testing.T) {
+		report := api.NewReport()
+		rule1 := api.Rule{Slug: "test-1", Weight: 1}
+		rule2 := api.Rule{Slug: "test-2", Weight: 2}
+		rule3 := api.Rule{Slug: "test-3", Weight: 3}
+		rule4 := api.Rule{Slug: "test-4", Weight: 4}
+
+		report.Scores[rule1] = 100
+		report.Scores[rule2] = 50
+		report.Scores[rule3] = 70
+		report.Scores[rule4] = 100
+		require.Equal(t, 81.0, report.OverallScore())
+	})
+}
