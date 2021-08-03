@@ -18,7 +18,7 @@ import (
 func NewDescribeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "describe RULE...",
-		Short: "Describe an " + formatInlineCode("mllint") + "category or rule by its slug.",
+		Short: "Describe an " + formatInlineCode("mllint") + " category or rule by its slug.",
 		Long: fmt.Sprintf(`Describe an %s category or rule by its slug.
 The slug is the lowercased, dashed reference string that every category and rule have. %s often displays these together.
 

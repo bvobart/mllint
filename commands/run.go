@@ -226,8 +226,8 @@ func printSurveyMessage() {
 	shush(func() {
 		fmt.Println("---")
 		yellow.Print("Thank you for using ", code.Sprint("mllint"), yellow.Sprintln(", I'm very interested to know how your experiences have been! 😊"))
-		yellow.Print("It would be of great help to me, ", code.Sprint("mllint"), yellow.Sprintln(" and particularly, my MSc thesis if you are able to spend 10 minutes of your time filling in this feedback survey for me:"))
-		yellow.Add(color.Italic).Println("➡️   https://forms.office.com/r/2xrZ7kXze2")
+		yellow.Print("It would be of great help to me, ", code.Sprint("mllint"), yellow.Sprint(" and, in particular, my ", code.Sprint("MSc thesis"), yellow.Sprintln(" if you are able to spend 15 minutes of your time filling in this feedback survey for me:")))
+		yellow.Add(color.Italic).Println("➡️   https://forms.office.com/r/pXtfUKWUDA")
 		fmt.Println()
 	})
 }
