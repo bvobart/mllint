@@ -15,6 +15,20 @@ type Report struct {
 	Details map[Rule]string
 }
 
+// OverallScore returns the weighted average of the scores of each rule, weighted with each rule's respective weight.
+func (r Report) OverallScore() float64 {
+	sumScores, sumWeights := 0.0, 0.0
+	for rule, score := range r.Scores {
+		sumScores += rule.Weight * score
+		sumWeights += rule.Weight
+	}
+
+	if sumWeights == 0 {
+		return 0
+	}
+	return sumScores / sumWeights
+}
+
 func NewReport() Report {
 	return Report{
 		Scores:  map[Rule]float64{},
