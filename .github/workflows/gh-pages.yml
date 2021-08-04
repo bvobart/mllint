@@ -1,14 +1,14 @@
 name: Publish mllint's GitHub Pages website
 
 # Runs on 
-# - pushes to master with changes to the files in docs/gh-pages or this file
+# - pushes to main with changes to the files in docs/gh-pages/** or this file
 # - release tags
 on:
   push:
     branches:
-      - master
+      - main
     paths:
-      - docs/gh-pages
+      - docs/gh-pages/**
       - .github/workflows/gh-pages.yml
     tags:
       - "v*"
