@@ -16,6 +16,8 @@
   <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mllint"></a>
 </p>
 
+> **Attention!** We are looking for feedback on the efficacy of `mllint` and it's concepts. This is extremely important for my MSc thesis. Care to help? Please fill in the following survey, it should only take 15 mins: https://forms.office.com/r/pXtfUKWUDA
+
 `mllint` is a command-line utility to evaluate the technical quality of Machine Learning (ML) and Artificial Intelligence (AI) projects written in Python by analysing the project's source code, data and configuration of supporting tools. `mllint` aims to ...
 
 - ... help data scientists and ML engineers in creating and maintaining production-grade ML and AI projects, both on their own personal computers as well as on CI.
@@ -109,6 +111,8 @@ Of course, feel free to explore `mllint help` for more information about its com
 
 `mllint` analyses your project by evaluating several categories of linting rules. Each category, as well as each rule, has a 'slug', i.e., a lowercased piece of text with dashes or slashes for spaces, e.g., `code-quality/pylint/no-issues`. This slug identifies a rule and is often (if not always) displayed next to the category or rule that it references.
 
+#### Command-line
+
 To list all available (implemented) categories and linting rules, run:
 ```sh
 mllint list all
@@ -118,8 +122,6 @@ To list all enabled linting rules, run (optionally providing the path to the pro
 ```sh
 mllint list enabled
 ```
-
-Alternatively, visit the [Categories](https://bvobart.github.io/mllint/docs/categories/) and [Rules](https://bvobart.github.io/mllint/docs/rules/) pages on [`mllint`'s website](https://bvobart.github.io/mllint/) to view the latest online documentation of these rules.
 
 By default, all of `mllint`'s rules are enabled. See [Configuration](#configuration) to learn how to selectively disable certain rules.
 
@@ -136,6 +138,11 @@ mllint describe version-control/data/dvc
 # e.g., all rules about version controlling data
 mllint describe version-control/data
 ```
+
+#### Online Documentation
+
+Alternatively, visit the [Categories](https://bvobart.github.io/mllint/docs/categories/) and [Rules](https://bvobart.github.io/mllint/docs/rules/) pages on [`mllint`'s website](https://bvobart.github.io/mllint/) to view the latest online documentation of these rules.
+
 
 ### Custom linting rules
 

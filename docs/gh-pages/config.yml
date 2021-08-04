@@ -42,6 +42,9 @@ languages:
                 - name: Search
                   url: search/
                   weight: 20
+                - name: Survey
+                  url: https://forms.office.com/r/pXtfUKWUDA
+                  weight: 25
 
 outputs:
     home:
@@ -70,6 +73,9 @@ params:
     homeInfoParams:
         Title: "mllint — Linter for Machine Learning projects"
         Content: |
+            > I'm looking for help evaluating the efficacy of `mllint`! If you have used `mllint`, please consider filling in my 15-minute survey, as it is extremely important for my MSc thesis!
+            > - [Click here to go to the survey about `mllint`](https://forms.office.com/r/pXtfUKWUDA)
+
             `mllint` is a command-line utility to evaluate the technical quality of Machine Learning (ML) and Artificial Intelligence (AI) projects written in Python by analysing the project's source code, data and configuration of supporting tools.
 
             `mllint` aims to ...
@@ -81,9 +87,6 @@ params:
             `mllint` does this by measuring the project's adherence to ML best practices, as collected and deduced from [SE4ML](https://se-ml.github.io/) and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml). Note that these best practices are rather high-level, while `mllint` aims to give practical, down-to-earth advice to its users. `mllint` may therefore be somewhat opinionated, as it tries to advocate specific tools to best fit these best practices. However, `mllint` aims to only recommend open-source tooling and publically verifiable practices. Feedback is of course always welcome!
 
             `mllint` is created during my MSc thesis in Computer Science at the Software Engineering Research Group ([SERG](https://se.ewi.tudelft.nl/)) at [TU Delft](https://tudelft.nl/) and [ING](https://www.ing.com/)'s [AI for FinTech Research Lab](https://se.ewi.tudelft.nl/ai4fintech/) on the topic of _Code Quality and Software Engineering for Machine Learning projects_
-
-            > I'm looking for help evaluating the efficacy of `mllint`! If you have used `mllint`, please consider filling in my 15-minute survey. It would especially be of great help to my MSc thesis :)
-            > - [Click here to go to the survey about `mllint`](https://forms.office.com/r/2xrZ7kXze2)
 
             > See also the [`mllint-example-projects`](https://github.com/bvobart/mllint-example-projects) repository to explore the reports of an example project using `mllint` to measure and improve its project quality over several iterations.
             >
