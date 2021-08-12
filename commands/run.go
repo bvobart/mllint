@@ -155,6 +155,10 @@ func createRunnerProgress() mllint.RunnerProgress {
 func scheduleLinters(runner mllint.Runner, project api.Project, linters map[api.Category]api.Linter) []*mllint.RunnerTask {
 	tasks := make([]*mllint.RunnerTask, 0, len(linters))
 	for cat, linter := range linters {
+		if len(linter.Rules()) == 0 {
+			continue
+		}
+
 		// use cat.Slug as ID so we can retrieve the category from categories.BySlug later, see collectReports(..)
 		task := runner.RunLinter(cat.Slug, linter, project)
 		tasks = append(tasks, task)
