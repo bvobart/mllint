@@ -3,6 +3,7 @@ package cqlinters
 import (
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/bvobart/mllint/api"
 	"github.com/bvobart/mllint/utils"
@@ -44,8 +45,14 @@ func (p Bandit) Run(project api.Project) ([]api.CQLinterResult, error) {
 
 	// We need to explicitly ignore the project's venv and .venv folders since Bandit doesn't do that by default
 	// These folders also have to be referenced using their full path, see https://github.com/PyCQA/bandit/issues/488
-	excludeDirs := path.Join(project.Dir, ".venv") + "," + path.Join(project.Dir, "venv")
-	output, err := exec.CommandOutput(project.Dir, "bandit", "-f", "yaml", "-x", excludeDirs, "-r", project.Dir)
+	// Folders to be ignored taken from official Python Gitignore: https://github.com/github/gitignore/blob/991e760c1c6d50fdda246e0178b9c58b06770b90/Python.gitignore#L107
+	excludeDirs := []string{".env", ".venv", "env", "venv", "ENV", "env.bak", "venv.bak"}
+	for i, relativeDir := range excludeDirs {
+		excludeDirs[i] = path.Join(project.Dir, relativeDir)
+	}
+	excludeArgs := strings.Join(excludeDirs, ",")
+
+	output, err := exec.CommandOutput(project.Dir, "bandit", "-f", "yaml", "-x", excludeArgs, "-r", project.Dir)
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}

@@ -43,7 +43,10 @@ func (p Mypy) Run(project api.Project) ([]api.CQLinterResult, error) {
 		return []api.CQLinterResult{}, nil
 	}
 
-	output, _ := exec.CommandOutput(project.Dir, "mypy", project.Dir, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers")
+	// Enforce explicit ignoring of virtualenv folders.
+	// Folders to be ignored taken from official Python Gitignore: https://github.com/github/gitignore/blob/991e760c1c6d50fdda246e0178b9c58b06770b90/Python.gitignore#L107
+	excludeArg := `/(\.env|\.venv|env|venv|ENV|env\.bak|venv\.bak)/`
+	output, _ := exec.CommandOutput(project.Dir, "mypy", project.Dir, "--exclude", excludeArg, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers")
 	return decodeMypyOutput(output)
 }
 

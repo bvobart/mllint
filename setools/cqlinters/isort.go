@@ -54,7 +54,16 @@ func (p ISort) Run(project api.Project) ([]api.CQLinterResult, error) {
 		return []api.CQLinterResult{}, nil
 	}
 
-	output, err := exec.CommandCombinedOutput(project.Dir, "isort", "-c", project.Dir)
+	// Enforce explicit ignoring of virtualenv folders.
+	// Folders to be ignored taken from official Python Gitignore: https://github.com/github/gitignore/blob/991e760c1c6d50fdda246e0178b9c58b06770b90/Python.gitignore#L107
+	excludeDirs := []string{".env", ".venv", "env", "venv", "ENV", "env.bak", "venv.bak"}
+	excludeArgs := make([]string, 0, len(excludeDirs)*2)
+	for _, excludeDir := range excludeDirs {
+		excludeArgs = append(excludeArgs, "--extend-skip", excludeDir)
+	}
+
+	args := append([]string{"-c", project.Dir}, excludeArgs...)
+	output, err := exec.CommandCombinedOutput(project.Dir, "isort", args...)
 	if err == nil {
 		return []api.CQLinterResult{}, nil
 	}

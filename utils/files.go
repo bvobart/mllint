@@ -89,7 +89,7 @@ func FindIPynbFilesIn(dir string) (Filenames, error) {
 // a certain file extension. File extension must start with a '.', e.g. ".py" or ".ipynb"
 // Returns filepaths relative to the given directory.
 // Ignores hidden folders (folders whose names start with a '.'), but not hidden files.
-// Also explicitly ignores `venv` folders
+// Also explicitly ignores `venv`, `env`. `venv.bak` and `env.bak` folders
 func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 	files := Filenames{}
 	err := filepath.Walk(dir, func(path string, file os.FileInfo, err error) error {
@@ -101,7 +101,8 @@ func FindFilesByExtInDir(dir string, extension string) (Filenames, error) {
 			return filepath.SkipDir
 		}
 
-		if file.IsDir() && file.Name() == "venv" {
+		// ignore virtualenv directories from official Python Gitignore: https://github.com/github/gitignore/blob/991e760c1c6d50fdda246e0178b9c58b06770b90/Python.gitignore#L107
+		if file.IsDir() && (file.Name() == "venv" || file.Name() == "env" || file.Name() == "ENV" || file.Name() == "env.bak" || file.Name() == "venv.bak") {
 			return filepath.SkipDir
 		}
 
