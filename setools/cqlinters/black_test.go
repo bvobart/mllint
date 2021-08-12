@@ -63,7 +63,7 @@ func TestBlackRun(t *testing.T) {
 		}
 
 		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("black").CommandArgs("--check", "--extend-exclude", ".venv", project.Dir).
+			CommandName("black").CommandArgs("--check", "--extend-exclude", "/(\\.env|\\.venv|env|venv|ENV|env\\.bak|venv\\.bak)/", project.Dir).
 			ToOutput([]byte(testBlackOutput), errors.New("black always exits with an error when there are messages"))
 
 		results, err := l.Run(project)
@@ -81,7 +81,7 @@ func TestBlackRun(t *testing.T) {
 		}
 
 		exec.CommandCombinedOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("black").CommandArgs("--check", "--extend-exclude", ".venv", project.Dir).
+			CommandName("black").CommandArgs("--check", "--extend-exclude", "/(\\.env|\\.venv|env|venv|ENV|env\\.bak|venv\\.bak)/", project.Dir).
 			ToOutput([]byte(testBlackSuccessOutput), nil)
 
 		results, err := l.Run(project)

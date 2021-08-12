@@ -59,7 +59,7 @@ func TestMypyRun(t *testing.T) {
 		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "mypy", name)
-			require.Equal(t, []string{project.Dir, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
+			require.Equal(t, []string{project.Dir, "--exclude", "/(\\.env|\\.venv|env|venv|ENV|env\\.bak|venv\\.bak)/", "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
 			return []byte(testMypyOutput), errors.New("mypy always exits with an error when there are messages")
 		}
 
@@ -80,7 +80,7 @@ func TestMypyRun(t *testing.T) {
 		exec.CommandOutput = func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "mypy", name)
-			require.Equal(t, []string{project.Dir, "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
+			require.Equal(t, []string{project.Dir, "--exclude", "/(\\.env|\\.venv|env|venv|ENV|env\\.bak|venv\\.bak)/", "--strict", "--no-pretty", "--no-error-summary", "--no-color-output", "--hide-error-context", "--show-error-codes", "--show-column-numbers"}, args)
 			return []byte(testMypySuccessOutput), nil
 		}
 

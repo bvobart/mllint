@@ -45,7 +45,7 @@ func TestBanditRun(t *testing.T) {
 		}
 
 		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".venv,venv", "-r", project.Dir).
+			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".env,.venv,env,venv,ENV,env.bak,venv.bak", "-r", project.Dir).
 			ToOutput([]byte(testBanditOutput), errors.New("bandit always exits with an error when there are messages"))
 
 		results, err := l.Run(project)
@@ -64,7 +64,7 @@ func TestBanditRun(t *testing.T) {
 		}
 
 		exec.CommandOutput = mockexec.ExpectCommand(t).Dir(project.Dir).
-			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".venv,venv", "-r", project.Dir).
+			CommandName("bandit").CommandArgs("-f", "yaml", "-x", ".env,.venv,env,venv,ENV,env.bak,venv.bak", "-r", project.Dir).
 			ToOutput([]byte(testBanditErrorOutput), errors.New("bandit always exits with an error when there are messages"))
 
 		results, err := l.Run(project)

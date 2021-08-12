@@ -60,7 +60,7 @@ func TestISortRun(t *testing.T) {
 		return func(dir, name string, args ...string) ([]byte, error) {
 			require.Equal(t, project.Dir, dir)
 			require.Equal(t, "isort", name)
-			require.Equal(t, []string{"-c", project.Dir}, args)
+			require.Equal(t, []string{"-c", project.Dir, "--extend-skip", ".env", "--extend-skip", ".venv", "--extend-skip", "env", "--extend-skip", "venv", "--extend-skip", "ENV", "--extend-skip", "env.bak", "--extend-skip", "venv.bak"}, args)
 			return []byte(output), err
 		}
 	}
