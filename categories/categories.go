@@ -168,7 +168,12 @@ var Deployment = api.Category{
 	Slug: "deployment",
 	Description: `This category evaluates your project's ability to be deployed in the real world.
 
-It is not yet implemented, but may contain rules about Dockerfiles and configurability, among others.`,
+It is not yet implemented, but may contain rules about Dockerfiles and configurability, among others.
+
+Recommendations:
+- [SeldonCore](https://github.com/SeldonIO/seldon-core) - An open source platform to deploy your machine learning models on Kubernetes at massive scale.
+  Seldon handles scaling to thousands of production machine learning models and provides advanced machine learning capabilities out of the box including
+	Advanced Metrics, Request Logging, Explainers, Outlier Detectors, A/B Tests, Canaries and more.`,
 }
 
 var Custom = api.Category{
