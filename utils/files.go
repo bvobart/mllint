@@ -15,7 +15,7 @@ import (
 // FileExists checks if a file exists and is not a directory
 func FileExists(filename string) bool {
 	info, err := os.Stat(filename)
-	return !os.IsNotExist(err) && !info.IsDir()
+	return !os.IsNotExist(err) && info != nil && !info.IsDir()
 }
 
 // FolderExists checks if a folder exists
