@@ -57,13 +57,9 @@ function demo {
   enter poetry run mllint -o report.md
   sleep 1.5
 
-  # TODO: release mllint render
   enter poetry run mllint render report.md
   sleep 3
 
-  # TODO: deal with the fact that it only shows the last part of the report, instead of the entire report
-  # TODO: perhaps we can just mllint render report.md | head -n X  to show only the first X lines, then another one of those to show the rest of the lines.
-  
   # this final echo is there so that the SVG will respect the previous `sleep`
   echo
 }

@@ -1,229 +1,140 @@
 # ML Project Report
-Project | Details
+**Project** | **Details**
 --------|--------
-Path    | `/home/bart/tudelft/thesis/mllint-test-project`
+Date    | Thu, 12 Aug 2021 16:00:23 +0200 
+Path    | `/home/bart/tudelft/thesis/mllint-example-projects`
 Config  | `pyproject.toml`
-Date    | Fri, 14 May 2021 13:52:37 +0200 
-Number of Python files | 5
-Lines of Python code | 204
+Default | No
+Git: Remote URL | `git@github.com:bvobart/mllint-example-projects.git`
+Git: Commit     | `3d559e7bb94d0a55714c67c77007a0b2eb124bb2`
+Git: Branch     | `1-10-basic-tests`
+Git: Dirty Workspace?  | Yes
+Number of Python files | 7
+Lines of Python code   | 197
 
 ---
 
 ## Reports
 
-### Version Control (`version-control`)
+### Version Control (`version-control`) — **100.0**%
 
 Passed | Score | Weight | Rule | Slug
 :-----:|------:|-------:|------|-----
-✅ | 100.0% | 1 | Code: Project uses Git | `version-control/code/git`
-✅ | 100.0% | 1 | Code: Project should not use Git to track large files | `version-control/code/git-no-big-files`
-✅ | 100.0% | 1 | Data: Project uses Data Version Control (DVC) | `version-control/data/dvc`
-✅ | 100.0% | 1 | Data: DVC is installed | `version-control/data/dvc-is-installed`
-✅ | 100.0% | 1 | Data: Folder '.dvc' should be committed to Git | `version-control/data/commit-dvc-folder`
-✅ | 100.0% | 1 | Data: DVC should have at least one remote data storage configured | `version-control/data/dvc-has-remote`
-✅ | 100.0% | 1 | Data: DVC should be tracking at least one data file | `version-control/data/dvc-has-files`
-✅ | 100.0% | 1 | Data: File 'dvc.lock' should be committed to Git | `version-control/data/commit-dvc-lock`
+✅ | 100.0% | 1 | Project uses Git | `version-control/code/git`
+✅ | 100.0% | 1 | Project should not have any large files in its Git history | `version-control/code/git-no-big-files`
+✅ | 100.0% | 1 | DVC: Project uses Data Version Control | `version-control/data/dvc`
+✅ | 100.0% | 1 | DVC: Is installed | `version-control/data/dvc-is-installed`
+✅ | 100.0% | 1 | DVC: Folder '.dvc' should be committed to Git | `version-control/data/commit-dvc-folder`
+✅ | 100.0% | 1 | DVC: Should have at least one remote data storage configured | `version-control/data/dvc-has-remote`
+✅ | 100.0% | 1 | DVC: Should be tracking at least one data file | `version-control/data/dvc-has-files`
+ | _Total_ | | | 
+✅ | **100.0**% | | Version Control | `version-control`
 
-### Dependency Management (`dependency-management`)
+### Dependency Management (`dependency-management`) — **100.0**%
 
 Passed | Score | Weight | Rule | Slug
 :-----:|------:|-------:|------|-----
 ✅ | 100.0% | 1 | Project properly keeps track of its dependencies | `dependency-management/use`
 ✅ | 100.0% | 1 | Project should only use one dependency manager | `dependency-management/single`
+✅ | 100.0% | 1 | Project places its development dependencies in dev-dependencies | `dependency-management/use-dev`
+ | _Total_ | | | 
+✅ | **100.0**% | | Dependency Management | `dependency-management`
 
-### Code Quality (`code-quality`)
+### Code Quality (`code-quality`) — **74.4**%
 
 Passed | Score | Weight | Rule | Slug
 :-----:|------:|-------:|------|-----
-❌ | 40.0% | 1 | Project should use code quality linters | `code-quality/use-linters`
+✅ | 100.0% | 1 | Project should use code quality linters | `code-quality/use-linters`
 ✅ | 100.0% | 1 | All code quality linters should be installed in the current environment | `code-quality/linters-installed`
-❌ | 2.0% | 1 | Pylint reports no issues with this project | `code-quality/pylint/no-issues`
-❌ | 0.0% | 1 | Pylint is configured for this project | `code-quality/pylint/is-configured`
-❌ | 11.8% | 1 | Mypy reports no issues with this project | `code-quality/mypy/no-issues`
+❌ | 94.9% | 1 | Pylint reports no issues with this project | `code-quality/pylint/no-issues`
+✅ | 100.0% | 1 | Pylint is configured for this project | `code-quality/pylint/is-configured`
+✅ | 100.0% | 1 | Mypy reports no issues with this project | `code-quality/mypy/no-issues`
 ❌ | 0.0% | 1 | Black reports no issues with this project | `code-quality/black/no-issues`
-❌ | 0.0% | 1 | isort reports no issues with this project | `code-quality/isort/no-issues`
-❌ | 0.0% | 0 | isort is properly configured | `code-quality/isort/is-configured`
+✅ | 100.0% | 1 | isort reports no issues with this project | `code-quality/isort/no-issues`
+✅ | 100.0% | 0 | isort is properly configured | `code-quality/isort/is-configured`
 ❌ | 0.0% | 1 | Bandit reports no issues with this project | `code-quality/bandit/no-issues`
+ | _Total_ | | | 
+❌ | **74.4**% | | Code Quality | `code-quality`
 
-#### Details — Project should use code quality linters — ❌
+#### Details — Project should use code quality linters — ✅
 
-Linters detected:
+Hooray, all linters detected:
 
-- Black
 - Pylint
-
-
-However, these linters were **missing** from your project:
-
 - Mypy
+- Black
 - isort
 - Bandit
 
 
-We recommend that you start using these linters in your project to help you measure and maintain the quality of your code.
-
-This rule will be satisfied, iff for each of these linters:
-- **Either** there is a configuration file for this linter in the project
-- **Or** the linter is a dependency of the project
-
-Specifically, we recommend adding each linter to the development dependencies of your dependency manager,
-e.g. using `poetry add --dev mypy` or `pipenv install --dev mypy`
-
-
 #### Details — Pylint reports no issues with this project — ❌
 
-Pylint reported **20** issues with your project:
+Pylint reported **1** issues with your project:
 
-- `src/evaluate.py:1,0` - _(C0114)_ Missing module docstring
-- `src/featurization.py:1,0` - _(C0114)_ Missing module docstring
-- `src/featurization.py:32,0` - _(C0116)_ Missing function or method docstring
-- `src/featurization.py:33,4` - _(C0103)_ Variable name "df" doesn't conform to snake_case naming style
-- `src/featurization.py:44,0` - _(C0103)_ Argument name "df" doesn't conform to snake_case naming style
-- `src/featurization.py:44,0` - _(C0116)_ Missing function or method docstring
-- `src/featurization.py:53,31` - _(C0103)_ Variable name "fd" doesn't conform to snake_case naming style
-- `src/featurization.py:55,4` - _(W0107)_ Unnecessary pass statement
-- `src/featurization.py:5,0` - _(C0411)_ standard import "import pickle" should be placed before "import pandas as pd"
-- `src/prepare.py:1,0` - _(C0114)_ Missing module docstring
-- `src/prepare.py:20,0` - _(W0622)_ Redefining built-in 'input'
-- `src/prepare.py:25,0` - _(C0116)_ Missing function or method docstring
-- `src/prepare.py:25,18` - _(W0621)_ Redefining name 'fd_in' from outer scope (line 47)
-- `src/prepare.py:25,25` - _(W0621)_ Redefining name 'fd_out_train' from outer scope (line 48)
-- `src/prepare.py:25,39` - _(W0621)_ Redefining name 'fd_out_test' from outer scope (line 49)
-- `src/prepare.py:41,15` - _(W0703)_ Catching too general exception Exception
-- `src/train.py:1,0` - _(C0114)_ Missing module docstring
-- `src/train.py:15,0` - _(W0622)_ Redefining built-in 'input'
-- `src/train_old.py:19,0` - _(W0622)_ Redefining built-in 'input'
-- `src/train_old.py:1,0` - _(R0801)_ Similar lines in 2 files
-	```python
-	==train:0
-	==train_old:4
-	import sys
-	import os
-	import pickle
-	import numpy as np
-	import yaml
-	from sklearn.ensemble import RandomForestClassifier
-	
-	params = yaml.safe_load(open('params.yaml'))['train']
-	
-	if len(sys.argv) != 3:
-	    sys.stderr.write('Arguments error. Usage:\n')
-	    sys.stderr.write('\tpython train.py features model\n')
-	    sys.exit(1)
-	
-	input = sys.argv[1]
-	output = sys.argv[2]
-	seed = params['seed']
-	n_est = params['n_est']
-	min_split = params['min_split']
-	
-	with open(os.path.join(input, 'train.pkl'), 'rb') as fd:
-	    matrix = pickle.load(fd)
-	
-	labels = np.squeeze(matrix[:, 1].toarray())
-	x = matrix[:, 2:]
-	
-	sys.stderr.write('Input matrix size {}\n'.format(matrix.shape))
-	sys.stderr.write('X matrix size {}\n'.format(x.shape))
-	sys.stderr.write('Y matrix size {}\n'.format(labels.shape))
-	
-	clf = RandomForestClassifier(
-	    n_estimators=n_est,
-	    min_samples_split=min_split,
-	    n_jobs=2,
-	    random_state=seed
-	)
-	
-	clf.fit(x, labels)
-	
-	with open(output, 'wb') as fd:
-	    pickle.dump(clf, fd)
-	```
+- `tests/featurization_test.py:5,1` - _(W0511)_ TODO: implement tests for this module.
 
 
-#### Details — Mypy reports no issues with this project — ❌
+#### Details — Mypy reports no issues with this project — ✅
 
-Mypy reported **18** issues with your project:
-
-- `src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn.metrics'
-- `src/evaluate.py:6` - Note: See https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
-- `src/evaluate.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn'
-- `src/evaluate.py:37` - Error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
-- `src/evaluate.py:38` - Error: Argument 2 to "dump" has incompatible type "BinaryIO"; expected "IO[str]"
-- `src/evaluate.py:40` - Error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
-- `src/evaluate.py:46` - Error: Argument 2 to "dump" has incompatible type "BinaryIO"; expected "IO[str]"
-- `src/evaluate.py:48` - Error: Incompatible types in assignment (expression has type "TextIO", variable has type "BinaryIO")
-- `src/evaluate.py:54` - Error: Argument 2 to "dump" has incompatible type "BinaryIO"; expected "IO[str]"
-- `src/train_old.py:8` - Error: Skipping analyzing 'numpy': found module but no type hints or library stubs
-- `src/train_old.py:10` - Error: Cannot find implementation or library stub for module named 'sklearn.ensemble'
-- `src/train.py:4` - Error: Skipping analyzing 'numpy': found module but no type hints or library stubs
-- `src/train.py:6` - Error: Cannot find implementation or library stub for module named 'sklearn.ensemble'
-- `src/featurization.py:3` - Error: Cannot find implementation or library stub for module named 'pandas'
-- `src/featurization.py:4` - Error: Skipping analyzing 'numpy': found module but no type hints or library stubs
-- `src/featurization.py:6` - Error: Cannot find implementation or library stub for module named 'scipy.sparse'
-- `src/featurization.py:6` - Error: Cannot find implementation or library stub for module named 'scipy'
-- `src/featurization.py:9` - Error: Cannot find implementation or library stub for module named 'sklearn.feature_extraction.text'
-
+Congratulations, Mypy is happy with your project!
 
 #### Details — Black reports no issues with this project — ❌
 
-Black reported **5** files in your project that it would reformat:
+Black reported **2** files in your project that it would reformat:
 
-- `src/evaluate.py`
-- `src/train_old.py`
-- `src/train.py`
-- `src/prepare.py`
-- `src/featurization.py`
+- `tests/prepare_test.py`
+- `src/mlbasic/prepare.py`
 
 Black can fix these issues automatically when you run `black .` in your project.
 
-#### Details — isort reports no issues with this project — ❌
+#### Details — isort reports no issues with this project — ✅
 
-isort reported **5** files in your project that it would fix:
-
-- `src/evaluate.py` - Imports are incorrectly sorted and/or formatted.
-- `src/train.py` - Imports are incorrectly sorted and/or formatted.
-- `src/train_old.py` - Imports are incorrectly sorted and/or formatted.
-- `src/prepare.py` - Imports are incorrectly sorted and/or formatted.
-- `src/featurization.py` - Imports are incorrectly sorted and/or formatted.
-
-isort can fix these issues automatically when you run `isort .` in your project.
-
-#### Details — isort is properly configured — ❌
-
-isort is not properly configured.
-In order to be compatible with [Black](https://github.com/psf/black), which mllint also recommends using,
-you should configure `isort` to use the `black` profile.
-Furthermore, we recommend centralising your configuration in your `pyproject.toml`
-
-Thus, ensure that your `pyproject.toml` contains at least the following section:
-
-```toml
-[tool.isort]
-profile = "black"
-```
-
+Congratulations, `isort` is happy with your project!
 
 #### Details — Bandit reports no issues with this project — ❌
 
-Bandit reported **11** issues with your project:
+Bandit reported **8** issues with your project:
 
-- `src/evaluate.py:3` - _(B403, severity: LOW, confidence: HIGH)_ - Consider possible security implications associated with pickle module. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b403-import-pickle)
-- `src/evaluate.py:20` - _(B301, severity: MEDIUM, confidence: HIGH)_ - Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b301-pickle)
-- `src/evaluate.py:23` - _(B301, severity: MEDIUM, confidence: HIGH)_ - Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b301-pickle)
-- `src/featurization.py:5` - _(B403, severity: LOW, confidence: HIGH)_ - Consider possible security implications associated with pickle module. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b403-import-pickle)
-- `src/prepare.py:3` - _(B405, severity: LOW, confidence: HIGH)_ - Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b405-import-xml-etree)
-- `src/prepare.py:29` - _(B311, severity: LOW, confidence: HIGH)_ - Standard pseudo-random generators are not suitable for security/cryptographic purposes. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b311-random)
-- `src/prepare.py:30` - _(B314, severity: MEDIUM, confidence: HIGH)_ - Using xml.etree.ElementTree.fromstring to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.fromstring with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree)
-- `src/train.py:3` - _(B403, severity: LOW, confidence: HIGH)_ - Consider possible security implications associated with pickle module. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b403-import-pickle)
-- `src/train.py:22` - _(B301, severity: MEDIUM, confidence: HIGH)_ - Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b301-pickle)
-- `src/train_old.py:7` - _(B403, severity: LOW, confidence: HIGH)_ - Consider possible security implications associated with pickle module. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b403-import-pickle)
-- `src/train_old.py:26` - _(B301, severity: MEDIUM, confidence: HIGH)_ - Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. [More Info](https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b301-pickle)
+- `tests/prepare_test.py:11` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:12` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:13` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:14` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:15` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:16` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:17` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
+- `tests/prepare_test.py:28` - _(B101, severity: LOW, confidence: HIGH)_ - Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. [More Info](https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html)
 
 
-### Continuous Integration (`ci`)
+### Testing (`testing`) — **79.2**%
 
 Passed | Score | Weight | Rule | Slug
 :-----:|------:|-------:|------|-----
-❌ | 25.0% | 1 | Project uses Continuous Integration (CI) | `ci/use`
+✅ | 100.0% | 1 | Project has automated tests | `testing/has-tests`
+✅ | 100.0% | 1 | Project passes all of its automated tests | `testing/pass`
+❌ | 17.0% | 1 | Project provides a test coverage report | `testing/coverage`
+✅ | 100.0% | 1 | Tests should be placed in the tests folder | `testing/tests-folder`
+ | _Total_ | | | 
+❌ | **79.2**% | | Testing | `testing`
+
+#### Details — Project has automated tests — ✅
+
+Great! Your project contains **2** test files, which meets the minimum of **1** test files required.
+
+This equates to **28.571429%** of Python files in your project being tests, which meets the target ratio of **20%**
+
+#### Details — Project passes all of its automated tests — ✅
+
+Congratulations, all **2** tests in your project passed!
+
+#### Details — Project provides a test coverage report — ❌
+
+Your project's tests achieved **13.6%** line test coverage, but **80.0%** is the target amount of test coverage to beat. You'll need to further improve your tests.
+
+### Continuous Integration (`ci`) — **100.0**%
+
+Passed | Score | Weight | Rule | Slug
+:-----:|------:|-------:|------|-----
+✅ | 100.0% | 1 | Project uses Continuous Integration (CI) | `ci/use`
+ | _Total_ | | | 
+✅ | **100.0**% | | Continuous Integration | `ci`
 

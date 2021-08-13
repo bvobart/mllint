@@ -30,7 +30,7 @@
 
 <p align="center"><img src="./docs/gh-pages/static/example-run.svg"></p>
 
-> See [`docs/example-report.md`](docs/example-report.md) to view the report generated for this example project.
+> See [`docs/example-report.md`](docs/example-report.md) for the full report generated for this example project.
 >
 > See also the [`mllint-example-projects`](https://github.com/bvobart/mllint-example-projects) repository to explore the reports of an example project using `mllint` to measure and improve its project quality over several iterations.
 >
