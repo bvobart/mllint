@@ -12,10 +12,10 @@ builds:
       - windows
       - darwin
     ldflags:
-     - -s -w -X github.com/bvobart/mllint/commands.version={{.Version}} -X github.com/bvobart/mllint/commands.commit={{.Commit}} -X github.com/bvobart/mllint/commands.date={{.CommitDate}}
-    mod_timestamp: '{{ .CommitTimestamp }}'
+      - -s -w -X github.com/bvobart/mllint/commands.version={{.Version}} -X github.com/bvobart/mllint/commands.commit={{.Commit}} -X github.com/bvobart/mllint/commands.date={{.CommitDate}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
 
-# Build Docker containers of `mllint` for Python versions [3.6, 3.7, 3.8, 3.9]
+# Build Docker containers of `mllint` for Python versions [3.6, 3.7, 3.8, 3.9, 3.10]
 dockers:
   - image_templates:
       - bvobart/mllint:latest-py3.6
@@ -45,8 +45,6 @@ dockers:
     use: buildx
 
   - image_templates:
-      - bvobart/mllint:latest
-      - bvobart/mllint:{{.Version}}
       - bvobart/mllint:latest-py3.9
       - bvobart/mllint:{{.Version}}-py3.9
     build_flag_templates:
@@ -55,14 +53,25 @@ dockers:
       - build/requirements-tools.txt
     use: buildx
 
+  - image_templates:
+      - bvobart/mllint:latest
+      - bvobart/mllint:{{.Version}}
+      - bvobart/mllint:latest-py3.10
+      - bvobart/mllint:{{.Version}}-py3.10
+    build_flag_templates:
+      - --build-arg=python_version=3.10
+    extra_files:
+      - build/requirements-tools.txt
+    use: buildx
+
 archives:
   - format: tar.gz
     format_overrides:
-    - goos: windows
-      format: zip
+      - goos: windows
+        format: zip
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 changelog:
   filters:
