@@ -18,15 +18,6 @@ builds:
 # Build Docker containers of `mllint` for Python versions [3.6, 3.7, 3.8, 3.9, 3.10]
 dockers:
   - image_templates:
-      - bvobart/mllint:latest-py3.6
-      - bvobart/mllint:{{.Version}}-py3.6
-    build_flag_templates:
-      - --build-arg=python_version=3.6
-    extra_files:
-      - build/requirements-tools.txt
-    use: buildx
-
-  - image_templates:
       - bvobart/mllint:latest-py3.7
       - bvobart/mllint:{{.Version}}-py3.7
     build_flag_templates:

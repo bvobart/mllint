@@ -1,4 +1,4 @@
-ARG python_version=3.9
+ARG python_version=3.10
 FROM python:${python_version}-alpine
 WORKDIR /mllint
 
