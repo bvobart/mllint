@@ -44,7 +44,7 @@ func (p Poetry) HasDependency(dependency string) bool {
 }
 
 func (p Poetry) HasDevDependency(dependency string) bool {
-	return p.Config != nil && p.Config.Dependencies != nil && p.Config.DevDependencies.Has(dependency)
+	return p.Config != nil && p.Config.DevDependencies != nil && p.Config.DevDependencies.Has(dependency)
 }
 
 func (p Poetry) Dependencies() []string {
