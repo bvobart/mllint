@@ -16,7 +16,19 @@
   <a href="https://pypi.org/project/mllint/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mllint"></a>
 </p>
 
-> **Attention!** We are looking for feedback on the efficacy of `mllint` and it's concepts. This is extremely important for my MSc thesis. Care to help? Please fill in the following survey, it should only take 15 mins: https://forms.office.com/r/pXtfUKWUDA
+> ## Attention! This tool is no longer maintained <br/>
+> As detailed below, I wrote `mllint` during my MSc thesis in Computer Science between February and October of 2021. I have since graduated and am now no longer developing or actively maintaining this package.
+> 
+> `mllint` does still work, so feel free to use it! If you find any bugs, feel free to create an issue, I still receive notifications of new issues and there's a good chance that I'll look at them in my free time, but I won't guarantee a timely response or a fix for your issue.
+>
+> For those interested in the research output produced in my MSc thesis:
+> - Full MSc Thesis: http://resolver.tudelft.nl/uuid:b20883f8-a921-487a-8a65-89374a1f3867
+> - [The Prevalence of Code Smells in Machine Learning projects](https://arxiv.org/abs/2103.04146) <br />
+>   Bart van Oort, Luís Cruz, Maurício Aniche, Arie van Deursen <br />
+>   published at WAIN 2021 (1st Workshop on AI Engineering - Software Engineering for AI, co-located with ICSE)
+> - ["Project smells" -- Experiences in Analysing the Software Quality of ML Projects with mllint](https://arxiv.org/abs/2201.08246) <br />
+>   Bart van Oort, Luís Cruz, Babak Loni, Arie van Deursen <br />
+>   published at ICSE SEIP 2022
 
 `mllint` is a command-line utility to evaluate the technical quality of Machine Learning (ML) and Artificial Intelligence (AI) projects written in Python by analysing the project's source code, data and configuration of supporting tools. `mllint` aims to ...
 
@@ -26,7 +38,7 @@
 
 `mllint` does this by measuring the project's adherence to ML best practices, as collected and deduced from [SE4ML](https://se-ml.github.io/) and Google's [Rules for ML](https://developers.google.com/machine-learning/guides/rules-of-ml). Note that these best practices are rather high-level, while `mllint` aims to give practical, down-to-earth advice to its users. `mllint` may therefore be somewhat opinionated, as it tries to advocate specific tools to best fit these best practices. However, `mllint` aims to only recommend open-source tooling and publically verifiable practices. Feedback is of course always welcome!
 
-`mllint` is created during my MSc thesis in Computer Science at the Software Engineering Research Group ([SERG](https://se.ewi.tudelft.nl/)) at [TU Delft](https://tudelft.nl/) and [ING](https://www.ing.com/)'s [AI for FinTech Research Lab](https://se.ewi.tudelft.nl/ai4fintech/) on the topic of _Code Quality and Software Engineering for Machine Learning projects_
+`mllint` was created during my MSc thesis in Computer Science at the Software Engineering Research Group ([SERG](https://se.ewi.tudelft.nl/)) at [TU Delft](https://tudelft.nl/) and [ING](https://www.ing.com/)'s [AI for FinTech Research Lab](https://se.ewi.tudelft.nl/ai4fintech/) on the topic of [**Code Smells & Software Quality in Machine Learning projects**](http://resolver.tudelft.nl/uuid:b20883f8-a921-487a-8a65-89374a1f3867).
 
 <p align="center"><img src="./docs/gh-pages/static/example-run.svg"></p>
 

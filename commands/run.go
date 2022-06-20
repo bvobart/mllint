@@ -135,7 +135,6 @@ func (rc *runCommand) RunLint(cmd *cobra.Command, args []string) error {
 		printFailed(rulesFailed)
 	}
 
-	printSurveyMessage()
 	return nil
 }
 
@@ -221,17 +220,4 @@ func printFailed(rulesFailed int) {
 
 func printSkipped(rulesDisabled int) {
 	shush(func() { color.Red("⏭️ rules skipped: \t%s", color.HiWhiteString("%d", rulesDisabled)) })
-}
-
-// BvOBart: As much as I hate programs asking me to fill in a survey for me, it's a necessity for being able to evaluate mllint for my thesis.
-func printSurveyMessage() {
-	yellow := color.New(color.FgYellow)
-	code := color.New(color.FgHiWhite, color.Italic)
-	shush(func() {
-		fmt.Println("---")
-		yellow.Print("Thank you for using ", code.Sprint("mllint"), yellow.Sprintln(", I'm very interested to know how your experiences have been! 😊"))
-		yellow.Print("It would be of great help to me, ", code.Sprint("mllint"), yellow.Sprint(" and, in particular, my ", code.Sprint("MSc thesis"), yellow.Sprintln(" if you are able to spend 15 minutes of your time filling in this feedback survey for me:")))
-		yellow.Add(color.Italic).Println("➡️   https://forms.office.com/r/pXtfUKWUDA")
-		fmt.Println()
-	})
 }
