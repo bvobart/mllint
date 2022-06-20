@@ -21,6 +21,11 @@ type PyProjectTOML struct {
 type PoetryConfig struct {
 	Dependencies    *toml.Tree `toml:"dependencies"`
 	DevDependencies *toml.Tree `toml:"dev-dependencies"`
+	Group           struct {
+		Dev struct {
+			Dependencies *toml.Tree `toml:"dependencies"`
+		} `toml:"dev"`
+	} `toml:"group"`
 }
 
 func ReadPyProjectTOML(dir string) (*PyProjectTOML, error) {
